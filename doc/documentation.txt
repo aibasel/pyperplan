@@ -1,10 +1,13 @@
 pyperplan
-
-7 February 2011, 1.0
+-
+-
 
 %!encoding: utf-8
-%!PostProc: ======== \\pagebreak
+%!postproc(tex): ======== \\pagebreak
 %!postproc(tex): '\(\((.*?)\)\)' ' \\footnote{\1}'
+%!postproc(tex): \\author{-}  \\author{}
+%!postproc(tex): \\date{-}  \\date{}
+%!postproc(tex): \\clearpage  ''
 
 % NOTE: To turn this document into a PDF file, run "make" in the doc directory.
 
@@ -132,7 +135,7 @@ You can also find a SAT planner in the search package. It uses the minisat
 SAT solver to find a plan for a given problem. Pyperplan encodes the problem
 in a boolean formula in conjunctive normal form before it invokes minisat. To
 use the SAT planner you have to make the "minisat" executable available on the
-system PATH (e.g. /usr/bin/). Afterwards you can run the planner
+system PATH (e.g. /usr/local/bin/). Afterwards you can run the planner
 with the ``--search sat`` option. Please note that the executable is sometimes
 called "minisat2" in distribution packages (e.g. in some versions of Ubuntu).
 If that is the case you will have to rename the binary to "minisat".
@@ -193,6 +196,7 @@ will be validated. To use this feature
 
 - Download VAL from http://planning.cis.strath.ac.uk/VAL/.
 - Execute ``make`` in the extracted archive.
-- Copy the executable ``validate`` to a directory on the path (e.g. /usr/bin/).
+- Copy the executable ``validate`` to a directory on the path
+  (e.g. /usr/local/bin/).
 - If any problems occur during compilation, please consult
   [VAL's homepage ""http://planning.cis.strath.ac.uk/VAL/#Compilation""].

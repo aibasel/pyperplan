@@ -52,7 +52,7 @@ For a list of available search algorithms and heuristics, run
 $ ./src/pyperplan.py --help
 
 For more information on using the planner and how to extend it to do more fancy
-stuff, see doc/documentation.pdf.
+stuff, see doc/documentation.txt.
 
 
 Contact
