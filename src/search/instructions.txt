@@ -1,0 +1,42 @@
+The search module
+
+1. Summary
+
+The search package contains a collection of search algorithms, like
+breadth first search or A*. The module searchspace contains a data
+structure SearchNode to create the search space, which stores
+information from the search and allows to extract the plan in a
+fast way.
+
+
+2. Using the SearchNode class
+
+file: searchspace.py
+The SearchNode class is easy to use, just create a root node for
+the initial state of the planning task -- use the function
+searchspace.make_root_node(...). When applying an operator to a
+state you get a new state. This applied operator and the new
+state are stored in a new node, use the function searchspace.make_child_node(...)
+with the current search node as parent.
+This builda a tree-like structure.
+In this way you can store the information from the search and, if
+you are in a goal state, you can read the plan in a nice way by calling
+extract_solution() on the goal node.    
+
+
+3. Implementing search algorithms
+
+There is no base class to implement a new search algorithm,
+because each algorithm needs other arguments. So most of the
+algorithms are just single functions implemented in its own file.
+The naming convention is to name the module according to the 
+algorithm and provide a function with a _search suffix that does
+the search. There should be no other side effects or things
+that need to be set up before doing the search.
+For convenient use, the *_search() function should be properly imported
+in the package's __init__.py.
+For logging you can use the logging component: just add "import logging"
+in your file and use the function logging.info(...).
+There are miscellaneous logging function, just read the fine documentation
+of the logging package.
+
