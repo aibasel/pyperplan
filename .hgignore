@@ -1,3 +1,4 @@
 ~$
 \.pyc$
 \.soln$
+^doc/documentation\.(aux|log|out|tex|toc|pdf)$
