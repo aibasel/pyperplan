@@ -101,7 +101,7 @@ that can be applied to the current state and that has specific results.
 This is the crucial step before doing a search on the task. The ``Task`` class
 provides a function that helps building a search space: ``get_successor_states``
 returns a list of all the possible states that can be reached using only valid
-operators. This creates a tree-like structure that, at some nodes, contian the
+operators. This creates a tree-like structure that, at some nodes, contain the
 goal state. The actual planning then consists in finding the shortest way to
 the goal state.
 

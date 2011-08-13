@@ -189,9 +189,9 @@ if __name__ == '__main__':
     # get pretty print names for the search algorithms and heuristics:
     # use the function/class name and strip off '_search' or 'Heuristic'
     def get_callable_names(callables, omit_string):
-        names = map(attrgetter('__name__'), callables)
-        names = map(lambda name: name.replace(omit_string, ''), names)
-        return list(names)
+        names = [c.__name__ for c in callables]
+        names = [n.replace(omit_string, '').replace('_', ' ') for n in names]
+        return ', '.join(names)
     search_names = get_callable_names(SEARCHES.values(), '_search')
     heuristic_names = get_callable_names(HEURISTICS.values(), 'Heuristic')
 
