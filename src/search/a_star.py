@@ -148,8 +148,8 @@ def astar_search(task, heuristic, make_open_entry=ordered_node_astar,
             expansions += 1
 
             if task.goal_reached(pop_state):
-                logging.debug("Goal reached. Start extraction of solution.")
-                logging.debug("%d Nodes expanded" % expansions)
+                logging.info("Goal reached. Start extraction of solution.")
+                logging.info("%d Nodes expanded" % expansions)
                 return pop_node.extract_solution()
             rplan = None
             if use_relaxed_plan:
