@@ -73,12 +73,12 @@ class CnfWriter():
 
         while formula:
             disj = formula.pop(0)
-            if not type(disj) is list:
+            if not isinstance(disj, list):
                 self._print_clause([disj])
                 continue
             new_clause = []
             for conj in disj:
-                if not type(conj) is list:
+                if not isinstance(conj, list):
                     new_clause.append(conj)
                     continue
                 # Add auxiliary vars for iffs
