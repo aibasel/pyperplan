@@ -95,7 +95,8 @@ class IterativeDeepeningSearchAlgorithm:
 
     def print_search_results(self, depth, planlength):
         logging.info("iterative_deepening_search: depth=%d planlength=%d "
-                     "#expanded=%d" % (depth, planlength, self.explorednodes))
+                     % (depth, planlength))
+        logging.info("%d Nodes expanded" % self.explorednodes)
 
     def deepening_search_step(self, task, state, depth, step, path):
         """

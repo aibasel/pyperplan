@@ -55,7 +55,7 @@ def enforced_hillclimbing_search(planning_task, heuristic,
         visited.add(node.state)
         # exploring the node or if it is a goal node extracting the plan
         if planning_task.goal_reached(node.state):
-            logging.debug("Goal reached. Start extraction of solution.")
+            logging.info("Goal reached. Start extraction of solution.")
             logging.info("%d Nodes expanded" % len(visited))
             return node.extract_solution()
 
@@ -99,4 +99,6 @@ def enforced_hillclimbing_search(planning_task, heuristic,
                     break
                 else:
                     queue.append(successor_node)
+    logging.info("No operators left. Task unsolvable.")
+    logging.info("%d Nodes expanded" % len(visited))
     return None

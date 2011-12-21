@@ -43,13 +43,14 @@ def breadth_first_search(planning_task):
     closed = {planning_task.initial_state}
     while queue:
         iteration += 1
-        logging.debug("breadth_first_search: Iteration %d, #unexplored=%d "
-                      "#expanded=%d" % (iteration, len(queue), len(closed)))
+        logging.debug("breadth_first_search: Iteration %d, #unexplored=%d"
+                      % (iteration, len(queue)))
         # get the next node to explore
         node = queue.popleft()
         # exploring the node or if it is a goal node extracting the plan
         if planning_task.goal_reached(node.state):
-            logging.debug("Goal reached. Start extraction of solution.")
+            logging.info("Goal reached. Start extraction of solution.")
+            logging.info("%d Nodes expanded" % iteration)
             return node.extract_solution()
         for operator, successor_state in planning_task.get_successor_states(
                                                                    node.state):
@@ -59,5 +60,6 @@ def breadth_first_search(planning_task):
                                                          successor_state))
                  # remember the successor state
                 closed.add(successor_state)
-    logging.debug("No operators left. Task unsolvable.")
+    logging.info("No operators left. Task unsolvable.")
+    logging.info("%d Nodes expanded" % iteration)
     return None
