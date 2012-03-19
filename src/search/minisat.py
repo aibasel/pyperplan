@@ -18,7 +18,6 @@ def minisat_available():
 
 class CnfWriter():
     def _print_clause(self, clause):
-        self.number_of_clauses += 1
         print(' '.join(str(self._literal_to_int(literal))
                        for literal in clause) + ' 0', file=self.cnf_file)
 
@@ -62,7 +61,6 @@ class CnfWriter():
         """Adds helper variables for all occurences of "a2<->a1" """
         self.count = itertools.count(start=1)
         self.vars_to_numbers = dict()
-        self.number_of_clauses = 0
 
         aux_iff_vars = set()
 
@@ -99,7 +97,6 @@ class CnfWriter():
                 new_clause.append(conj[0])
             self._print_clause(new_clause)
 
-        number_of_vars = len(self.vars_to_numbers)
         self.cnf_file.close()
         for key in list(self.vars_to_numbers):
             if '<->' in key:
