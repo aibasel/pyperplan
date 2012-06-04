@@ -45,19 +45,33 @@ SEARCHES = {
     'sat': search.sat_solve,
     }
 
-HEURISTICS = {
-    'lmcut': heuristics.LmCutHeuristic,
-    'lm': heuristics.LandmarkHeuristic,
-    'hmax': heuristics.hMaxHeuristic,
-    'hadd': heuristics.hAddHeuristic,
-    'hsa': heuristics.hSAHeuristic,
-    'hff': heuristics.hFFHeuristic,
-    'hffPO': heuristics.hFFHeuristic,
-    'blind': heuristics.BlindHeuristic,
-    }
-
 
 NUMBER = re.compile(r'\d+')
+
+
+def get_heuristics():
+    """
+    Scan all python modules in the "heuristics" directory for classes ending
+    with "Heuristic".
+    """
+    heuristics = []
+    src_dir = os.path.dirname(os.path.abspath(__file__))
+    heuristics_dir = os.path.abspath(os.path.join(src_dir, 'heuristics'))
+    for filename in os.listdir(heuristics_dir):
+        if not filename.endswith('.py'):
+            continue
+        module = tools.import_python_file(os.path.join(heuristics_dir, filename))
+        heuristics.extend([getattr(module, cls) for cls in dir(module)
+                           if cls.endswith('Heuristic') and cls != 'Heuristic' and
+                           not cls.startswith('_')])
+    return heuristics
+
+def _get_heuristic_name(cls):
+    name = cls.__name__
+    assert name.endswith('Heuristic')
+    return name[:-9].lower()
+
+HEURISTICS = {_get_heuristic_name(heur): heur for heur in get_heuristics()}
 
 
 def validator_available():
@@ -186,24 +200,22 @@ if __name__ == '__main__':
     # Commandline parsing
     log_levels = ['debug', 'info', 'warning', 'error']
 
-    # get pretty print names for the search algorithms and heuristics:
-    # use the function/class name and strip off '_search' or 'Heuristic'
+    # get pretty print names for the search algorithms:
+    # use the function/class name and strip off '_search'
     def get_callable_names(callables, omit_string):
         names = [c.__name__ for c in callables]
         names = [n.replace(omit_string, '').replace('_', ' ') for n in names]
         return ', '.join(names)
     search_names = get_callable_names(SEARCHES.values(), '_search')
-    heuristic_names = get_callable_names(HEURISTICS.values(), 'Heuristic')
 
     argparser = argparse.ArgumentParser(
                         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     argparser.add_argument(dest='domain', nargs='?')
     argparser.add_argument(dest='problem')
     argparser.add_argument('-l', '--loglevel', choices=log_levels,
-                          default='info')
+                           default='info')
     argparser.add_argument('-H', '--heuristic', choices=HEURISTICS.keys(),
-        help='Select a heuristic from {0}'.format(heuristic_names),
-        default='hff')
+                           help='Select a heuristic', default='hff')
     argparser.add_argument('-s', '--search', choices=SEARCHES.keys(),
         help='Select a search algorithm from {0}'.format(search_names),
         default='bfs')

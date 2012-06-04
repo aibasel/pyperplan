@@ -14,9 +14,3 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
-
-from .blind import BlindHeuristic
-from .landmarks import LandmarkHeuristic
-from .lm_cut import LmCutHeuristic
-from .relaxation import (hAddHeuristic, hFFHeuristic, hMaxHeuristic,
-                         hSAHeuristic)
