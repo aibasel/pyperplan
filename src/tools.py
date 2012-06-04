@@ -15,8 +15,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
+import logging
 import os
 import subprocess
+import sys
+import traceback
 
 
 def command_available(command):
@@ -44,3 +47,32 @@ def remove(filename):
         os.remove(filename)
     except OSError:
         pass
+
+
+def import_python_file(filename, dirs=None):
+    filename = os.path.abspath(filename)
+    dirs = dirs or []
+    parent_dir = os.path.dirname(filename)
+    dirs.append(parent_dir)
+    for dir in dirs:
+        if dir not in sys.path:
+            sys.path.insert(0, dir)
+    filename = os.path.normpath(filename)
+    filename = os.path.basename(filename)
+    if filename.endswith('.py'):
+        module_name = filename[:-3]
+    elif filename.endswith('.pyc'):
+        module_name = filename[:-4]
+    else:
+        module_name = filename
+
+    # Reload already loaded modules to actually get the changes.
+    if module_name in sys.modules:
+        return reload(sys.modules[module_name])
+
+    try:
+        module = __import__(module_name)
+        return module
+    except ImportError as err:
+        print(traceback.format_exc())
+        logging.critical('File "%s" could not be imported: %s' % (filename, err))
