@@ -130,11 +130,11 @@ def _ground(problem):
     return task
 
 
-def _search(task, search, heuristic, use_preferred_op=False):
+def _search(task, search, heuristic, use_preferred_ops=False):
     logging.info('Search start: {0}'.format(task.name))
     if heuristic:
-        if use_preferred_op:
-            solution = search(task, heuristic, use_preferred_op)
+        if use_preferred_ops:
+            solution = search(task, heuristic, use_preferred_ops)
         else:
             solution = search(task, heuristic)
     else:
@@ -151,7 +151,7 @@ def _write_solution(solution, filename):
 
 
 def search_plan(domain_file, problem_file, search, heuristic_class,
-                use_preferred_op=False):
+                use_preferred_ops=False):
     """
     Parses the given input files to a specific planner task and then tries to
     find a solution using the specified  search algorithm and heuristics.
@@ -171,8 +171,8 @@ def search_plan(domain_file, problem_file, search, heuristic_class,
     if not heuristic_class is None:
         heuristic = heuristic_class(task)
     search_start_time = time.clock()
-    if use_preferred_op and isinstance(heuristic, heuristics.hFFHeuristic):
-        solution = _search(task, search, heuristic, True)
+    if use_preferred_ops and isinstance(heuristic, heuristics.hFFHeuristic):
+        solution = _search(task, search, heuristic, use_preferred_ops=True)
     else:
         solution = _search(task, search, heuristic)
     logging.info('Wall-clock search time: {0:.2}'.format(time.clock() -
@@ -249,7 +249,7 @@ if __name__ == '__main__':
                                           else None))
     if args.heuristic == 'hffPO':
         solution = search_plan(args.domain, args.problem, search, heuristic,
-                               True)
+                               use_preferred_ops=True)
     else:
         solution = search_plan(args.domain, args.problem, search, heuristic)
 
