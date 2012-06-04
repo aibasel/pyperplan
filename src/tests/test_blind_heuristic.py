@@ -1,4 +1,4 @@
-from heuristics import BlindHeuristic
+from heuristics.blind import BlindHeuristic
 
 from search import searchspace
 from task import *
