@@ -161,8 +161,8 @@ def search_plan(domain_file, problem_file, search, heuristic_class,
         solution = _search(task, search, heuristic, True)
     else:
         solution = _search(task, search, heuristic)
-    logging.info('Wall-clock search time: {0}'.format(time.clock() -
-                                                      search_start_time))
+    logging.info('Wall-clock search time: {0:.2}'.format(time.clock() -
+                                                         search_start_time))
     return solution
 
 
