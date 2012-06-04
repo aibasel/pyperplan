@@ -16,6 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
+# TODO: Give searches and heuristics commandline options and reenable preferred
+# operators.
+
 import sys
 import os
 import re
@@ -43,7 +46,7 @@ SEARCHES = {
     'ehs': search.enforced_hillclimbing_search,
     'ids': search.iterative_deepening_search,
     'sat': search.sat_solve,
-    }
+}
 
 
 NUMBER = re.compile(r'\d+')
@@ -226,8 +229,8 @@ if __name__ == '__main__':
                     stream=sys.stdout)
 
     hffpo_searches = ['gbf', 'wastar', 'ehs']
-    if args.heuristic == 'hffPO' and args.search not in hffpo_searches:
-        print('ERROR: hffPO can currently only be used with %s\n' %
+    if args.heuristic == 'hffpo' and args.search not in hffpo_searches:
+        print('ERROR: hffpo can currently only be used with %s\n' %
               hffpo_searches, file=sys.stderr)
         argparser.print_help()
         exit(1)
@@ -247,11 +250,9 @@ if __name__ == '__main__':
     logging.info('using search: %s' % search.__name__)
     logging.info('using heuristic: %s' % (heuristic.__name__ if heuristic
                                           else None))
-    if args.heuristic == 'hffPO':
+    use_preferred_ops = (args.heuristic == 'hffpo')
         solution = search_plan(args.domain, args.problem, search, heuristic,
-                               use_preferred_ops=True)
-    else:
-        solution = search_plan(args.domain, args.problem, search, heuristic)
+                               use_preferred_ops=use_preferred_ops)
 
     if solution is None:
         logging.warning('No solution could be found')
