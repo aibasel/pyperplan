@@ -233,7 +233,7 @@ if __name__ == '__main__':
         print('ERROR: hffpo can currently only be used with %s\n' %
               hffpo_searches, file=sys.stderr)
         argparser.print_help()
-        exit(1)
+        exit(2)
 
     args.problem = os.path.abspath(args.problem)
     if args.domain is None:
@@ -251,8 +251,8 @@ if __name__ == '__main__':
     logging.info('using heuristic: %s' % (heuristic.__name__ if heuristic
                                           else None))
     use_preferred_ops = (args.heuristic == 'hffpo')
-        solution = search_plan(args.domain, args.problem, search, heuristic,
-                               use_preferred_ops=use_preferred_ops)
+    solution = search_plan(args.domain, args.problem, search, heuristic,
+                           use_preferred_ops=use_preferred_ops)
 
     if solution is None:
         logging.warning('No solution could be found')
