@@ -20,7 +20,7 @@ from heuristics.heuristic_base import Heuristic
 import heapq
 import logging
 
-""" This modul contains the relaxation heuristics hAdd, hMax, hSA and hFF. """
+""" This module contains the relaxation heuristics hAdd, hMax, hSA and hFF. """
 
 
 class RelaxedFact:
@@ -76,14 +76,14 @@ class RelaxedOperator:
         self.counter = len(preconditions)
 
 
-class RelaxationHeuristic(Heuristic):
+class _RelaxationHeuristic(Heuristic):
     """This class is the base class for all relaxation heuristics.
 
     It is not meant to be instantiated. Nevertheless it is in principle an
     implementation of the hAdd heuristic.
     """
     def __init__(self, task):
-        """Construct a instance of RelaxationHeuristic.
+        """Construct a instance of _RelaxationHeuristic.
 
         Keyword arguments:
         task -- an instance of the Task class.
@@ -268,38 +268,38 @@ class RelaxationHeuristic(Heuristic):
                 fact.expanded = True
 
 
-class hAddHeuristic(RelaxationHeuristic):
+class hAddHeuristic(_RelaxationHeuristic):
     """This class is an implementation of the hADD heuristic.
 
-    It derives from the RelaxationHeuristic class.
+    It derives from the _RelaxationHeuristic class.
     """
     def __init__(self, task):
         """
         To make this class an implementation of hADD, apart from deriving from
-        RelaxationHeuristic,  we only need to set eval to sum().
+        _RelaxationHeuristic,  we only need to set eval to sum().
         """
         super().__init__(task)
         self.eval = sum
 
 
-class hMaxHeuristic(RelaxationHeuristic):
+class hMaxHeuristic(_RelaxationHeuristic):
     """This class is an implementation of the hMax heuristic.
 
-    It derives from the RelaxationHeuristic class.
+    It derives from the _RelaxationHeuristic class.
     """
     def __init__(self, task):
         """
         To make this class an implementation of hADD, apart from deriving from
-        RelaxationHeuristic, we only need to set eval to max().
+        _RelaxationHeuristic, we only need to set eval to max().
         """
         super().__init__(task)
         self.eval = max
 
 
-class hSAHeuristic(RelaxationHeuristic):
+class hSAHeuristic(_RelaxationHeuristic):
     """This class is an implementation of the hSA heuristic.
 
-    It derives from the RelaxationHeuristic class.
+    It derives from the _RelaxationHeuristic class.
     """
     def get_cost(self, operator, pre):
         """
@@ -355,10 +355,10 @@ class hSAHeuristic(RelaxationHeuristic):
             return 0
 
 
-class hFFHeuristic(RelaxationHeuristic):
+class hFFHeuristic(_RelaxationHeuristic):
     """ This class is an implementation of the hFF heuristic.
 
-    It derives from the RelaxationHeuristic class.
+    It derives from the _RelaxationHeuristic class.
     """
     def __init__(self, task):
         """Construct a hFFHeuristic.
