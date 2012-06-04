@@ -80,7 +80,7 @@ def ordered_node_greedy_best_first(node, h, node_tiebreaker):
     return (f, h, node_tiebreaker, node)
 
 
-def gbf_search(task, heuristic, use_relaxed_plan=False):
+def greedy_best_first_search(task, heuristic, use_relaxed_plan=False):
     """
     Searches for a plan in the given task using greedy best first search.
 
