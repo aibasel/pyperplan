@@ -181,6 +181,9 @@ For nodes that are known to be deadends (i.e. there is no valid plan that
 reaches the goal from this node), a heuristic value of ``float('inf')`` should
 be returned.
 
+Pyperplan automatically finds all heuristics classes that reside in modules
+in the ``heuristics`` folder if the class name ends with "Heuristic".
+
 + Tests +
 A comprehensive unit testing suite is available. It can be run with the py.test
 test framework((http://pytest.org/)). To run the tests, install py.test for
