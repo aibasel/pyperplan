@@ -32,6 +32,14 @@ aux_a_and_b = [['not-aANDb', 'a'], ['not-aANDb', 'b'], ['not-a', 'not-b',
                                                         'aANDb']]
 
 
+def sort_formula(formula):
+    # Move all literals to the front and all subformulas to the back.
+    strings = [part for part in formula if isinstance(part, str)]
+    lists = [part for part in formula if isinstance(part, list)]
+    assert len(strings) + len(lists) == len(formula)
+    return sorted(strings) + sorted(sort_formula(l) for l in lists)
+
+
 def assert_true(value):
     assert value
 
@@ -97,18 +105,20 @@ def test_plan_formula1():
 
 
 def test_plan_formula2():
-    assert sat.get_plan_formula(task2, 1) == ['d-0', 'not-a-0',
-                [['a-1', 'd-1<->d-0'], ['d-0', 'a-1', 'd-1<->d-0']], 'a-1']
+    assert (sort_formula(sat.get_plan_formula(task2, 1)) ==
+        ['a-1', 'd-0', 'not-a-0', [['a-1', 'd-0', 'd-1<->d-0'],
+                                   ['a-1', 'd-1<->d-0']]])
 
 
 def test_plan_formula3():
-    assert sat.get_plan_formula(task3, 1) == ['not-a-0', 'not-b-0',
-                [['a-1', 'b-1<->b-0'], ['a-1<->a-0', 'b-1']], 'a-1', 'b-1']
+    assert (sort_formula(sat.get_plan_formula(task3, 1)) ==
+        ['a-1', 'b-1', 'not-a-0', 'not-b-0', [['a-1', 'b-1<->b-0'],
+                                              ['a-1<->a-0', 'b-1']]])
 
 
 def test_plan_formula4():
-    assert sat.get_plan_formula(task4, 1) == ['d-0', 'not-a-0',
-                                        [['d-0', 'a-1', 'd-1<->d-0']], 'a-1']
+    assert (sort_formula(sat.get_plan_formula(task4, 1)) ==
+        ['a-1', 'd-0', 'not-a-0', [['a-1', 'd-0', 'd-1<->d-0']]])
 
 
 def test_plan_formula5():
@@ -116,9 +126,10 @@ def test_plan_formula5():
 
 
 def test_plan_formula6():
-    assert (sat.get_plan_formula(task2, 2) == ['d-0', 'not-a-0',
-            [['a-1', 'd-1<->d-0'], ['d-0', 'a-1', 'd-1<->d-0']],
-            [['a-2', 'd-2<->d-1'], ['d-1', 'a-2', 'd-2<->d-1']], 'a-2'])
+    assert (sort_formula(sat.get_plan_formula(task2, 2)) ==
+            ['a-2', 'd-0', 'not-a-0',
+             [['a-1', 'd-0', 'd-1<->d-0'], ['a-1', 'd-1<->d-0']],
+             [['a-2', 'd-1', 'd-2<->d-1'], ['a-2', 'd-2<->d-1']]])
 
 
 def test_extract_plan():
