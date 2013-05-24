@@ -95,8 +95,7 @@ def gen_heuristic_test(dom, prob, search_class, heuristic_class, h_values_plan,
     # run through plan and validate heuristic value
     # the true_h_values are taken from fast downward with astar and lm cut
     # heuristic
-    computed_h_values = [x for x in _gen_h_values(task.initial_state, plan,
-                                                  heuristic)]
+    computed_h_values = list(_gen_h_values(task.initial_state, plan, heuristic))
     assert h_values_plan == computed_h_values
 
 
