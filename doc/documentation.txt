@@ -185,13 +185,23 @@ Pyperplan automatically finds all heuristics classes that reside in modules
 in the ``heuristics`` folder if the class name ends with "Heuristic".
 
 + Tests +
-A comprehensive unit testing suite is available. It can be run with the py.test
-test framework((http://pytest.org/)). To run the tests, install py.test for
-Python3 (e.g. ``sudo easy_install3 -U pytest`` on an Ubuntu machine) and
-run ``py.test`` (or ''\\''
-``py.test-3.1`` if you have installed multiple py.test
-versions) in the ``src`` directory. Some of the tests have been marked as
-"slow" and will only be run if you pass py.test the ``--slow`` parameter.
+A comprehensive unit test suite is available. It can be run with the py.test
+framework (http://pytest.org). To run the tests, install py.test for Python3.
+++ Requirements ++
+=== Ubuntu <= 12.04: ===
+```
+sudo apt-get install python3-setuptools
+sudo easy_install3 -U pytest
+```
+=== Ubuntu >= 12.10: ===
+```
+sudo apt-get install python3-pip
+sudo pip-3.x install -U pytest
+```
+++ Run tests ++
+Change into the ``src`` directory and run ``py.test-3.x``.
+Some of the tests have been marked as "slow" and will only be run if you pass
+py.test the ``--slow`` parameter.
 
 + Plan validation +
 If the plan validation tool VAL is found on the system PATH, all found plans
