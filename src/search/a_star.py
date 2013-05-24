@@ -19,7 +19,7 @@
 Implements the A* (a-star) and weighted A* search algorithm.
 """
 
-from queue import heapq
+import heapq
 import logging
 
 from search import searchspace
