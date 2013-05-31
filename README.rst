@@ -77,6 +77,5 @@ The original authors of pyperplan are, in alphabetical order:
 The instructors of the course in which pyperplan was created were
 Malte Helmert and Robert Mattmüller.
 
-If you want to get in touch with us, you can contact us via bitbucket's message
-features. If you prefer regular email, Malte's email address can easily be found
-on the web.
+If you want to get in touch with us, please contact Robert Mattmüller or
+Jendrik Seipp. Their email addresses can easily be found on the web.
