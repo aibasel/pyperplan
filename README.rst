@@ -1,4 +1,4 @@
-This is pyperplan, a lightweight STRIPS planner written in Python.
+This is **pyperplan**, a lightweight STRIPS planner written in Python.
 
 It was developed during the planning practical course at
 Albert-Ludwigs-Universität Freiburg during the winter term 2010/2011 and is
@@ -19,7 +19,7 @@ installed to run it. If Python 3 is not installed on your system, you can
 download it from http://python.org. Alternatively, most current Linux
 distributions include Python 3. For example,
 
-$ sudo apt-get install python3
+    sudo apt-get install python3
 
 will install Python 3 on an Ubuntu system.
 
@@ -35,7 +35,7 @@ Usage
 The planner is invoked through the file src/pyperplan.py and accepts two
 arguments: a PDDL domain file and a PDDL problem file. Example:
 
-$ ./src/pyperplan.py benchmarks/tpp/domain.pddl benchmarks/tpp/task01.pddl
+    ./src/pyperplan.py benchmarks/tpp/domain.pddl benchmarks/tpp/task01.pddl
 
 The domain file can be omitted, in which case the planner will attempt to guess
 its name based on the problem file. If a plan is found, it is stored alongside
@@ -45,11 +45,11 @@ By default, the planner performs a blind breadth-first search, which does not
 scale very well. Heuristic search algorithms are available. For example, to use
 greedy-best-first search with the FF heuristic, run
 
-$ ./src/pyperplan.py -H hff -s gbf DOMAIN PROBLEM
+    ./src/pyperplan.py -H hff -s gbf DOMAIN PROBLEM
 
 For a list of available search algorithms and heuristics, run
 
-$ ./src/pyperplan.py --help
+    ./src/pyperplan.py --help
 
 For more information on using the planner and how to extend it to do more fancy
 stuff, see doc/documentation.txt.
@@ -58,21 +58,19 @@ stuff, see doc/documentation.txt.
 Contact
 =======
 
-pyperplan is hosted on bitbucket under the URL
-
-    https://bitbucket.org/malte/pyperplan
+pyperplan is hosted on bitbucket: https://bitbucket.org/malte/pyperplan
 
 The original authors of pyperplan are, in alphabetical order:
 
- * Yusra Alkhazraji
- * Matthias Frorath
- * Markus Grützner
- * Thomas Liebetraut
- * Manuela Ortlieb
- * Jendrik Seipp
- * Tobias Springenberg
- * Philip Stahl
- * Jan Wülfing
+* Yusra Alkhazraji
+* Matthias Frorath
+* Markus Grützner
+* Thomas Liebetraut
+* Manuela Ortlieb
+* Jendrik Seipp
+* Tobias Springenberg
+* Philip Stahl
+* Jan Wülfing
 
 The instructors of the course in which pyperplan was created were
 Malte Helmert and Robert Mattmüller.
