@@ -123,7 +123,7 @@ class IterativeDeepeningSearchAlgorithm:
                 if successor_state not in path:
                     if task.goal_reached(successor_state):
                         logging.info("Goal reached. Start extraction of "
-                                      "solution.")
+                                     "solution.")
                         self.maxreacheddepth = nextstep
                         return [operator]
                     else:
