@@ -32,8 +32,9 @@ def enforced_hillclimbing_search(planning_task, heuristic,
     duplicate detection.
 
     @param planning_task: The planning task to solve.
-    @return: The solution as a list of operators or None if the task is
-    unsolvable.
+    @return: The solution as a list of operators or None if no solution was
+    found. Note that enforced hill climbing is an incomplete algorith, so it
+    may fail to find a solution even though the task is solvable.
     """
     # counts the number of loops (only for printing)
     iteration = 0
@@ -99,6 +100,6 @@ def enforced_hillclimbing_search(planning_task, heuristic,
                     break
                 else:
                     queue.append(successor_node)
-    logging.info("No operators left. Task unsolvable.")
+    logging.info("Enforced hill climbing failed")
     logging.info("%d Nodes expanded" % len(visited))
     return None
