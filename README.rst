@@ -1,4 +1,9 @@
-This is **pyperplan**, a lightweight STRIPS planner written in Python.
+This is **Pyperplan**, a lightweight STRIPS planner written in Python.
+
+Please note that Pyperplan deliberately prefers clean code over fast
+code. It is designed to be used as a teaching or prototyping tool. If
+you use it for paper experiments, please state clearly that Pyperplan
+does not offer state-of-the-art performance.
 
 It was developed during the planning practical course at
 Albert-Ludwigs-Universität Freiburg during the winter term 2010/2011 and is
@@ -14,7 +19,7 @@ convert it to a PDF document.
 Requirements
 ============
 
-pyperplan is written in Python 3, so you need a recent version of Python 3
+Pyperplan is written in Python 3, so you need a recent version of Python 3
 installed to run it. If Python 3 is not installed on your system, you can
 download it from http://python.org. Alternatively, most current Linux
 distributions include Python 3. For example,
@@ -23,7 +28,7 @@ distributions include Python 3. For example,
 
 will install Python 3 on an Ubuntu system.
 
-Versions of Python before Python 3.2 lack the argparse package, which pyperplan
+Versions of Python before Python 3.2 lack the argparse package, which Pyperplan
 uses for command line argument parsing. A copy of the argparse package is
 included with the planner and will be used automatically if no preinstalled
 version can be found.
@@ -58,9 +63,9 @@ stuff, see doc/documentation.txt.
 Contact
 =======
 
-pyperplan is hosted on bitbucket: https://bitbucket.org/malte/pyperplan
+Pyperplan is hosted on GitHub: https://github.com/aibasel/pyperplan
 
-The original authors of pyperplan are, in alphabetical order:
+The original authors of Pyperplan are, in alphabetical order:
 
 * Yusra Alkhazraji
 * Matthias Frorath
@@ -72,7 +77,7 @@ The original authors of pyperplan are, in alphabetical order:
 * Philip Stahl
 * Jan Wülfing
 
-The instructors of the course in which pyperplan was created were
+The instructors of the course in which Pyperplan was created were
 Malte Helmert and Robert Mattmüller.
 
 If you want to get in touch with us, please contact Robert Mattmüller or
