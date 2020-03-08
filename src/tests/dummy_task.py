@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Test file with simple addition and subtraction Search_Spaces.
 # States: integer numbers between 0 and 10.
 # Actions: add 1, 2, sub 1

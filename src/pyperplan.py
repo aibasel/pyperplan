@@ -107,38 +107,38 @@ def find_domain(problem):
             domain = os.path.join(dir, file)
             break
     if not os.path.isfile(domain):
-        logging.error('Domain file "{0}" can not be found'.format(domain))
+        logging.error('Domain file "{}" can not be found'.format(domain))
         sys.exit(1)
-    logging.info("Found domain {0}".format(domain))
+    logging.info("Found domain {}".format(domain))
     return domain
 
 
 def _parse(domain_file, problem_file):
     # Parsing
     parser = Parser(domain_file, problem_file)
-    logging.info("Parsing Domain {0}".format(domain_file))
+    logging.info("Parsing Domain {}".format(domain_file))
     domain = parser.parse_domain()
-    logging.info("Parsing Problem {0}".format(problem_file))
+    logging.info("Parsing Problem {}".format(problem_file))
     problem = parser.parse_problem(domain)
     logging.debug(domain)
-    logging.info("{0} Predicates parsed".format(len(domain.predicates)))
-    logging.info("{0} Actions parsed".format(len(domain.actions)))
-    logging.info("{0} Objects parsed".format(len(problem.objects)))
-    logging.info("{0} Constants parsed".format(len(domain.constants)))
+    logging.info("{} Predicates parsed".format(len(domain.predicates)))
+    logging.info("{} Actions parsed".format(len(domain.actions)))
+    logging.info("{} Objects parsed".format(len(problem.objects)))
+    logging.info("{} Constants parsed".format(len(domain.constants)))
     return problem
 
 
 def _ground(problem):
-    logging.info("Grounding start: {0}".format(problem.name))
+    logging.info("Grounding start: {}".format(problem.name))
     task = grounding.ground(problem)
-    logging.info("Grounding end: {0}".format(problem.name))
-    logging.info("{0} Variables created".format(len(task.facts)))
-    logging.info("{0} Operators created".format(len(task.operators)))
+    logging.info("Grounding end: {}".format(problem.name))
+    logging.info("{} Variables created".format(len(task.facts)))
+    logging.info("{} Operators created".format(len(task.operators)))
     return task
 
 
 def _search(task, search, heuristic, use_preferred_ops=False):
-    logging.info("Search start: {0}".format(task.name))
+    logging.info("Search start: {}".format(task.name))
     if heuristic:
         if use_preferred_ops:
             solution = search(task, heuristic, use_preferred_ops)
@@ -146,7 +146,7 @@ def _search(task, search, heuristic, use_preferred_ops=False):
             solution = search(task, heuristic)
     else:
         solution = search(task)
-    logging.info("Search end: {0}".format(task.name))
+    logging.info("Search end: {}".format(task.name))
     return solution
 
 
@@ -184,7 +184,7 @@ def search_plan(
     else:
         solution = _search(task, search, heuristic)
     logging.info(
-        "Wall-clock search time: {0:.2}".format(time.clock() - search_start_time)
+        "Wall-clock search time: {:.2}".format(time.clock() - search_start_time)
     )
     return solution
 
@@ -237,7 +237,7 @@ def main():
         "-s",
         "--search",
         choices=SEARCHES.keys(),
-        help="Select a search algorithm from {0}".format(search_names),
+        help="Select a search algorithm from {}".format(search_names),
         default="bfs",
     )
     args = argparser.parse_args()

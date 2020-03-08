@@ -26,7 +26,7 @@ class BlindHeuristic(Heuristic):
     """
 
     def __init__(self, task):
-        super(BlindHeuristic, self).__init__()
+        super().__init__()
         self.goals = task.goals
 
     def __call__(self, node):

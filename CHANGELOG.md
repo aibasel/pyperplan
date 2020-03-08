@@ -1,3 +1,8 @@
+# next (unreleased)
+
+* Modernize code with pyupgrade.
+
+
 # 1.1 (2020-03-09)
 
 * Test code with tox.

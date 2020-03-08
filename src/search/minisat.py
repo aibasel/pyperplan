@@ -140,7 +140,7 @@ def retransform_output(names_to_numbers):
         numbers_to_names[number] = name
 
     retransformed = []
-    with open(OUTPUT, "r") as file:
+    with open(OUTPUT) as file:
         lines = file.readlines()
     if lines[0].startswith("SAT"):
         vars = lines[1].split()

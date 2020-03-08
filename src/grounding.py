@@ -240,10 +240,10 @@ def _find_pred_in_init(pred_name, param, sig_pos, init):
     """
     match_init = None
     if sig_pos == 0:
-        match_init = re.compile("\(%s %s.*" % (pred_name, param))
+        match_init = re.compile(r"\({} {}.*".format(pred_name, param))
     else:
-        reg_ex = "\(%s\s+" % pred_name
-        reg_ex += "[\w\d-]+\s+" * sig_pos
+        reg_ex = r"\(%s\s+" % pred_name
+        reg_ex += r"[\w\d-]+\s+" * sig_pos
         #        for i in xrange(sig_pos):
         #            reg_ex += '[\w\d-]+\s+'
         reg_ex += "%s.*" % param
@@ -348,7 +348,7 @@ def _create_operator(action, assignment, statics, init):
 def _get_grounded_string(name, args):
     """ We use the lisp notation (e.g. "(unstack c e)"). """
     args_string = " " + " ".join(args) if args else ""
-    return "(%s%s)" % (name, args_string)
+    return "({}{})".format(name, args_string)
 
 
 def _ground_atom(atom, assignment):

@@ -23,6 +23,6 @@ uniquely identified by its start and end position.
 """
 
 # define the set of special characters
-whiteSpace = set([" ", "\n", "\t"])
-comment = set([";"])
-reserved = set([":", ")", "("]).union(comment)
+whiteSpace = {" ", "\n", "\t"}
+comment = {";"}
+reserved = {":", ")", "("}.union(comment)

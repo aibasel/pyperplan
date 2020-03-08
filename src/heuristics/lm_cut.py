@@ -53,7 +53,7 @@ class RelaxedFact:
         self.hmax_value = float("inf")
 
     def dump(self):
-        return "< FACT name: %s, hmax: %f, precond_of: %s, effect_of: %s >" % (
+        return "< FACT name: {}, hmax: {:f}, precond_of: {}, effect_of: {} >".format(
             self.name,
             self.hmax_value,
             [str(p) for p in self.precondition_of],

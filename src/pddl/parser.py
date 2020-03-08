@@ -495,7 +495,7 @@ def parse_requirements_stmt(iter):
 def _parse_types_with_error(iter, keyword, classt):
     if not iter.try_match(keyword):
         raise ValueError(
-            'Error keyword "%s" required before %s!' % (keyword, classt.__name__)
+            'Error keyword "{}" required before {}!'.format(keyword, classt.__name__)
         )
     return _parse_type_helper(iter, classt)
 
@@ -598,7 +598,7 @@ def _parse_precondition_or_effect(iter, keyword, type):
     """
     if not iter.try_match(keyword):
         raise ValueError(
-            'Error: %s must start with "%s" keyword' % (type.__name__, keyword)
+            'Error: {} must start with "{}" keyword'.format(type.__name__, keyword)
         )
     cond = parse_formula(next(iter))
     return type(cond)
@@ -768,7 +768,7 @@ def parse_goal_stmt(iter):
     return GoalStmt(f)
 
 
-class Parser(object):
+class Parser:
     """
     This is the main Parser class that can be used from outside this module
     to translate a given domain and problem file into the representation given

@@ -97,16 +97,14 @@ def test_default_pddl_visitor_problem():
 
 
 def test_action_set():
-    assert set([a for a in _domain.actions]) == set(
-        ["pick-up", "put-down", "stack", "unstack"]
-    )
+    assert {a for a in _domain.actions} == {"pick-up", "put-down", "stack", "unstack"}
 
 
 def test_action_parameters():
     signatures = [a.signature for a in _domain.actions.values()]
     # reduce(lambda x,y: x.extend(y), signatures)
     signatures = list(itertools.chain(*signatures))
-    assert set([s[1][0].name for s in signatures]) == set(["block"])
+    assert {s[1][0].name for s in signatures} == {"block"}
     assert len(signatures) == 6
 
 
@@ -173,15 +171,13 @@ def test_predicates():
     pred_sig = [p.signature for p in _domain.predicates.values()]
     pred_sig = list(itertools.chain(*pred_sig))
     pred_sig_types = [p[1][0].name for p in pred_sig]
-    assert set(pred_sig_types) == set(["block"])
-    assert set(pred_names) == set(["on", "ontable", "clear", "handempty", "holding"])
+    assert set(pred_sig_types) == {"block"}
+    assert set(pred_names) == {"on", "ontable", "clear", "handempty", "holding"}
 
 
 def test_constants():
     pred_constants = [c for c in _domain.constants.values()]
-    assert set([o for o in _domain.constants.keys()]) == set(
-        ["horst", "block1", "block2"]
-    )
+    assert {o for o in _domain.constants.keys()} == {"horst", "block1", "block2"}
     assert [t.name for t in _domain.constants.values()] == ["block", "block", "block"]
 
 

@@ -26,10 +26,8 @@ def objectsTest(objects):
         "obj12",
         "obj11",
     ]
-    typeSet = set([o.typeName for o in objects])
-    assert typeSet == set(
-        ["airplane", "airport", "location", "city", "truck", "package"]
-    )
+    typeSet = {o.typeName for o in objects}
+    assert typeSet == {"airplane", "airport", "location", "city", "truck", "package"}
 
 
 ### test cases
@@ -537,4 +535,4 @@ def test_parseProblemDef():
     objectsTest(prob.objects)
     predNames = [p.name for p in prob.init.predicates]
     assert len(predNames) == 13
-    assert set(predNames) == set(["at", "in-city"])
+    assert set(predNames) == {"at", "in-city"}
