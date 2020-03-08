@@ -199,7 +199,7 @@ def validate_solution(domain_file, problem_file, solution_file):
     return exitcode == 0
 
 
-if __name__ == '__main__':
+def main():
     # Commandline parsing
     log_levels = ['debug', 'info', 'warning', 'error']
 
@@ -261,3 +261,7 @@ if __name__ == '__main__':
         logging.info('Plan length: %s' % len(solution))
         _write_solution(solution, solution_file)
         validate_solution(args.domain, args.problem, solution_file)
+
+
+if __name__ == '__main__':
+    main()
