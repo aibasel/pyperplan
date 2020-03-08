@@ -84,6 +84,8 @@ Citing Pyperplan
 
 Please cite Pyperplan using
 
+::
+
     @Misc{alkhazraji-et-al-zenodo2020,
       author =       "Yusra Alkhazraji and Matthias Frorath and Markus Gr{\"u}tzner
                       and Malte Helmert and Thomas Liebetraut and Robert Mattm{\"u}ller
