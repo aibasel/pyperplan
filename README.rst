@@ -1,4 +1,4 @@
-This is **Pyperplan**, a lightweight STRIPS planner written in Python.
+**Pyperplan** is a lightweight STRIPS planner written in Python.
 
 Please note that Pyperplan deliberately prefers clean code over fast
 code. It is designed to be used as a teaching or prototyping tool. If
@@ -52,7 +52,7 @@ For a list of available search algorithms and heuristics, run
     ./src/pyperplan.py --help
 
 For more information on using the planner and how to extend it to do more fancy
-stuff, see doc/documentation.txt.
+stuff, see doc/documentation.md.
 
 
 Contact
@@ -77,3 +77,22 @@ Malte Helmert and Robert Mattmüller.
 
 If you want to get in touch with us, please contact Robert Mattmüller or
 Jendrik Seipp. Their email addresses can easily be found on the web.
+
+
+Citing Pyperplan
+================
+
+Please cite Pyperplan using
+
+    @Misc{alkhazraji-et-al-zenodo2020,
+      author =       "Yusra Alkhazraji and Matthias Frorath and Markus Gr{\"u}tzner
+                      and Malte Helmert and Thomas Liebetraut and Robert Mattm{\"u}ller
+                      and Manuela Ortlieb and Jendrik Seipp and Tobias Springenberg and
+                      Philip Stahl and Jan W{\"u}lfing",
+      title =        "Pyperplan",
+      publisher =    "Zenodo",
+      year =         "2020",
+      doi =          "10.5281/zenodo.3700819",
+      url =          "https://doi.org/10.5281/zenodo.3700819",
+      howpublished = "\url{https://doi.org/10.5281/zenodo.3700819}"
+    }
