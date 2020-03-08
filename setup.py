@@ -6,13 +6,16 @@ import os.path
 from setuptools import find_packages, setup
 
 
+VERSION = "1.0"
+
+
 with open("README.rst") as f:
     long_description = f.read()
 
 
 setup(
     name="pyperplan",
-    version="1.0",
+    version=VERSION,
     description="A lightweight STRIPS planner written in Python.",
     long_description=long_description,
     long_description_content_type="text/x-rst",

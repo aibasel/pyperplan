@@ -5,6 +5,11 @@ set -exuo pipefail
 VERSION="$1"
 CHANGES="/tmp/pyperplan-$VERSION-changes"
 
+function set_version {
+    VERSION="$1"
+    sed -i -e "s/VERSION = \".*\"/VERSION = \"$VERSION\"/" setup.py
+}
+
 cd $(dirname "$0")/../
 
 # Check for uncommited changes.
@@ -22,6 +27,8 @@ if [[ $(git rev-parse --abbrev-ref HEAD) != master ]]; then
     echo "Must be on master for release"
     exit 1
 fi
+
+set_version "$VERSION"
 
 git tag -a "v$VERSION" -m "v$VERSION" HEAD
 
