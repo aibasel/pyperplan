@@ -1,10 +1,10 @@
-'''
+"""
 Unit test for searchalgortihms.py
 
 TODO: Duplicate pruning tests
 
 @author: Gruppe3
-'''
+"""
 
 from search import iterative_deepening_search
 from . import dummy_task

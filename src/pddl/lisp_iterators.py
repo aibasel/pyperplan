@@ -33,6 +33,7 @@ class LispIterator:
     their documentation). These methods raise a ParseError when
     invoked on iterators for words.
     """
+
     def __init__(self, contents):
         """Initialize iterator from a nested list (structure) or
         string (word)."""

@@ -1,6 +1,6 @@
 from pddl.parser import *
 
-_parser = Parser('')
+_parser = Parser("")
 
 
 def test_untyped_constants():

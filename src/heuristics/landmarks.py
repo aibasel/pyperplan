@@ -57,8 +57,7 @@ def get_landmarks(task):
                     current_state = op.apply(current_state)
                     if current_state >= task.goals:
                         break
-            if (previous_state == current_state and
-                not current_state >= task.goals):
+            if previous_state == current_state and not current_state >= task.goals:
                 landmarks.add(fact)
                 break
 
@@ -76,12 +75,11 @@ def compute_landmark_costs(task, landmarks):
         for landmark in landmarks:
             if landmark in operator.add_effects:
                 op_to_lm[operator].add(landmark)
-    min_cost = defaultdict(lambda: float('inf'))
+    min_cost = defaultdict(lambda: float("inf"))
     for operator, landmarks in op_to_lm.items():
         landmarks_achieving = len(landmarks)
         for landmark in landmarks:
-            min_cost[landmark] = min(min_cost[landmark],
-                                     1 / landmarks_achieving)
+            min_cost[landmark] = min(min_cost[landmark], 1 / landmarks_achieving)
     return min_cost
 
 

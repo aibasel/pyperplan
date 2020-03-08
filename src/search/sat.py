@@ -7,12 +7,14 @@ from search import minisat
 HORIZON = 1000
 
 
-def _formula_str(formula, sep='&'):
+def _formula_str(formula, sep="&"):
     """Returns a representation of 'formula' for prettyprinting"""
-    next_sep = '|' if sep == '&' else '&'
-    items = [item if (type(item) == str) else _formula_str(item, next_sep)
-             for item in formula]
-    return '({0})'.format(' {0} '.format(sep).join(items))
+    next_sep = "|" if sep == "&" else "&"
+    items = [
+        item if (type(item) == str) else _formula_str(item, next_sep)
+        for item in formula
+    ]
+    return "({0})".format(" {0} ".format(sep).join(items))
 
 
 def index_fact(fact, index, negated=False):
@@ -22,7 +24,7 @@ def index_fact(fact, index, negated=False):
     """
     name = str(fact)
     if negated:
-        name = 'not-' + name
+        name = "not-" + name
     return "%s-%d" % (name, index)
 
 
@@ -42,8 +44,7 @@ def get_formula_for_fact(op, fact, index):
         return [index_fact(fact, index + 1)]
     if not makes_false(op, fact):
         # a'<->a == (~a' v a) & (~a v a')
-        return ['<->'.join([index_fact(fact, index + 1),
-                index_fact(fact, index)])]
+        return ["<->".join([index_fact(fact, index + 1), index_fact(fact, index)])]
     return [index_fact(fact, index + 1, negated=True)]
 
 
@@ -66,8 +67,7 @@ def get_plan_formula(task, horizon):
     for length in range(horizon):
         disjunction = []
         for op in task.operators:
-            disjunction.append(get_formula_for_operator(task.facts, op,
-                                                        length))
+            disjunction.append(get_formula_for_operator(task.facts, op, length))
         formula.append(disjunction)
     goal = [index_fact(fact, horizon) for fact in list(sorted(task.goals))]
     formula.extend(goal)
@@ -79,26 +79,26 @@ def _extract_plan(operators, valuation):
 
     valuation is a list of facts (e.g. ['a-0', 'not-a-1', 'a-2'])
     """
-    logging.debug('Length of valuation: {0}'.format(len(valuation)))
+    logging.debug("Length of valuation: {0}".format(len(valuation)))
 
     # Divide facts into positive and negative ones
     pos_facts = defaultdict(set)
     neg_facts = defaultdict(set)
     plan_length = -1
     for fact in valuation:
-        if '<->' in fact or 'AND' in fact:
+        if "<->" in fact or "AND" in fact:
             continue
-        parts = fact.split('-')
+        parts = fact.split("-")
         depth = int(parts[-1])
         plan_length = max(plan_length, depth)
-        if fact.startswith('not-'):
-            varname = '-'.join(parts[1:-1])
+        if fact.startswith("not-"):
+            varname = "-".join(parts[1:-1])
             neg_facts[depth].add(varname)
         else:
-            varname = '-'.join(parts[0:-1])
+            varname = "-".join(parts[0:-1])
             pos_facts[depth].add(varname)
-    logging.debug('Positive facts: {0}'.format(pos_facts))
-    logging.debug('Negative facts: {0}'.format(neg_facts))
+    logging.debug("Positive facts: {0}".format(pos_facts))
+    logging.debug("Negative facts: {0}".format(neg_facts))
 
     plan = []
     for step in range(1, plan_length + 1):
@@ -106,12 +106,10 @@ def _extract_plan(operators, valuation):
         next_state = pos_facts[step]
         actual_op = None
         for op in operators:
-            if (op.applicable(current_state) and
-                op.apply(current_state) == next_state):
+            if op.applicable(current_state) and op.apply(current_state) == next_state:
                 actual_op = op
                 break
-        assert actual_op, 'Valuation: {0}, Ops: {1}'.format(valuation,
-                                                            operators)
+        assert actual_op, "Valuation: {0}, Ops: {1}".format(valuation, operators)
         plan.append(actual_op)
     return plan
 
@@ -122,12 +120,12 @@ def sat_solve(task, max_steps=HORIZON):
     Returns a list of operators or None if no valid plan could be found
     with <= 'HORIZON' steps
     """
-    logging.info('Maximum number of plan steps: {0}'.format(max_steps))
+    logging.info("Maximum number of plan steps: {0}".format(max_steps))
     for horizon in range(max_steps + 1):
-        logging.info('Horizon: {0}'.format(horizon))
+        logging.info("Horizon: {0}".format(horizon))
         valuation = minisat.solve(get_plan_formula(task, horizon))
         if valuation:
             plan = _extract_plan(task.operators, valuation)
             return plan
-    logging.info('Try increasing the maximum number of steps')
+    logging.info("Try increasing the maximum number of steps")
     return None

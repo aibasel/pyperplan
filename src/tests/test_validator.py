@@ -10,10 +10,10 @@ from pyperplan import validate_solution, validator_available
 import tools
 
 
-DOMAIN_FILE = 'DOMAIN.TEST'
-PROBLEM_FILE = 'PROBLEM.TEST'
-CORRECT_SOLN_FILE = 'CORRECT.SOLN.TEST'
-FALSE_SOLN_FILE = 'FALSE.SOLN.TEST'
+DOMAIN_FILE = "DOMAIN.TEST"
+PROBLEM_FILE = "PROBLEM.TEST"
+CORRECT_SOLN_FILE = "CORRECT.SOLN.TEST"
+FALSE_SOLN_FILE = "FALSE.SOLN.TEST"
 
 
 DOMAIN = """\
@@ -102,22 +102,25 @@ FALSE_SOLN = """\
 
 def setup_module(module):
     """setup up any state specific to the execution of the given module."""
-    for filename, content in [(DOMAIN_FILE, DOMAIN), (PROBLEM_FILE, PROBLEM),
-                              (CORRECT_SOLN_FILE, CORRECT_SOLN),
-                              (FALSE_SOLN_FILE, FALSE_SOLN)]:
-        with open(filename, 'w') as f:
+    for filename, content in [
+        (DOMAIN_FILE, DOMAIN),
+        (PROBLEM_FILE, PROBLEM),
+        (CORRECT_SOLN_FILE, CORRECT_SOLN),
+        (FALSE_SOLN_FILE, FALSE_SOLN),
+    ]:
+        with open(filename, "w") as f:
             f.write(content)
 
 
 def test_validate_correct_plan():
     if not validator_available():
-        py.test.skip('validate missing')
+        py.test.skip("validate missing")
     assert validate_solution(DOMAIN_FILE, PROBLEM_FILE, CORRECT_SOLN_FILE)
 
 
 def test_validate_false_plan():
     if not validator_available():
-        py.test.skip('validate missing')
+        py.test.skip("validate missing")
     assert not validate_solution(DOMAIN_FILE, PROBLEM_FILE, FALSE_SOLN_FILE)
 
 
@@ -125,6 +128,5 @@ def teardown_module(module):
     """
     teardown any state that was previously setup with a setup_module method.
     """
-    for filename in [DOMAIN_FILE, PROBLEM_FILE, CORRECT_SOLN_FILE,
-                     FALSE_SOLN_FILE]:
+    for filename in [DOMAIN_FILE, PROBLEM_FILE, CORRECT_SOLN_FILE, FALSE_SOLN_FILE]:
         tools.remove(filename)

@@ -7,7 +7,7 @@
 from heuristics.heuristic_base import Heuristic
 
 
-class DummyHeuristic (Heuristic):
+class DummyHeuristic(Heuristic):
     def __init__(self, task):
         self.goal_state = task.goals
 
@@ -24,6 +24,7 @@ class Search_Space:
     class. In this example only one goal state (representing a number) was
     used.
     """
+
     def __init__(self, name, initial_state, goals):
         self.name = name
         self.initial_state = initial_state
@@ -40,7 +41,7 @@ class Search_Space:
         If goal is reached (start number and goal number are equal) return
         True.
         """
-        return (self.goals == state)
+        return self.goals == state
 
     def get_successor_states(self, state):
         """

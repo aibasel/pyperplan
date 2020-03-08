@@ -74,8 +74,7 @@ class IterativeDeepeningSearchAlgorithm:
         while depth < maxdepth:
             self.maxreacheddepth = 0
             self.explorednodes = 0
-            plan = self.deepening_search_step(task, task.initial_state, depth,
-                                              0, path)
+            plan = self.deepening_search_step(task, task.initial_state, depth, 0, path)
             if plan is not None:
                 # plan comes in the wrong order
                 plan.reverse()
@@ -94,8 +93,9 @@ class IterativeDeepeningSearchAlgorithm:
         return None
 
     def print_search_results(self, depth, planlength):
-        logging.info("iterative_deepening_search: depth=%d planlength=%d "
-                     % (depth, planlength))
+        logging.info(
+            "iterative_deepening_search: depth=%d planlength=%d " % (depth, planlength)
+        )
         logging.info("%d Nodes expanded" % self.explorednodes)
 
     def deepening_search_step(self, task, state, depth, step, path):
@@ -122,15 +122,13 @@ class IterativeDeepeningSearchAlgorithm:
                 # successor and return to the caller without a plan
                 if successor_state not in path:
                     if task.goal_reached(successor_state):
-                        logging.info("Goal reached. Start extraction of "
-                                     "solution.")
+                        logging.info("Goal reached. Start extraction of " "solution.")
                         self.maxreacheddepth = nextstep
                         return [operator]
                     else:
-                        plan = self.deepening_search_step(task,
-                                                          successor_state,
-                                                          depth, nextstep,
-                                                          path)
+                        plan = self.deepening_search_step(
+                            task, successor_state, depth, nextstep, path
+                        )
                         if plan is not None:
                             # extracting the plan and terminating
                             plan.append(operator)

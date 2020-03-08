@@ -35,17 +35,17 @@ import heuristics
 import tools
 
 SEARCHES = {
-    'astar': search.astar_search,
-    'wastar': search.weighted_astar_search,
-    'gbf': search.greedy_best_first_search,
-    'bfs': search.breadth_first_search,
-    'ehs': search.enforced_hillclimbing_search,
-    'ids': search.iterative_deepening_search,
-    'sat': search.sat_solve,
+    "astar": search.astar_search,
+    "wastar": search.weighted_astar_search,
+    "gbf": search.greedy_best_first_search,
+    "bfs": search.breadth_first_search,
+    "ehs": search.enforced_hillclimbing_search,
+    "ids": search.iterative_deepening_search,
+    "sat": search.sat_solve,
 }
 
 
-NUMBER = re.compile(r'\d+')
+NUMBER = re.compile(r"\d+")
 
 
 def get_heuristics():
@@ -55,26 +55,34 @@ def get_heuristics():
     """
     heuristics = []
     src_dir = os.path.dirname(os.path.abspath(__file__))
-    heuristics_dir = os.path.abspath(os.path.join(src_dir, 'heuristics'))
+    heuristics_dir = os.path.abspath(os.path.join(src_dir, "heuristics"))
     for filename in os.listdir(heuristics_dir):
-        if not filename.endswith('.py'):
+        if not filename.endswith(".py"):
             continue
         module = tools.import_python_file(os.path.join(heuristics_dir, filename))
-        heuristics.extend([getattr(module, cls) for cls in dir(module)
-                           if cls.endswith('Heuristic') and cls != 'Heuristic' and
-                           not cls.startswith('_')])
+        heuristics.extend(
+            [
+                getattr(module, cls)
+                for cls in dir(module)
+                if cls.endswith("Heuristic")
+                and cls != "Heuristic"
+                and not cls.startswith("_")
+            ]
+        )
     return heuristics
+
 
 def _get_heuristic_name(cls):
     name = cls.__name__
-    assert name.endswith('Heuristic')
+    assert name.endswith("Heuristic")
     return name[:-9].lower()
+
 
 HEURISTICS = {_get_heuristic_name(heur): heur for heur in get_heuristics()}
 
 
 def validator_available():
-    return tools.command_available(['validate', '-h'])
+    return tools.command_available(["validate", "-h"])
 
 
 def find_domain(problem):
@@ -93,44 +101,44 @@ def find_domain(problem):
     dir, name = os.path.split(problem)
     number_match = NUMBER.search(name)
     number = number_match.group(0)
-    domain = os.path.join(dir, 'domain.pddl')
+    domain = os.path.join(dir, "domain.pddl")
     for file in os.listdir(dir):
-        if 'domain' in file and number in file:
+        if "domain" in file and number in file:
             domain = os.path.join(dir, file)
             break
     if not os.path.isfile(domain):
         logging.error('Domain file "{0}" can not be found'.format(domain))
         sys.exit(1)
-    logging.info('Found domain {0}'.format(domain))
+    logging.info("Found domain {0}".format(domain))
     return domain
 
 
 def _parse(domain_file, problem_file):
     # Parsing
     parser = Parser(domain_file, problem_file)
-    logging.info('Parsing Domain {0}'.format(domain_file))
+    logging.info("Parsing Domain {0}".format(domain_file))
     domain = parser.parse_domain()
-    logging.info('Parsing Problem {0}'.format(problem_file))
+    logging.info("Parsing Problem {0}".format(problem_file))
     problem = parser.parse_problem(domain)
     logging.debug(domain)
-    logging.info('{0} Predicates parsed'.format(len(domain.predicates)))
-    logging.info('{0} Actions parsed'.format(len(domain.actions)))
-    logging.info('{0} Objects parsed'.format(len(problem.objects)))
-    logging.info('{0} Constants parsed'.format(len(domain.constants)))
+    logging.info("{0} Predicates parsed".format(len(domain.predicates)))
+    logging.info("{0} Actions parsed".format(len(domain.actions)))
+    logging.info("{0} Objects parsed".format(len(problem.objects)))
+    logging.info("{0} Constants parsed".format(len(domain.constants)))
     return problem
 
 
 def _ground(problem):
-    logging.info('Grounding start: {0}'.format(problem.name))
+    logging.info("Grounding start: {0}".format(problem.name))
     task = grounding.ground(problem)
-    logging.info('Grounding end: {0}'.format(problem.name))
-    logging.info('{0} Variables created'.format(len(task.facts)))
-    logging.info('{0} Operators created'.format(len(task.operators)))
+    logging.info("Grounding end: {0}".format(problem.name))
+    logging.info("{0} Variables created".format(len(task.facts)))
+    logging.info("{0} Operators created".format(len(task.operators)))
     return task
 
 
 def _search(task, search, heuristic, use_preferred_ops=False):
-    logging.info('Search start: {0}'.format(task.name))
+    logging.info("Search start: {0}".format(task.name))
     if heuristic:
         if use_preferred_ops:
             solution = search(task, heuristic, use_preferred_ops)
@@ -138,19 +146,20 @@ def _search(task, search, heuristic, use_preferred_ops=False):
             solution = search(task, heuristic)
     else:
         solution = search(task)
-    logging.info('Search end: {0}'.format(task.name))
+    logging.info("Search end: {0}".format(task.name))
     return solution
 
 
 def _write_solution(solution, filename):
     assert solution is not None
-    with open(filename, 'w') as file:
+    with open(filename, "w") as file:
         for op in solution:
             print(op.name, file=file)
 
 
-def search_plan(domain_file, problem_file, search, heuristic_class,
-                use_preferred_ops=False):
+def search_plan(
+    domain_file, problem_file, search, heuristic_class, use_preferred_ops=False
+):
     """
     Parses the given input files to a specific planner task and then tries to
     find a solution using the specified  search algorithm and heuristics.
@@ -174,60 +183,77 @@ def search_plan(domain_file, problem_file, search, heuristic_class,
         solution = _search(task, search, heuristic, use_preferred_ops=True)
     else:
         solution = _search(task, search, heuristic)
-    logging.info('Wall-clock search time: {0:.2}'.format(time.clock() -
-                                                         search_start_time))
+    logging.info(
+        "Wall-clock search time: {0:.2}".format(time.clock() - search_start_time)
+    )
     return solution
 
 
 def validate_solution(domain_file, problem_file, solution_file):
     if not validator_available():
-        logging.info('validate could not be found on the PATH so the plan can '
-                     'not be validated.')
+        logging.info(
+            "validate could not be found on the PATH so the plan can "
+            "not be validated."
+        )
         return
 
-    cmd = ['validate', domain_file, problem_file, solution_file]
+    cmd = ["validate", domain_file, problem_file, solution_file]
     exitcode = subprocess.call(cmd, stdout=subprocess.PIPE)
 
     if exitcode == 0:
-        logging.info('Plan correct')
+        logging.info("Plan correct")
     else:
-        logging.warning('Plan NOT correct')
+        logging.warning("Plan NOT correct")
     return exitcode == 0
 
 
 def main():
     # Commandline parsing
-    log_levels = ['debug', 'info', 'warning', 'error']
+    log_levels = ["debug", "info", "warning", "error"]
 
     # get pretty print names for the search algorithms:
     # use the function/class name and strip off '_search'
     def get_callable_names(callables, omit_string):
         names = [c.__name__ for c in callables]
-        names = [n.replace(omit_string, '').replace('_', ' ') for n in names]
-        return ', '.join(names)
-    search_names = get_callable_names(SEARCHES.values(), '_search')
+        names = [n.replace(omit_string, "").replace("_", " ") for n in names]
+        return ", ".join(names)
+
+    search_names = get_callable_names(SEARCHES.values(), "_search")
 
     argparser = argparse.ArgumentParser(
-                        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    argparser.add_argument(dest='domain', nargs='?')
-    argparser.add_argument(dest='problem')
-    argparser.add_argument('-l', '--loglevel', choices=log_levels,
-                           default='info')
-    argparser.add_argument('-H', '--heuristic', choices=HEURISTICS.keys(),
-                           help='Select a heuristic', default='hff')
-    argparser.add_argument('-s', '--search', choices=SEARCHES.keys(),
-        help='Select a search algorithm from {0}'.format(search_names),
-        default='bfs')
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    argparser.add_argument(dest="domain", nargs="?")
+    argparser.add_argument(dest="problem")
+    argparser.add_argument("-l", "--loglevel", choices=log_levels, default="info")
+    argparser.add_argument(
+        "-H",
+        "--heuristic",
+        choices=HEURISTICS.keys(),
+        help="Select a heuristic",
+        default="hff",
+    )
+    argparser.add_argument(
+        "-s",
+        "--search",
+        choices=SEARCHES.keys(),
+        help="Select a search algorithm from {0}".format(search_names),
+        default="bfs",
+    )
     args = argparser.parse_args()
 
-    logging.basicConfig(level=getattr(logging, args.loglevel.upper()),
-                    format='%(asctime)s %(levelname)-8s %(message)s',
-                    stream=sys.stdout)
+    logging.basicConfig(
+        level=getattr(logging, args.loglevel.upper()),
+        format="%(asctime)s %(levelname)-8s %(message)s",
+        stream=sys.stdout,
+    )
 
-    hffpo_searches = ['gbf', 'wastar', 'ehs']
-    if args.heuristic == 'hffpo' and args.search not in hffpo_searches:
-        print('ERROR: hffpo can currently only be used with %s\n' %
-              hffpo_searches, file=sys.stderr)
+    hffpo_searches = ["gbf", "wastar", "ehs"]
+    if args.heuristic == "hffpo" and args.search not in hffpo_searches:
+        print(
+            "ERROR: hffpo can currently only be used with %s\n" % hffpo_searches,
+            file=sys.stderr,
+        )
         argparser.print_help()
         exit(2)
 
@@ -240,24 +266,28 @@ def main():
     search = SEARCHES[args.search]
     heuristic = HEURISTICS[args.heuristic]
 
-    if args.search in ['bfs', 'ids', 'sat']:
+    if args.search in ["bfs", "ids", "sat"]:
         heuristic = None
 
-    logging.info('using search: %s' % search.__name__)
-    logging.info('using heuristic: %s' % (heuristic.__name__ if heuristic
-                                          else None))
-    use_preferred_ops = (args.heuristic == 'hffpo')
-    solution = search_plan(args.domain, args.problem, search, heuristic,
-                           use_preferred_ops=use_preferred_ops)
+    logging.info("using search: %s" % search.__name__)
+    logging.info("using heuristic: %s" % (heuristic.__name__ if heuristic else None))
+    use_preferred_ops = args.heuristic == "hffpo"
+    solution = search_plan(
+        args.domain,
+        args.problem,
+        search,
+        heuristic,
+        use_preferred_ops=use_preferred_ops,
+    )
 
     if solution is None:
-        logging.warning('No solution could be found')
+        logging.warning("No solution could be found")
     else:
-        solution_file = args.problem + '.soln'
-        logging.info('Plan length: %s' % len(solution))
+        solution_file = args.problem + ".soln"
+        logging.info("Plan length: %s" % len(solution))
         _write_solution(solution, solution_file)
         validate_solution(args.domain, args.problem, solution_file)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

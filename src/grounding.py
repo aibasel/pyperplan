@@ -57,7 +57,7 @@ def ground(problem):
     objects = problem.objects
     objects.update(domain.constants)
     if verbose_logging:
-        logging.debug('Objects:\n%s' % objects)
+        logging.debug("Objects:\n%s" % objects)
 
     # Get the names of the static predicates
     statics = _get_statics(predicates, actions)
@@ -77,7 +77,7 @@ def ground(problem):
     # Ground actions
     operators = _ground_actions(actions, type_map, statics, init)
     if verbose_logging:
-        logging.debug('Operators:\n%s' % '\n'.join(map(str, operators)))
+        logging.debug("Operators:\n%s" % "\n".join(map(str, operators)))
 
     # Ground goal
     # TODO: Remove facts that can only become true and are true in the
@@ -149,12 +149,10 @@ def _relevance_analysis(operators, goals):
         op.del_effects = new_dellist
         if not new_addlist and not new_dellist:
             if verbose_logging:
-                logging.debug('Relevance analysis removed oparator %s' %
-                              op.name)
+                logging.debug("Relevance analysis removed oparator %s" % op.name)
             del_operators.add(op)
     if debug:
-        logging.info('Relevance analysis removed %d facts' %
-                     len(debug_pruned_op))
+        logging.info("Relevance analysis removed %d facts" % len(debug_pruned_op))
     # remove completely irrelevant operators
     return [op for op in operators if not op in del_operators]
 
@@ -167,6 +165,7 @@ def _get_statics(predicates, actions):
     preconditions violated. A static predicate is a predicate which
     doesn't occur in an effect of an action.
     """
+
     def get_effects(action):
         return action.effect.addlist | action.effect.dellist
 
@@ -199,7 +198,7 @@ def _create_type_map(objects):
             type_map[object_type].add(object_name)
             object_type, parent_type = parent_type, object_type.parent
             if parent_type is None:
-            #if object_type is None:
+                # if object_type is None:
                 break
 
     # TODO sets in map should be ordered lists
@@ -226,8 +225,7 @@ def _ground_actions(actions, type_map, statics, init):
     @param statics: Names of the static predicates
     @param init: Grounded initial state
     """
-    op_lists = [_ground_action(action, type_map, statics, init)
-                for action in actions]
+    op_lists = [_ground_action(action, type_map, statics, init) for action in actions]
     operators = list(itertools.chain(*op_lists))
     return operators
 
@@ -242,15 +240,15 @@ def _find_pred_in_init(pred_name, param, sig_pos, init):
     """
     match_init = None
     if sig_pos == 0:
-        match_init = re.compile('\(%s %s.*' % (pred_name, param))
+        match_init = re.compile("\(%s %s.*" % (pred_name, param))
     else:
-        reg_ex = '\(%s\s+' % pred_name
-        reg_ex += '[\w\d-]+\s+' * sig_pos
-#        for i in xrange(sig_pos):
-#            reg_ex += '[\w\d-]+\s+'
-        reg_ex += '%s.*' % param
+        reg_ex = "\(%s\s+" % pred_name
+        reg_ex += "[\w\d-]+\s+" * sig_pos
+        #        for i in xrange(sig_pos):
+        #            reg_ex += '[\w\d-]+\s+'
+        reg_ex += "%s.*" % param
         match_init = re.compile(reg_ex)
-    assert (match_init is not None)
+    assert match_init is not None
     return any([match_init.match(string) for string in init])
 
 
@@ -258,7 +256,7 @@ def _ground_action(action, type_map, statics, init):
     """
     Ground the action and return the resulting list of operators.
     """
-    logging.debug('Grounding %s' % action.name)
+    logging.debug("Grounding %s" % action.name)
     param_to_objects = {}
 
     for param_name, param_types in action.signature:
@@ -291,18 +289,21 @@ def _ground_action(action, type_map, statics, init):
                                 remove_debug += 1
                             objects.remove(o)
     if verbose_logging:
-        logging.info('Static precondition analysis removed %d possible objects'
-                     % remove_debug)
+        logging.info(
+            "Static precondition analysis removed %d possible objects" % remove_debug
+        )
 
     # save a list of possible assignment tuples (param_name, object)
-    domain_lists = [[(name, obj) for obj in objects] for name, objects in
-                    param_to_objects.items()]
+    domain_lists = [
+        [(name, obj) for obj in objects] for name, objects in param_to_objects.items()
+    ]
     # Calculate all possible assignments
     assignments = itertools.product(*domain_lists)
 
     # Create a new operator for each possible assignment of parameters
-    ops = [_create_operator(action, dict(assign), statics, init)
-            for assign in assignments]
+    ops = [
+        _create_operator(action, dict(assign), statics, init) for assign in assignments
+    ]
     # Filter out the None values
     ops = filter(bool, ops)
 
@@ -346,8 +347,8 @@ def _create_operator(action, assignment, statics, init):
 
 def _get_grounded_string(name, args):
     """ We use the lisp notation (e.g. "(unstack c e)"). """
-    args_string = ' ' + ' '.join(args) if args else ''
-    return '(%s%s)' % (name, args_string)
+    args_string = " " + " ".join(args) if args else ""
+    return "(%s%s)" % (name, args_string)
 
 
 def _ground_atom(atom, assignment):

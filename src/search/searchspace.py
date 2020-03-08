@@ -27,6 +27,7 @@ class SearchNode:
     node and contains informations about the state, action to arrive
     the node and the path length in the count of applied operators.
     """
+
     def __init__(self, state, parent, action, g):
         """
         Construct a search node

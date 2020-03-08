@@ -27,6 +27,7 @@ class Operator:
     add_effects are the facts that the operator makes true.
     delete_effects are the facts that the operator makes false.
     """
+
     def __init__(self, name, preconditions, add_effects, del_effects):
         self.name = name
         self.preconditions = frozenset(preconditions)
@@ -62,22 +63,25 @@ class Operator:
         return (state - self.del_effects) | self.add_effects
 
     def __str__(self):
-        s = '%s\n' % self.name
-        for group, facts in [('PRE', self.preconditions),
-                             ('ADD', self.add_effects),
-                             ('DEL', self.del_effects)]:
+        s = "%s\n" % self.name
+        for group, facts in [
+            ("PRE", self.preconditions),
+            ("ADD", self.add_effects),
+            ("DEL", self.del_effects),
+        ]:
             for fact in facts:
-                s += '  %s: %s\n' % (group, fact)
+                s += "  %s: %s\n" % (group, fact)
         return s
 
     def __repr__(self):
-        return '<Op %s>' % self.name
+        return "<Op %s>" % self.name
 
 
 class Task:
     """
     A STRIPS planning task
     """
+
     def __init__(self, name, facts, initial_state, goals, operators):
         """
         @param name The task's name
@@ -107,15 +111,18 @@ class Task:
         operator and "new_state" the state that results when "op" is applied
         in state "state".
         """
-        return [(op, op.apply(state)) for op in self.operators
-                if op.applicable(state)]
+        return [(op, op.apply(state)) for op in self.operators if op.applicable(state)]
 
     def __str__(self):
-        s = 'Task {0}\n  Vars:  {1}\n  Init:  {2}\n  Goals: {3}\n  Ops:   {4}'
-        return s.format(self.name, ', '.join(self.facts),
-                             self.initial_state, self.goals,
-                             '\n'.join(map(repr, self.operators)))
+        s = "Task {0}\n  Vars:  {1}\n  Init:  {2}\n  Goals: {3}\n  Ops:   {4}"
+        return s.format(
+            self.name,
+            ", ".join(self.facts),
+            self.initial_state,
+            self.goals,
+            "\n".join(map(repr, self.operators)),
+        )
 
     def __repr__(self):
-        string = '<Task {0}, vars: {1}, operators: {2}>'
+        string = "<Task {0}, vars: {1}, operators: {2}>"
         return string.format(self.name, len(self.facts), len(self.operators))

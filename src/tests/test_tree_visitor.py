@@ -69,7 +69,7 @@ _problem_input = """(define (problem BLOCKS-5-0)
 )
 """
 
-_parser = Parser('')
+_parser = Parser("")
 
 _parser.domInput = _domain_input
 _parser.probInput = _problem_input
@@ -80,7 +80,7 @@ _problem = _parser.parse_problem(_domain, False)
 
 def test_default_pddl_visitor_domain():
     defaultVisitor = pddl_tree_visitor.PDDLVisitor()
-    input = _domain_input.split('\n')
+    input = _domain_input.split("\n")
     iter = parse_lisp_iterator(input)
     domAST = parse_domain_def(iter)
     # and traverse the AST
@@ -89,7 +89,7 @@ def test_default_pddl_visitor_domain():
 
 def test_default_pddl_visitor_problem():
     defaultVisitor = pddl_tree_visitor.PDDLVisitor()
-    input = _problem_input.split('\n')
+    input = _problem_input.split("\n")
     iter = parse_lisp_iterator(input)
     probAST = parse_problem_def(iter)
     # and traverse the AST
@@ -97,23 +97,33 @@ def test_default_pddl_visitor_problem():
 
 
 def test_action_set():
-    assert set([a for a in _domain.actions]) == set(['pick-up', 'put-down',
-                                                     'stack', 'unstack'])
+    assert set([a for a in _domain.actions]) == set(
+        ["pick-up", "put-down", "stack", "unstack"]
+    )
 
 
 def test_action_parameters():
-    signatures = [a.signature for a  in _domain.actions.values()]
-    #reduce(lambda x,y: x.extend(y), signatures)
+    signatures = [a.signature for a in _domain.actions.values()]
+    # reduce(lambda x,y: x.extend(y), signatures)
     signatures = list(itertools.chain(*signatures))
-    assert set([s[1][0].name for s in signatures]) == set(['block'])
+    assert set([s[1][0].name for s in signatures]) == set(["block"])
     assert len(signatures) == 6
 
 
 def test_action_precondition():
     preconditions = [a.precondition for a in _domain.actions.values()]
     preconditions = list(itertools.chain(*preconditions))
-    all_precond = ['clear', 'ontable', 'handempty', 'holding', 'holding',
-                   'clear', 'on', 'clear', 'handempty']
+    all_precond = [
+        "clear",
+        "ontable",
+        "handempty",
+        "holding",
+        "holding",
+        "clear",
+        "on",
+        "clear",
+        "handempty",
+    ]
     all_precond_name = [p.name for p in preconditions]
     assert len(all_precond) == len(all_precond_name)
     assert set(all_precond) == set(all_precond_name)
@@ -124,10 +134,28 @@ def test_action_effects():
     effects_del = [a.effect.dellist for a in _domain.actions.values()]
     effects_add = list(itertools.chain(*effects_add))
     effects_del = list(itertools.chain(*effects_del))
-    all_effects_add = ['holding', 'clear', 'handempty', 'ontable', 'clear',
-                       'handempty', 'on', 'holding', 'clear']
-    all_effects_del = ['ontable', 'clear', 'handempty', 'holding', 'clear',
-                       'holding', 'clear', 'handempty', 'on']
+    all_effects_add = [
+        "holding",
+        "clear",
+        "handempty",
+        "ontable",
+        "clear",
+        "handempty",
+        "on",
+        "holding",
+        "clear",
+    ]
+    all_effects_del = [
+        "ontable",
+        "clear",
+        "handempty",
+        "holding",
+        "clear",
+        "holding",
+        "clear",
+        "handempty",
+        "on",
+    ]
     all_effects_add_name = [e.name for e in effects_add]
     all_effects_del_name = [e.name for e in effects_del]
     assert len(all_effects_add) == len(all_effects_add_name)
@@ -137,7 +165,7 @@ def test_action_effects():
 
 
 def test_domain_name():
-    assert _domain.name == 'blocks'
+    assert _domain.name == "blocks"
 
 
 def test_predicates():
@@ -145,18 +173,16 @@ def test_predicates():
     pred_sig = [p.signature for p in _domain.predicates.values()]
     pred_sig = list(itertools.chain(*pred_sig))
     pred_sig_types = [p[1][0].name for p in pred_sig]
-    assert set(pred_sig_types) == set(['block'])
-    assert set(pred_names) == set(['on', 'ontable', 'clear', 'handempty',
-                                   'holding'])
+    assert set(pred_sig_types) == set(["block"])
+    assert set(pred_names) == set(["on", "ontable", "clear", "handempty", "holding"])
 
 
 def test_constants():
     pred_constants = [c for c in _domain.constants.values()]
-    assert set([o
-                for o in _domain.constants.keys()]) == set(['horst', 'block1',
-                                                            'block2'])
-    assert [t.name for t in _domain.constants.values()] == ['block', 'block',
-                                                            'block']
+    assert set([o for o in _domain.constants.keys()]) == set(
+        ["horst", "block1", "block2"]
+    )
+    assert [t.name for t in _domain.constants.values()] == ["block", "block", "block"]
 
 
 def test_parent_type_undefined():

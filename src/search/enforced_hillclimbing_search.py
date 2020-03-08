@@ -25,8 +25,7 @@ import logging
 from . import searchspace
 
 
-def enforced_hillclimbing_search(planning_task, heuristic,
-                                 use_preferred_ops=False):
+def enforced_hillclimbing_search(planning_task, heuristic, use_preferred_ops=False):
     """
     Searches for a plan on the given task using enforced hill climbing and
     duplicate detection.
@@ -66,33 +65,37 @@ def enforced_hillclimbing_search(planning_task, heuristic,
             (rh, rplan) = heuristic.calc_h_with_plan(node)
             logging.debug("relaxed plan %s " % rplan)
 
-        for operator, successor_state in planning_task.get_successor_states(
-                                                                   node.state):
+        for operator, successor_state in planning_task.get_successor_states(node.state):
 
             # for the preferred operator version ignore all non preferred
             # operators
             if use_preferred_ops:
                 if rplan and not operator.name in rplan:
                     # ignore this operator if we use the relaxed plan criterion
-                    logging.debug('removing operator %s << not a preferred '
-                                  'operator' % operator.name)
+                    logging.debug(
+                        "removing operator %s << not a preferred "
+                        "operator" % operator.name
+                    )
                     continue
                 else:
-                    logging.debug('keeping operator %s' % operator.name)
+                    logging.debug("keeping operator %s" % operator.name)
 
             # duplicate detection
             if successor_state not in closed:
-                successor_node = searchspace.make_child_node(node, operator,
-                                                             successor_state)
+                successor_node = searchspace.make_child_node(
+                    node, operator, successor_state
+                )
                 heuristic_value = heuristic(successor_node)
-                if heuristic_value == float('inf'):
+                if heuristic_value == float("inf"):
                     continue
                 elif heuristic_value < best_heuristic_value:
                     # Just take the first successor node that has a lower
                     # heuristic value than the current best_heuristic_value
                     # and ignore the other successor nodes.
-                    logging.debug("Found new best h: %f after %d expansions" %
-                                  (heuristic_value, iteration))
+                    logging.debug(
+                        "Found new best h: %f after %d expansions"
+                        % (heuristic_value, iteration)
+                    )
                     queue.clear()
                     closed.clear()
                     best_heuristic_value = heuristic_value

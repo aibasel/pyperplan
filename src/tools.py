@@ -31,8 +31,7 @@ def command_available(command):
     ['validate', '-h'] or ['minisat', '--help']
     """
     try:
-        subprocess.check_call(command, stdout=subprocess.PIPE,
-                              stderr=subprocess.PIPE)
+        subprocess.check_call(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return True
     except (subprocess.CalledProcessError, OSError) as err:
         return False
@@ -59,9 +58,9 @@ def import_python_file(filename, dirs=None):
             sys.path.insert(0, dir)
     filename = os.path.normpath(filename)
     filename = os.path.basename(filename)
-    if filename.endswith('.py'):
+    if filename.endswith(".py"):
         module_name = filename[:-3]
-    elif filename.endswith('.pyc'):
+    elif filename.endswith(".pyc"):
         module_name = filename[:-4]
     else:
         module_name = filename

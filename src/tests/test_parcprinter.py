@@ -27,11 +27,12 @@ from task import Task, Operator
 import pyperplan as planner
 from search import breadth_first_search, searchspace
 
-benchmarks = os.path.abspath(os.path.join(os.path.abspath(__file__),
-                                          '../../../benchmarks'))
+benchmarks = os.path.abspath(
+    os.path.join(os.path.abspath(__file__), "../../../benchmarks")
+)
 
 # Collect problem files
-problem_file = os.path.join(benchmarks, 'parcprinter', 'task01.pddl')
+problem_file = os.path.join(benchmarks, "parcprinter", "task01.pddl")
 domain_file = planner.find_domain(problem_file)
 
 problem = planner._parse(domain_file, problem_file)
@@ -41,7 +42,7 @@ task = planner._ground(problem)
 node = searchspace.make_root_node(task.initial_state)
 for step, op_name in enumerate(optimal_plan, start=1):
     for op, successor_state in task.get_successor_states(node.state):
-        if not op.name.strip('()') == op_name:
+        if not op.name.strip("()") == op_name:
             continue
         node = searchspace.make_child_node(node, op, successor_state)
 
