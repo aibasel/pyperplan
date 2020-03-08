@@ -24,14 +24,9 @@ installed to run it. If Python 3 is not installed on your system, you can
 download it from http://python.org. Alternatively, most current Linux
 distributions include Python 3. For example,
 
-    sudo apt-get install python3
+    sudo apt install python3
 
 will install Python 3 on an Ubuntu system.
-
-Versions of Python before Python 3.2 lack the argparse package, which Pyperplan
-uses for command line argument parsing. A copy of the argparse package is
-included with the planner and will be used automatically if no preinstalled
-version can be found.
 
 
 Usage

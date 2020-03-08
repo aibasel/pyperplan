@@ -19,6 +19,7 @@
 # TODO: Give searches and heuristics commandline options and reenable preferred
 # operators.
 
+import argparse
 import sys
 import os
 import re
@@ -26,11 +27,6 @@ import logging
 import subprocess
 import time
 from operator import attrgetter
-
-try:
-    import argparse
-except ImportError:
-    from external import argparse
 
 from pddl.parser import Parser
 import grounding
