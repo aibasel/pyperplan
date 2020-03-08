@@ -1,0 +1,6 @@
+*~
+*.py[cod]
+.tox/
+build/
+dist/
+src/pyperplan.egg-info/
