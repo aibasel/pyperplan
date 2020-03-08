@@ -34,10 +34,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip tox
 
-    #- name: Check style
-    #  if: matrix.python-version == '3.6'
-    #  run: |
-    #    tox -e style
+    - name: Check style
+      if: matrix.python-version == '3.6'
+      run: |
+        tox -e style
 
     - name: Run tests
       run: |
