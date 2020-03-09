@@ -5,10 +5,6 @@ from task import Operator
 from pddl.pddl import Type, Predicate, Effect, Action, Domain, Problem
 
 
-def assert_equal(result, expected):
-    assert result == expected
-
-
 def get_action(name, signature, precondition, addlist, dellist):
     effect = Effect()
     effect.addlist = set(addlist)
@@ -521,30 +517,20 @@ def test_regression():
     expected = [
         (parsed_task5.operators, coded_task5.operators, True),
         (parsed_task6.operators, coded_task6.operators, True),
-        (parsed_task5.operators, coded_task6.operators, True),
+        (parsed_task5.operators, coded_task6.operators, False),
         (parsed_task5.operators, parsed_task7.operators, False),
         (parsed_task5.operators, parsed_task8.operators, True),
     ]
 
     for operator1, operator2, expected_result in expected:
-        yield compare_operators, operator1, operator2, expected_result
+        assert compare_operators(operator1, operator2) == expected_result
 
 
-def compare_operators(operators1, operators2, expected):
-    def compare_operator(operator1, operator2):
-        return (
-            operator1.name == operator2.name
-            and operator1.preconditions == operator2.preconditions
-            and operator1.add_effects == operator2.add_effects
-            and operator1.del_effects == operator2.del_effects
-        )
-
-    for operator1 in operators1:
-        if not (
-            any(compare_operator(operator1, operator2) for operator2 in operators2)
-        ):
-            return False == expected
-    return True == expected
+def compare_operators(operators1, operators2):
+    for op1 in operators1:
+        if not any(op1 == op2 for op2 in operators2):
+            return False
+    return True
 
 
 def test_add_del_effects():
@@ -618,8 +604,8 @@ def test_add_del_effects():
         # Ground actions
         operators = grounding._ground_actions(actions, type_map, statics, init)
 
-        yield assert_equal, len(operators), 1
+        assert len(operators) == 1
         op = operators[0]
-        yield assert_equal, op.preconditions, pre_exp
-        yield assert_equal, op.add_effects, add_exp
-        yield assert_equal, op.del_effects, del_exp
+        assert op.preconditions == pre_exp
+        assert op.add_effects == add_exp
+        assert op.del_effects == del_exp

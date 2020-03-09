@@ -62,6 +62,17 @@ class Operator:
         assert type(state) in (frozenset, set)
         return (state - self.del_effects) | self.add_effects
 
+    def __eq__(self, other):
+        return (
+            self.name == other.name
+            and self.preconditions == other.preconditions
+            and self.add_effects == other.add_effects
+            and self.del_effects == other.del_effects
+        )
+
+    def __hash__(self):
+        return hash((self.name, self.preconditions, self.add_effects, self.del_effects))
+
     def __str__(self):
         s = "%s\n" % self.name
         for group, facts in [
