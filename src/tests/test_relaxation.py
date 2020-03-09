@@ -179,22 +179,25 @@ task14 = Task(
 inf = float("inf")
 
 
-@pytest.mark.parametrize("task,hadd,hmax,hsa,hff", [
-    (task1, 3, 2, 2, 2),
-    (task2, 1, 1, 1, 1),
-    (task3, 1, 1, 1, 1),
-    (task4, 2, 1, 1, 1),
-    (task4b, 2, 1, 1, 1),
-    (task5, 3, 2, 2, 2),
-    (task6, 5, 3, 4, 4),
-    (task7, inf, inf, inf, inf),
-    (task8, 0, 0, 0, 0),
-    (task9, 2, 2, 2, 2),
-    (task10, 7, 4, 4, 4),
-    (task12, 9, 2, 4, 4),
-    (task13, 0, 0, 0, 0),
-    (task14, inf, inf, inf, inf),
-])
+@pytest.mark.parametrize(
+    "task,hadd,hmax,hsa,hff",
+    [
+        (task1, 3, 2, 2, 2),
+        (task2, 1, 1, 1, 1),
+        (task3, 1, 1, 1, 1),
+        (task4, 2, 1, 1, 1),
+        (task4b, 2, 1, 1, 1),
+        (task5, 3, 2, 2, 2),
+        (task6, 5, 3, 4, 4),
+        (task7, inf, inf, inf, inf),
+        (task8, 0, 0, 0, 0),
+        (task9, 2, 2, 2, 2),
+        (task10, 7, 4, 4, 4),
+        (task12, 9, 2, 4, 4),
+        (task13, 0, 0, 0, 0),
+        (task14, inf, inf, inf, inf),
+    ],
+)
 def test_heuristics(task, hadd, hmax, hsa, hff):
     compare_h_values(hAddHeuristic, task, hadd)
     compare_h_values(hMaxHeuristic, task, hmax)
