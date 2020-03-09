@@ -183,9 +183,7 @@ def search_plan(
         solution = _search(task, search, heuristic, use_preferred_ops=True)
     else:
         solution = _search(task, search, heuristic)
-    logging.info(
-        "Search time: {:.2}".format(time.process_time() - search_start_time)
-    )
+    logging.info("Search time: {:.2}".format(time.process_time() - search_start_time))
     return solution
 
 
