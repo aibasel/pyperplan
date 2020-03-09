@@ -41,4 +41,4 @@ jobs:
 
     - name: Run tests
       run: |
-        tox -e py
+        tox -e slow

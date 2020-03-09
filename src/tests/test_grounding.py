@@ -141,14 +141,9 @@ def test_statics1():
         [predicate_orig],
     )
 
-    expected = [
-        ("in", grounding._get_statics([predicate_in], [action_drive_car]), True),
-        ("dest", grounding._get_statics([predicate_dest], [action_drive_car]), False),
-        ("orig", grounding._get_statics([predicate_orig], [action_drive_car]), False),
-    ]
-
-    for pre, statics, element in expected:
-        yield in_statics, pre, statics, element
+    assert "in" in grounding._get_statics([predicate_in], [action_drive_car])
+    assert "dest" not in grounding._get_statics([predicate_dest], [action_drive_car])
+    assert "orig" not in grounding._get_statics([predicate_orig], [action_drive_car])
 
 
 def test_statics2():
@@ -206,7 +201,7 @@ def test_type_map1():
     ]
 
     for object, object_list in expected:
-        yield in_object_set, object, object_list
+        assert object in object_list
 
 
 def test_type_map2():
@@ -214,10 +209,6 @@ def test_type_map2():
     objects = {"object1": type_object}
     type_map = grounding._create_type_map(objects)
     assert "object1" in type_map[type_object]
-
-
-def in_object_set(object, object_list):
-    assert object in object_list
 
 
 def test_collect_facts():
@@ -333,15 +324,7 @@ def test_operators():
     ]
 
     for operator, grounded_operators in expected:
-        yield operator_grounded, operator, grounded_operators
-
-
-def operator_grounded(operator, grounded_operators):
-    grounded = False
-    for op in grounded_operators:
-        if operator == op.name:
-            grounded = True
-    assert grounded
+        assert any(op.name == operator for op in grounded_operators)
 
 
 def test_create_operator():

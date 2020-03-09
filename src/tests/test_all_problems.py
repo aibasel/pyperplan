@@ -6,7 +6,7 @@ import os
 import sys
 from glob import glob
 
-import py.test
+import pytest
 
 import pyperplan as planner
 from search import breadth_first_search
@@ -54,14 +54,16 @@ def run_planner(problem_file):
     )
 
 
-def test_ground_problems():
-    for problem_file in first_problems:
-        yield py.test.mark.slow(ground_problem), problem_file
+@pytest.mark.slow
+@pytest.mark.parametrize("problem", first_problems)
+def test_ground_problems(problem):
+    ground_problem(problem)
 
 
-def test_solve_smallest_problems():
+@pytest.mark.slow
+@pytest.mark.parametrize("problem", first_problems)
+def test_solve_smallest_problems(problem):
     """
     Solves the first instance of each domain
     """
-    for prob in first_problems:
-        yield py.test.mark.slow(run_planner), prob
+    run_planner(problem)
