@@ -1,8 +1,8 @@
 # from grounding import Grounder
 import grounding
 from pddl.parser import Parser
+from pddl.pddl import Action, Domain, Effect, Predicate, Problem, Type
 from task import Operator
-from pddl.pddl import Type, Predicate, Effect, Action, Domain, Problem
 
 
 def get_action(name, signature, precondition, addlist, dellist):

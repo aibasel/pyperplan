@@ -1,16 +1,17 @@
-import pytest
-
-from task import Task, Operator
+import grounding
 from heuristics.lm_cut import LmCutHeuristic
 from pddl.parser import Parser
-from search import astar_search, enforced_hillclimbing_search
+from search import astar_search, enforced_hillclimbing_search, make_root_node
+from task import Operator, Task
+
+import pytest
+
 from .heuristic_test_instances import (
     blocks_dom,
     blocks_problem_1,
-    gen_blocks_test_astar,
+    gen_blocks_test_astar
 )
-from search import make_root_node
-import grounding
+
 
 """
 Test problems

@@ -20,12 +20,12 @@ optimal_plan = [op.strip() for op in optimal_plan.splitlines()]
 
 import os
 
-import py
-
-from task import Task, Operator
-
 import pyperplan as planner
 from search import breadth_first_search, searchspace
+from task import Operator, Task
+
+import py
+
 
 benchmarks = os.path.abspath(
     os.path.join(os.path.abspath(__file__), "../../../benchmarks")

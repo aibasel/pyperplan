@@ -1,18 +1,20 @@
 import logging
 import sys
 
+from search import minisat, sat
+from task import Operator, Task
+import tools
+
+import pytest
+
+
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s %(levelname)-8s %(message)s",
     stream=sys.stdout,
 )
 
-import pytest
 
-from search import sat
-from search import minisat
-from task import Operator, Task
-import tools
 
 
 fact1 = "at-station"

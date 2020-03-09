@@ -2,14 +2,14 @@
 Tests for parsing and grounding all problems
 """
 
+from glob import glob
 import os
 import sys
-from glob import glob
-
-import pytest
 
 import pyperplan as planner
 from search import breadth_first_search
+
+import pytest
 
 
 benchmarks = os.path.abspath(

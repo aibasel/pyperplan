@@ -2,7 +2,7 @@
 Unit Testing for the search space module
 """
 
-from search.searchspace import make_root_node, make_child_node
+from search.searchspace import make_child_node, make_root_node
 
 
 # Construct a small tree in order to perform some needed test methods

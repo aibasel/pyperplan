@@ -1,8 +1,8 @@
-import os
-import sys
-import subprocess
-import logging
 import itertools
+import logging
+import os
+import subprocess
+import sys
 
 import tools
 

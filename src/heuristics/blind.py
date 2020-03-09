@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-from task import Operator, Task
 from heuristics.heuristic_base import Heuristic
+from task import Operator, Task
 
 
 class BlindHeuristic(Heuristic):

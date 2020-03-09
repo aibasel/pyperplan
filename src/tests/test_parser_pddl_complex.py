@@ -1,9 +1,10 @@
 #!/usr/bin/python3
-from pddl.parser import *
-from pddl.lisp_parser import parse_lisp_iterator
 from pddl.errors import ParseError
+from pddl.lisp_parser import parse_lisp_iterator
+from pddl.parser import *
 
 from py.test import raises
+
 
 ### helper functions
 

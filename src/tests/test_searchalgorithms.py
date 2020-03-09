@@ -3,6 +3,7 @@ Unit test for searchalgorithms.py
 """
 
 from search import breadth_first_search
+
 from . import dummy_task
 
 

@@ -3,6 +3,7 @@ import logging
 
 from search import minisat
 
+
 # Max number of steps in a plan
 HORIZON = 1000
 

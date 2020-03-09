@@ -1,12 +1,12 @@
-from task import Task, Operator
+import grounding
 from heuristics.relaxation import *
 from pddl.parser import Parser
-from search import a_star, enforced_hillclimbing_search
-from search import make_root_node
-from .heuristic_test_instances import *
-import grounding
+from search import a_star, enforced_hillclimbing_search, make_root_node
+from task import Operator, Task
 
 import pytest
+
+from .heuristic_test_instances import *
 
 
 def test_relaxation_heuristic_constructor():

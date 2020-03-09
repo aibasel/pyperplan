@@ -4,10 +4,10 @@ Tests VAL. Tests are skipped if "validate" is not found on the system path.
 
 import os
 
-import py
-
 from pyperplan import validate_solution, validator_available
 import tools
+
+import py
 
 
 DOMAIN_FILE = "DOMAIN.TEST"

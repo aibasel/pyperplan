@@ -15,10 +15,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-from task import Operator, Task
-from heuristics.heuristic_base import Heuristic
 import heapq
 import logging
+
+from heuristics.heuristic_base import Heuristic
+from task import Operator, Task
+
 
 """ This module contains the relaxation heuristics hAdd, hMax, hSA and hFF. """
 

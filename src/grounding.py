@@ -20,12 +20,13 @@ Classes and methods for grounding a schematic PDDL task to a STRIPS planning
 task.
 """
 
-import logging
-import itertools
-import re
 from collections import defaultdict
+import itertools
+import logging
+import re
 
-from task import Task, Operator
+from task import Operator, Task
+
 
 # controls mass log output
 verbose_logging = False

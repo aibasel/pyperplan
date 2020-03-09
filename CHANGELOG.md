@@ -3,6 +3,7 @@
 * Modernize code with pyupgrade.
 * Enable all tests.
 * Remove unused code.
+* Order imports.
 
 
 # 1.1 (2020-03-09)

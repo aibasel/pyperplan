@@ -15,10 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-from .a_star import astar_search, weighted_astar_search, greedy_best_first_search
+from .a_star import astar_search, greedy_best_first_search, weighted_astar_search
 from .breadth_first_search import breadth_first_search
 from .enforced_hillclimbing_search import enforced_hillclimbing_search
 from .iterative_deepening_search import iterative_deepening_search
 from .sat import sat_solve
-
-from .searchspace import make_root_node, make_child_node
+from .searchspace import make_child_node, make_root_node

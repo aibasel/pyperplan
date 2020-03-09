@@ -1,4 +1,4 @@
-from pddl.pddl import Type, Predicate, Domain, Problem
+from pddl.pddl import Domain, Predicate, Problem, Type
 
 
 def test_type():

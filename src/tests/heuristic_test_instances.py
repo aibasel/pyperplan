@@ -1,9 +1,7 @@
-from task import Task, Operator
-from pddl.parser import Parser
-from search import searchspace
-from search import astar_search
-from search import enforced_hillclimbing_search
 import grounding
+from pddl.parser import Parser
+from search import astar_search, enforced_hillclimbing_search, searchspace
+from task import Operator, Task
 
 
 blocks_dom = """\

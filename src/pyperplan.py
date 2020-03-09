@@ -20,18 +20,19 @@
 # operators.
 
 import argparse
-import sys
+import logging
 import os
 import re
-import logging
 import subprocess
+import sys
 import time
 
-from pddl.parser import Parser
 import grounding
-import search
 import heuristics
+from pddl.parser import Parser
+import search
 import tools
+
 
 SEARCHES = {
     "astar": search.astar_search,

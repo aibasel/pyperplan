@@ -19,8 +19,8 @@
 Landmarks Heuristic
 """
 
-import copy
 from collections import defaultdict
+import copy
 
 from heuristics.heuristic_base import Heuristic
 

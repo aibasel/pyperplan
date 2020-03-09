@@ -7,6 +7,7 @@ TODO: Duplicate pruning tests
 """
 
 from search import iterative_deepening_search
+
 from . import dummy_task
 
 

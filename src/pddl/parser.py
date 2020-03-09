@@ -16,10 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-from .parser_common import *
 from .errors import *
-from .tree_visitor import Visitable, TraversePDDLDomain, TraversePDDLProblem
 from .lisp_parser import parse_lisp_iterator
+from .parser_common import *
+from .tree_visitor import TraversePDDLDomain, TraversePDDLProblem, Visitable
+
 
 """
 This module contains the main parser logic.

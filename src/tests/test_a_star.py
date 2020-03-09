@@ -1,6 +1,8 @@
 from search import a_star, searchspace
-from . import dummy_task
+
 import py.test
+
+from . import dummy_task
 
 
 # create 4 dummy tasks

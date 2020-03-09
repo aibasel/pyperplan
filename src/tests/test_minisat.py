@@ -1,7 +1,7 @@
-import pytest
-
 from search import minisat
 import tools
+
+import pytest
 
 
 def get_long_formula(len):

@@ -1,5 +1,6 @@
 from pddl.parser import *
 
+
 _parser = Parser("")
 
 

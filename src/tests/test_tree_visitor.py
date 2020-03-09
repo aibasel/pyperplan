@@ -1,10 +1,11 @@
-from pddl.parser import Parser, parse_domain_def, parse_problem_def
+import itertools
+
+from pddl.lisp_parser import parse_lisp_iterator
+from pddl.parser import parse_domain_def, parse_problem_def, Parser
 import pddl.tree_visitor as pddl_tree_visitor
 from pddl.tree_visitor import SemanticError
-from pddl.lisp_parser import parse_lisp_iterator
 
 from py.test import raises
-import itertools
 
 
 _domain_input = """

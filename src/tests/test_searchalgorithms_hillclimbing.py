@@ -3,8 +3,9 @@ Unit test for searchalgorithms_hillclimbing.py
 """
 
 from search import enforced_hillclimbing_search
-from . import dummy_task
 from task import *
+
+from . import dummy_task
 
 
 def test_enforced_hillclimbing_search_at_goal():

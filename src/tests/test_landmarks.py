@@ -1,6 +1,6 @@
 from heuristics import landmarks
-from task import Task, Operator
 from search import make_root_node
+from task import Operator, Task
 
 
 def test_compute_landmark_costs():

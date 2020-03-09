@@ -1,9 +1,10 @@
 """
 Tests for the task.py module
 """
+from task import Operator, Task
+
 import py
 
-from task import Task, Operator
 
 s1 = frozenset(["var1"])
 s2 = frozenset(["var2"])
