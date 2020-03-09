@@ -1,6 +1,7 @@
 # next (unreleased)
 
 * Modernize code with pyupgrade.
+* Enable all tests.
 
 
 # 1.1 (2020-03-09)
