@@ -1,13 +1,16 @@
+import pytest
+
 from task import Task, Operator
 from heuristics.lm_cut import LmCutHeuristic
 from pddl.parser import Parser
 from search import astar_search, enforced_hillclimbing_search
-from .heuristic_test_instances import *
+from .heuristic_test_instances import (
+    blocks_dom,
+    blocks_problem_1,
+    gen_blocks_test_astar,
+)
 from search import make_root_node
 import grounding
-
-
-import py.test
 
 """
 Test problems
@@ -387,20 +390,18 @@ def test_lm_cut_blocksworld_initial_state():
     assert h_val == 6.0
 
 
+@pytest.mark.slow
 def test_lm_cut_blocksworld_complete_astar():
-    # run through plan and validate heuristic value
-    # the true_h_values are taken from fast downward with astar and lm cut
-    # heuristic
+    # Trace plan and validate heuristic values. The true_h_values are taken from
+    # Fast Downward with A* and the LM-cut heuristic.
     true_h_values = [6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0]
     plan_length = 6
-    yield py.test.mark.slow(
-        gen_blocks_test_astar
-    ), LmCutHeuristic, true_h_values, plan_length
+    gen_blocks_test_astar(LmCutHeuristic, true_h_values, plan_length)
 
 
+@pytest.mark.slow
 def test_lm_cut_blocksworld_complete_enforced_hillclimbing():
     true_h_values = [6.0, 5.0, 5.0, 4.0, 5.0, 5.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0]
     plan_length = 16
-    # TODO: Result is currently undeterministic.
-    # yield py.test.mark.slow(gen_blocks_test_ehc), LmCutHeuristic, \
-    #    true_h_values, plan_length
+    # TODO: Result is currently nondeterministic.
+    # gen_blocks_test_ehc(LmCutHeuristic, true_h_values, plan_length)
