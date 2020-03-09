@@ -15,8 +15,6 @@ logging.basicConfig(
 )
 
 
-
-
 fact1 = "at-station"
 
 op1 = Operator("op1", set(), {"a"}, set())

@@ -9,7 +9,7 @@ import pytest
 from .heuristic_test_instances import (
     blocks_dom,
     blocks_problem_1,
-    gen_blocks_test_astar
+    gen_blocks_test_astar,
 )
 
 

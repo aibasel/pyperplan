@@ -169,11 +169,7 @@ task13 = Task(
 )
 # task with no reachable goal:
 task14 = Task(
-    "task14",
-    {"A", "B", "C"},
-    ["A"],
-    ["B", "C"],
-    [Operator("op1", {"A"}, {"B"}, set())],
+    "task14", {"A", "B", "C"}, ["A"], ["B", "C"], [Operator("op1", {"A"}, {"B"}, set())]
 )
 
 inf = float("inf")
