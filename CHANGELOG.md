@@ -1,3 +1,8 @@
+# 1.3 (2020-03-09)
+
+* Test minisat with GitHub actions.
+
+
 # 1.2 (2020-03-09)
 
 * Modernize code with pyupgrade.

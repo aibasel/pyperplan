@@ -30,8 +30,9 @@ jobs:
         python --version
         python3 -c "import multiprocessing as m; print('CPUs:', m.cpu_count())"
 
-    - name: Install tox
+    - name: Install dependencies
       run: |
+        sudo apt-get -y install minisat
         python -m pip install --upgrade pip tox
 
     - name: Check style
