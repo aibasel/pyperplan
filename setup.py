@@ -9,7 +9,7 @@ from setuptools import find_packages, setup
 VERSION = "1.1"
 
 
-with open("README.rst") as f:
+with open("README.md") as f:
     long_description = f.read()
 
 
@@ -18,7 +18,7 @@ setup(
     version=VERSION,
     description="A lightweight STRIPS planner written in Python.",
     long_description=long_description,
-    long_description_content_type="text/x-rst",
+    long_description_content_type="text/markdown",
     keywords="classical planning STRIPS",
     author="Jendrik Seipp",
     author_email="jendrik.seipp@unibas.ch",
