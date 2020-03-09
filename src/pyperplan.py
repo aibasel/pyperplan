@@ -178,13 +178,13 @@ def search_plan(
     heuristic = None
     if not heuristic_class is None:
         heuristic = heuristic_class(task)
-    search_start_time = time.clock()
+    search_start_time = time.process_time()
     if use_preferred_ops and isinstance(heuristic, heuristics.hFFHeuristic):
         solution = _search(task, search, heuristic, use_preferred_ops=True)
     else:
         solution = _search(task, search, heuristic)
     logging.info(
-        "Wall-clock search time: {:.2}".format(time.clock() - search_start_time)
+        "Search time: {:.2}".format(time.process_time() - search_start_time)
     )
     return solution
 
