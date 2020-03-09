@@ -7,7 +7,7 @@ logging.basicConfig(
     stream=sys.stdout,
 )
 
-import py.test
+import pytest
 
 from search import sat
 from search import minisat
@@ -46,18 +46,6 @@ def sort_formula(formula):
     return sorted(strings) + sorted(sort_formula(l) for l in lists)
 
 
-def assert_true(value):
-    assert value
-
-
-def assert_false(value):
-    assert not value
-
-
-def assert_equal(result, expected):
-    assert result == expected
-
-
 def test_formula_string1():
     assert sat._formula_str(["a"]) == "(a)"
 
@@ -86,15 +74,14 @@ def test_index_fact2():
     assert sat.index_fact(fact1, index=3, negated=True) == "not-at-station-3"
 
 
-def test_fact_formula():
-    pairs = [
+@pytest.mark.parametrize("input,expected", [
         ((op1, "a", 3), ["a-4"]),
         ((op1, "b", 3), ["b-4<->b-3"]),
         ((op2, "c", 3), ["not-c-4"]),
         ((op2, "b", 3), ["b-4<->b-3"]),
-    ]
-    for input, expected in pairs:
-        yield assert_equal, sat.get_formula_for_fact(*input), expected
+    ])
+def test_fact_formula(input, expected):
+    assert sat.get_formula_for_fact(*input) == expected
 
 
 def test_operator_formula1():
@@ -179,16 +166,10 @@ def test_extract_plan():
 
     for valuation, operators, plan in expected:
         extracted_plan = sat._extract_plan(operators, valuation)
-        yield assert_equal, extracted_plan, plan
+        assert extracted_plan == plan
 
 
-def check_plan(task, expected):
-    if not minisat.minisat_available():
-        py.test.skip("minisat missing")
-    computed = sat.sat_solve(task, max_steps=5)
-    assert computed == expected
-
-
+@pytest.mark.skipif(not minisat.minisat_available(), reason="minisat missing")
 def test_sat_solve():
     op1 = Operator("op1", set(), {"a"}, set())
     op2 = Operator("op2", set("a"), set("b"), set())
@@ -333,7 +314,7 @@ def test_sat_solve():
     ]
 
     for task, plan in expected:
-        yield check_plan, task, plan
+        assert sat.sat_solve(task, max_steps=5) == plan
 
 
 def teardown_module(module):
