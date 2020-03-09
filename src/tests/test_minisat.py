@@ -1,28 +1,7 @@
-import py.test
+import pytest
 
 from search import minisat
-from search import sat
-from task import Operator, Task
 import tools
-
-
-def assert_true(value):
-    assert value
-
-
-def assert_false(value):
-    assert not value
-
-
-def assert_equal(result, expected):
-    assert result == expected
-
-
-def compare(input, expected_result):
-    if not minisat.minisat_available():
-        py.test.skip("minisat missing")
-    solution = minisat.solve(input)
-    assert solution == expected_result
 
 
 def get_long_formula(len):
@@ -34,8 +13,10 @@ def get_long_formula(len):
     return (formula, result)
 
 
-def test_minisat():
-    expected = [
+@pytest.mark.skipif(not minisat.minisat_available(), reason="minisat missing")
+@pytest.mark.parametrize(
+    "formula,expected",
+    [
         ([[]], []),
         ([["v1"]], ["v1"]),
         ([["not-v1"]], ["not-v1"]),
@@ -44,10 +25,10 @@ def test_minisat():
         ([["a-0"]], ["a-0"]),
         (["a-0"], ["a-0"]),
         get_long_formula(100),
-    ]
-
-    for input, expected_result in expected:
-        yield compare, input, expected_result
+    ],
+)
+def test_minisat(formula, expected):
+    assert minisat.solve(formula) == expected
 
 
 def teardown_module(module):
