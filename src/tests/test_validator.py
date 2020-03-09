@@ -7,7 +7,7 @@ import os
 from pyperplan import validate_solution, validator_available
 import tools
 
-import py
+import pytest
 
 
 DOMAIN_FILE = "DOMAIN.TEST"
@@ -114,13 +114,13 @@ def setup_module(module):
 
 def test_validate_correct_plan():
     if not validator_available():
-        py.test.skip("validate missing")
+        pytest.skip("validate missing")
     assert validate_solution(DOMAIN_FILE, PROBLEM_FILE, CORRECT_SOLN_FILE)
 
 
 def test_validate_false_plan():
     if not validator_available():
-        py.test.skip("validate missing")
+        pytest.skip("validate missing")
     assert not validate_solution(DOMAIN_FILE, PROBLEM_FILE, FALSE_SOLN_FILE)
 
 

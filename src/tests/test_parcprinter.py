@@ -24,8 +24,6 @@ import pyperplan as planner
 from search import breadth_first_search, searchspace
 from task import Operator, Task
 
-import py
-
 
 benchmarks = os.path.abspath(
     os.path.join(os.path.abspath(__file__), "../../../benchmarks")

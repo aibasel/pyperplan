@@ -1,4 +1,4 @@
-import py.test
+import pytest
 
 
 def pytest_addoption(parser):
@@ -10,4 +10,4 @@ def pytest_addoption(parser):
 def pytest_runtest_setup(item):
     """Skip tests if they are marked as slow and --slow is not given"""
     if "slow" in item.keywords and not item.config.getvalue("slow"):
-        py.test.skip("slow tests not requested")
+        pytest.skip("slow tests not requested")

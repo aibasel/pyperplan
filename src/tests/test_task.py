@@ -3,7 +3,7 @@ Tests for the task.py module
 """
 from task import Operator, Task
 
-import py
+import pytest
 
 
 s1 = frozenset(["var1"])
@@ -39,7 +39,7 @@ def test_op_application1():
 
 
 def test_op_application2():
-    with py.test.raises(AssertionError):
+    with pytest.raises(AssertionError):
         op1.apply(s2)
 
 

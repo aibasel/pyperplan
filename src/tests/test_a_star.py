@@ -1,6 +1,6 @@
 from search import a_star, searchspace
 
-import py.test
+import pytest
 
 from . import dummy_task
 
