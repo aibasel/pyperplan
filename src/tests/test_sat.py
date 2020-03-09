@@ -28,15 +28,6 @@ task3 = Task("task3", {"a", "b"}, set(), {"a", "b"}, [op1, op4])
 task4 = Task("task4", {"a", "d"}, {"d"}, {"a"}, [op3])
 task5 = Task("trivial", {"a"}, {"a"}, {"a"}, [])
 
-aux_a_iff_b = [
-    ["a<->b", "a", "b"],
-    ["a<->b", "not-a", "not-b"],
-    ["not-a<->b", "a", "not-b"],
-    ["not-a<->b", "not-a", "b"],
-]
-
-aux_a_and_b = [["not-aANDb", "a"], ["not-aANDb", "b"], ["not-a", "not-b", "aANDb"]]
-
 
 def sort_formula(formula):
     # Move all literals to the front and all subformulas to the back.
@@ -196,24 +187,6 @@ def test_sat_solve():
         {"a"},
         {"g"},
         [op2, op3, op4, op5, op6, op7],
-    )
-
-    op_a = Operator("op_a", set(), {"a"}, set())
-    op_b = Operator("op_b", {"a"}, {"b"}, set())
-    op_c = Operator("op_c", {"b"}, {"c"}, set())
-    op_d = Operator("op_d", {"c"}, {"d"}, set())
-    op_e = Operator("op_e", {"d"}, {"e"}, set())
-    op_f = Operator("op_f", {"e"}, {"f"}, set())
-
-    task_d = Task(
-        "task_a", {"a", "b", "c", "d"}, set(), {"d"}, [op_a, op_b, op_c, op_d]
-    )
-    task_e = Task(
-        "task_b",
-        {"a", "b", "c", "d", "e"},
-        set(),
-        {"e"},
-        [op_a, op_b, op_c, op_d, op_f],
     )
 
     op_facts = Operator(

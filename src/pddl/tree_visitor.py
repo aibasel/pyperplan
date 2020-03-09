@@ -496,8 +496,6 @@ class TraversePDDLProblem(PDDLVisitor):
         """Getter for the resulting pddl-problem data structure."""
         return self._problemDef
 
-    problemDef = property(get_problem)
-
     def __init__(self, domain):
         """Constructor for pddl-problem visitor.
 

@@ -841,18 +841,8 @@ class Parser:
         # finally return the pddl.Problem
         return visitor.get_problem()
 
-    # some setter and getter functions
-    def set_domain_file(self, fname):
-        self.domFile = fname
-
     def set_prob_file(self, fname):
         self.probFile = fname
-
-    def get_domain_file(self):
-        return self.domFile
-
-    def get_prob_file(self):
-        return self.probFile
 
 
 if __name__ == "__main__":

@@ -21,14 +21,6 @@ problems = sorted(glob(os.path.join(benchmarks, "*", "task*.pddl")))
 first_problems = [prob for prob in problems if "task01" in prob]
 
 
-def check_equal(result, expected):
-    assert expected == result
-
-
-def check_not_none(result):
-    assert result is not None
-
-
 def parse_problem(problem_file, domain_file=None):
     if domain_file is None:
         domain_file = planner.find_domain(problem_file)

@@ -239,7 +239,7 @@ class _RelaxationHeuristic(Heuristic):
         achieved_goals = set()
         while not self.finished(achieved_goals, queue):
             # Get the fact with the lowest heuristic value.
-            (dist, tie, fact) = heapq.heappop(queue)
+            (_dist, _tie, fact) = heapq.heappop(queue)
             # If this node is part of the goal, we add to the goal set, which
             # is used as an abort criterion.
             if fact.name in self.goals:

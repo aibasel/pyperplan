@@ -176,7 +176,6 @@ def test_predicates():
 
 
 def test_constants():
-    pred_constants = [c for c in _domain.constants.values()]
     assert {o for o in _domain.constants.keys()} == {"horst", "block1", "block2"}
     assert [t.name for t in _domain.constants.values()] == ["block", "block", "block"]
 

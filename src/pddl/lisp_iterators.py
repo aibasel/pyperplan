@@ -122,32 +122,8 @@ class LispIterator:
         """Structure only. Raise ParseError if not at the end."""
         self._raise_if(self.peek() is not None, "expected to be at end")
 
-    def match_structure(self):
-        """Structure only. Verify that next element is a structure. If
-        yes, return it and advance. If at the end or if next element
-        is a word, raise ParseError."""
-        result = self.next()
-        result._raise_if(result.is_word(), "expected a structure")
-        return result
-
-    def match_word(self):
-        """Structure only. Verify that next element is a word. If yes,
-        return it and advance. If at the end or if next element is a
-        word, raise ParseError."""
-        return self.next().get_word()
-
     ## Convenience functions for frequently needed operations that are
     ## even higher level than the high-level interface.
-
-    def match_words(self):
-        """Structure only. Verify that all following elements are
-        words. If yes, return them in a list and advance to the end.
-        If already at the end, return an empty list. If any of the
-        following elements is a structure, raise ParseError."""
-        result = []
-        while self.peek():
-            result.append(self.match_word())
-        return result
 
     def peek_tag(self):
         """Structure only. If next element is a structure whose first

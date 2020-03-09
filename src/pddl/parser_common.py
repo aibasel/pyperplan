@@ -23,6 +23,5 @@ uniquely identified by its start and end position.
 """
 
 # define the set of special characters
-whiteSpace = {" ", "\n", "\t"}
 comment = {";"}
 reserved = {":", ")", "("}.union(comment)

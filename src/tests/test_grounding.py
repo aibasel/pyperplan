@@ -51,7 +51,6 @@ predicate_in = Predicate("in", [("car", types["car"]), ("in", types["city"])])
 predicate_car_color = Predicate(
     "car_color", [("car", types["car"]), ("color", types["color"])]
 )
-predicate_at = Predicate("at", [("vehicle", types["vehicle"]), ("city", types["city"])])
 
 predicates = {
     "at": predicate_car_dest,
@@ -153,13 +152,6 @@ def test_statics2():
     statics = grounding._get_statics([predicate_a, predicate_b], [the_action])
 
     assert predicate_a.name in statics and predicate_b.name not in statics
-
-
-def in_statics(predicate, statics, element):
-    if element:
-        assert predicate in statics
-    else:
-        assert not predicate in statics
 
 
 def test_type_map1():
@@ -309,7 +301,6 @@ def test_operators():
 
     problem = Problem("test_problem", domain, objects, initial_state, goal_state)
     task = grounding.ground(problem)
-    grounded_constant = task.operators
 
     expected = [
         ("(DRIVE-CAR red_car freiburg basel)", grounded_drive_car),

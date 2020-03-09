@@ -358,7 +358,6 @@ class LmCutHeuristic(Heuristic):
         # computation
         self.dead_end = True
         # next find all cuts
-        iter_count = 0
         # first compute hmax starting from the current state
         self.compute_hmax(state, True)
         if goal_state.hmax_value == float("inf"):
@@ -377,7 +376,6 @@ class LmCutHeuristic(Heuristic):
             for o in cut:
                 o.cost -= min_cost
                 logging.debug(repr(o))
-            iter_count += 1
             # compute next hmax
             self.compute_hmax_from_last_cut(state, cut)
         if self.dead_end:

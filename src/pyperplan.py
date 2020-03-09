@@ -26,7 +26,6 @@ import re
 import logging
 import subprocess
 import time
-from operator import attrgetter
 
 from pddl.parser import Parser
 import grounding

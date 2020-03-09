@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 from pddl.parser import *
 from pddl.lisp_parser import parse_lisp_iterator
-from pddl.errors import BraceError, ParseError
+from pddl.errors import ParseError
 
 from py.test import raises
 
