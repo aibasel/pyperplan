@@ -6,7 +6,7 @@ import os.path
 from setuptools import find_packages, setup
 
 
-VERSION = "1.1"
+VERSION = "1.2"
 
 
 with open("README.md") as f:
