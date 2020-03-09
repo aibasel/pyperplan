@@ -74,12 +74,15 @@ def test_index_fact2():
     assert sat.index_fact(fact1, index=3, negated=True) == "not-at-station-3"
 
 
-@pytest.mark.parametrize("input,expected", [
+@pytest.mark.parametrize(
+    "input,expected",
+    [
         ((op1, "a", 3), ["a-4"]),
         ((op1, "b", 3), ["b-4<->b-3"]),
         ((op2, "c", 3), ["not-c-4"]),
         ((op2, "b", 3), ["b-4<->b-3"]),
-    ])
+    ],
+)
 def test_fact_formula(input, expected):
     assert sat.get_formula_for_fact(*input) == expected
 
