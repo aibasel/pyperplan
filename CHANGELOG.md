@@ -1,4 +1,4 @@
-# next (unreleased)
+# 1.2 (2020-03-09)
 
 * Modernize code with pyupgrade.
 * Enable all tests.
