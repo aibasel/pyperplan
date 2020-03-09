@@ -1,0 +1,46 @@
+{
+    "description": "<p>Pyperplan is a lightweight STRIPS planner written in Python.</p>\n\n<p>Please note that Pyperplan deliberately prefers clean code over fast code. It is designed to be used as a teaching or prototyping tool. If you use it for paper experiments, please state clearly that Pyperplan does not offer state-of-the-art performance.</p>\n\n<p>It was developed during the planning practical course at the University of Freiburg during the winter term 2010/2011 and is published under the terms of the GNU General Public License 3 (GPLv3).</p>\n\n<p>Pyperplan supports the following PDDL fragment: STRIPS without action costs.</p>",
+    "license": "GPL-3.0+",
+    "title": "Pyperplan",
+    "upload_type": "software",
+    "creators": [
+        {
+            "name": "Alkhazraji, Yusra"
+        },
+        {
+            "name": "Frorath, Matthias"
+        },
+        {
+            "name": "Gr\u00fctzner, Markus"
+        },
+        {
+            "affiliation": "University of Basel",
+            "name": "Helmert, Malte"
+        },
+        {
+            "name": "Liebetraut, Thomas"
+        },
+        {
+            "affiliation": "University of Freiburg",
+            "name": "Mattm\u00fcller, Robert"
+        },
+        {
+            "name": "Ortlieb, Manuela"
+        },
+        {
+            "affiliation": "University of Basel",
+            "orcid": "0000-0002-2498-8020",
+            "name": "Seipp, Jendrik"
+        },
+        {
+            "name": "Springenberg, Tobias"
+        },
+        {
+            "name": "Stahl, Philip"
+        },
+        {
+            "name": "W\u00fclfing, Jan"
+        }
+    ],
+    "access_right": "open"
+}
