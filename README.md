@@ -34,6 +34,9 @@ can install Pyperplan from the Python package index (PyPI):
 
     pip install pyperplan
 
+This makes the `pyperplan` script available globally or in your [virtual
+environment](https://docs.python.org/3/tutorial/venv.html) (recommended).
+
 # Usage
 
 The planner is invoked through the file src/pyperplan.py and accepts two
