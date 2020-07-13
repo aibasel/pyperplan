@@ -27,6 +27,13 @@ Linux distributions include Python 3. For example,
 
 will install Python 3 on an Ubuntu system.
 
+# Installation
+
+In addition to running the planner directly from a repository clone, you
+can install Pyperplan from the Python package index (PyPI):
+
+> pip install pyperplan
+
 # Usage
 
 The planner is invoked through the file src/pyperplan.py and accepts two
