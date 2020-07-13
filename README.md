@@ -23,7 +23,7 @@ Pyperplan is written in Python 3, so you need a recent version of Python
 can download it from <http://python.org>. Alternatively, most current
 Linux distributions include Python 3. For example,
 
-> sudo apt install python3
+    sudo apt install python3
 
 will install Python 3 on an Ubuntu system.
 
@@ -32,15 +32,14 @@ will install Python 3 on an Ubuntu system.
 In addition to running the planner directly from a repository clone, you
 can install Pyperplan from the Python package index (PyPI):
 
-> pip install pyperplan
+    pip install pyperplan
 
 # Usage
 
 The planner is invoked through the file src/pyperplan.py and accepts two
 arguments: a PDDL domain file and a PDDL problem file. Example:
 
-> ./src/pyperplan.py benchmarks/tpp/domain.pddl
-> benchmarks/tpp/task01.pddl
+    ./src/pyperplan.py benchmarks/tpp/domain.pddl benchmarks/tpp/task01.pddl
 
 The domain file can be omitted, in which case the planner will attempt
 to guess its name based on the problem file. If a plan is found, it is
@@ -50,11 +49,11 @@ By default, the planner performs a blind breadth-first search, which
 does not scale very well. Heuristic search algorithms are available. For
 example, to use greedy-best-first search with the FF heuristic, run
 
-> ./src/pyperplan.py -H hff -s gbf DOMAIN PROBLEM
+    ./src/pyperplan.py -H hff -s gbf DOMAIN PROBLEM
 
 For a list of available search algorithms and heuristics, run
 
-> ./src/pyperplan.py --help
+    ./src/pyperplan.py --help
 
 For more information on using the planner and how to extend it to do
 more fancy stuff, see doc/documentation.md.
