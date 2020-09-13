@@ -496,7 +496,7 @@ def parse_requirements_stmt(iter):
 def _parse_types_with_error(iter, keyword, classt):
     if not iter.try_match(keyword):
         raise ValueError(
-            'Error keyword "{}" required before {}!'.format(keyword, classt.__name__)
+            f'Error keyword "{keyword}" required before {classt.__name__}!'
         )
     return _parse_type_helper(iter, classt)
 
@@ -598,9 +598,7 @@ def _parse_precondition_or_effect(iter, keyword, type):
     Returns a PreconditionStmt or EffectStmt instance.
     """
     if not iter.try_match(keyword):
-        raise ValueError(
-            'Error: {} must start with "{}" keyword'.format(type.__name__, keyword)
-        )
+        raise ValueError(f'Error: {type.__name__} must start with "{keyword}" keyword')
     cond = parse_formula(next(iter))
     return type(cond)
 

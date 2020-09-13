@@ -81,7 +81,7 @@ class Operator:
             ("DEL", self.del_effects),
         ]:
             for fact in facts:
-                s += "  {}: {}\n".format(group, fact)
+                s += f"  {group}: {fact}\n"
         return s
 
     def __repr__(self):

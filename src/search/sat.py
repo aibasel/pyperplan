@@ -15,7 +15,7 @@ def _formula_str(formula, sep="&"):
         item if (type(item) == str) else _formula_str(item, next_sep)
         for item in formula
     ]
-    return "({})".format(" {} ".format(sep).join(items))
+    return "({})".format(f" {sep} ".join(items))
 
 
 def index_fact(fact, index, negated=False):
@@ -98,8 +98,8 @@ def _extract_plan(operators, valuation):
         else:
             varname = "-".join(parts[0:-1])
             pos_facts[depth].add(varname)
-    logging.debug("Positive facts: {}".format(pos_facts))
-    logging.debug("Negative facts: {}".format(neg_facts))
+    logging.debug(f"Positive facts: {pos_facts}")
+    logging.debug(f"Negative facts: {neg_facts}")
 
     plan = []
     for step in range(1, plan_length + 1):
@@ -110,7 +110,7 @@ def _extract_plan(operators, valuation):
             if op.applicable(current_state) and op.apply(current_state) == next_state:
                 actual_op = op
                 break
-        assert actual_op, "Valuation: {}, Ops: {}".format(valuation, operators)
+        assert actual_op, f"Valuation: {valuation}, Ops: {operators}"
         plan.append(actual_op)
     return plan
 
@@ -121,9 +121,9 @@ def sat_solve(task, max_steps=HORIZON):
     Returns a list of operators or None if no valid plan could be found
     with <= 'HORIZON' steps
     """
-    logging.info("Maximum number of plan steps: {}".format(max_steps))
+    logging.info(f"Maximum number of plan steps: {max_steps}")
     for horizon in range(max_steps + 1):
-        logging.info("Horizon: {}".format(horizon))
+        logging.info(f"Horizon: {horizon}")
         valuation = minisat.solve(get_plan_formula(task, horizon))
         if valuation:
             plan = _extract_plan(task.operators, valuation)

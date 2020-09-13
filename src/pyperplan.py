@@ -107,18 +107,18 @@ def find_domain(problem):
             domain = os.path.join(dir, file)
             break
     if not os.path.isfile(domain):
-        logging.error('Domain file "{}" can not be found'.format(domain))
+        logging.error(f'Domain file "{domain}" can not be found')
         sys.exit(1)
-    logging.info("Found domain {}".format(domain))
+    logging.info(f"Found domain {domain}")
     return domain
 
 
 def _parse(domain_file, problem_file):
     # Parsing
     parser = Parser(domain_file, problem_file)
-    logging.info("Parsing Domain {}".format(domain_file))
+    logging.info(f"Parsing Domain {domain_file}")
     domain = parser.parse_domain()
-    logging.info("Parsing Problem {}".format(problem_file))
+    logging.info(f"Parsing Problem {problem_file}")
     problem = parser.parse_problem(domain)
     logging.debug(domain)
     logging.info("{} Predicates parsed".format(len(domain.predicates)))
@@ -129,16 +129,16 @@ def _parse(domain_file, problem_file):
 
 
 def _ground(problem):
-    logging.info("Grounding start: {}".format(problem.name))
+    logging.info(f"Grounding start: {problem.name}")
     task = grounding.ground(problem)
-    logging.info("Grounding end: {}".format(problem.name))
+    logging.info(f"Grounding end: {problem.name}")
     logging.info("{} Variables created".format(len(task.facts)))
     logging.info("{} Operators created".format(len(task.operators)))
     return task
 
 
 def _search(task, search, heuristic, use_preferred_ops=False):
-    logging.info("Search start: {}".format(task.name))
+    logging.info(f"Search start: {task.name}")
     if heuristic:
         if use_preferred_ops:
             solution = search(task, heuristic, use_preferred_ops)
@@ -146,7 +146,7 @@ def _search(task, search, heuristic, use_preferred_ops=False):
             solution = search(task, heuristic)
     else:
         solution = search(task)
-    logging.info("Search end: {}".format(task.name))
+    logging.info(f"Search end: {task.name}")
     return solution
 
 
@@ -235,7 +235,7 @@ def main():
         "-s",
         "--search",
         choices=SEARCHES.keys(),
-        help="Select a search algorithm from {}".format(search_names),
+        help=f"Select a search algorithm from {search_names}",
         default="bfs",
     )
     args = argparser.parse_args()
