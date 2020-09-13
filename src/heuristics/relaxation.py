@@ -372,7 +372,7 @@ class hSAHeuristic(_RelaxationHeuristic):
 
 
 class hFFHeuristic(_RelaxationHeuristic):
-    """ This class is an implementation of the hFF heuristic.
+    """This class is an implementation of the hFF heuristic.
 
     It derives from the _RelaxationHeuristic class.
     """

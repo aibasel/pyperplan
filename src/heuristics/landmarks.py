@@ -36,7 +36,7 @@ def _get_relaxed_task(task):
 
 
 def get_landmarks(task):
-    """ Returns a set of landmarks.
+    """Returns a set of landmarks.
 
     In this implementation a fact is a landmark if the goal facts cannot be
     reached without it.

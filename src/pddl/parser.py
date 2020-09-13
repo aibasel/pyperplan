@@ -41,7 +41,7 @@ class Keyword(Visitable):
     """This class represents the AST node for a pddl keyword."""
 
     def __init__(self, name):
-        """ Construct a new Keyword.
+        """Construct a new Keyword.
 
         Keyword arguments:
         name -- the name of the keyword e.g. 'typed' if the keyword
@@ -55,7 +55,7 @@ class Variable(Visitable):
     """ This class represents the AST node for a pddl variable."""
 
     def __init__(self, name, types=None):
-        """ Construct a new Variable.
+        """Construct a new Variable.
 
         Keyword arguments:
         name -- the name of the variable e.g. 'x' if the variable were '?x'
@@ -74,7 +74,7 @@ class Type(Visitable):
     """This class represents the AST node for a pddl type."""
 
     def __init__(self, name, parent=None):
-        """ Construct a new Type.
+        """Construct a new Type.
 
         Keyword arguments:
         name -- the name of the type
@@ -90,7 +90,7 @@ class Predicate(Visitable):
     """This class represents the AST node for a pddl predicate."""
 
     def __init__(self, name, parameters=None):
-        """ Construct a new Predicate.
+        """Construct a new Predicate.
 
         Keyword arguments:
         name -- the name of the Predicate
@@ -105,7 +105,7 @@ class PredicateInstance(Visitable):
     """This class represents the AST node for a pddl predicate instance."""
 
     def __init__(self, name, parameters=[]):
-        """ Construct a new Predicate.
+        """Construct a new Predicate.
 
         Keyword arguments:
         name -- the name of the Predicate
@@ -120,7 +120,7 @@ class RequirementsStmt(Visitable):
     """This class represents the AST node for a pddl requirements statement."""
 
     def __init__(self, keywords=None):
-        """ Construct a new RequirementsStmt.
+        """Construct a new RequirementsStmt.
 
         Keyword arguments:
         keywords -- the list of requirements, represented as keywords
@@ -133,7 +133,7 @@ class DomainStmt(Visitable):
     """ This class represents the AST node for a pddl domain statement."""
 
     def __init__(self, name):
-        """ Construct a new RequirementsStmt.
+        """Construct a new RequirementsStmt.
 
         Keyword arguments:
         name -- the domain name as a string
@@ -146,7 +146,7 @@ class PreconditionStmt(Visitable):
     """This class represents the AST node for a pddl action precondition."""
 
     def __init__(self, formula):
-        """ Construct a new PreconditionStmt.
+        """Construct a new PreconditionStmt.
 
         Keyword arguments:
         formula -- the parsed formula,
@@ -161,7 +161,7 @@ class EffectStmt(Visitable):
     """This class represents the AST node for a pddl action effect."""
 
     def __init__(self, formula):
-        """ Construct a new EffectStmt.
+        """Construct a new EffectStmt.
 
         Keyword arguments:
         formula -- the parsed formula,
@@ -179,7 +179,7 @@ class Formula(Visitable):
     """
 
     def __init__(self, key, children=None, type=TypeFormula):
-        """ Construct a new Formula.
+        """Construct a new Formula.
 
         Keyword arguments:
         key -- the operator of the subformula e.g. 'not' if the formula were
@@ -198,7 +198,7 @@ class ActionStmt(Visitable):
     """This class represents the AST node for a pddl action."""
 
     def __init__(self, name, parameters, precond, effect):
-        """ Construct a new Action.
+        """Construct a new Action.
 
         Keyword arguments:
         name -- the name of the action
@@ -219,7 +219,7 @@ class PredicatesStmt(Visitable):
     """Represents the AST node for a pddl domain predicates definition."""
 
     def __init__(self, predicates):
-        """ Construct a new Action.
+        """Construct a new Action.
 
         Keyword arguments:
         predicates -- a list of predicates
@@ -240,7 +240,7 @@ class DomainDef(Visitable):
         actions=None,
         constants=None,
     ):
-        """ Construct a new Domain AST node.
+        """Construct a new Domain AST node.
 
         Keyword arguments:
         name -- the domain name
@@ -265,14 +265,14 @@ class ProblemDef(Visitable):
     """This class represents the AST node for a pddl domain."""
 
     def __init__(self, name, domainName, objects=None, init=None, goal=None):
-        """ Construct a new Problem AST node.
+        """Construct a new Problem AST node.
 
-            Keyword arguments:
-            name -- the problem name
-            domainName -- the domain name that corresponds to this problem
-            objects -- a list of objects defined in the problem file
-            init -- an initial condition represented by an InitStmt
-            goal -- a  goal condition represented by an GoalStmt
+        Keyword arguments:
+        name -- the problem name
+        domainName -- the domain name that corresponds to this problem
+        objects -- a list of objects defined in the problem file
+        init -- an initial condition represented by an InitStmt
+        goal -- a  goal condition represented by an GoalStmt
         """
         self._visitorName = "visit_problem_def"
         self.name = name
@@ -286,7 +286,7 @@ class Object(Visitable):
     """This class represents the AST node for a pddl object."""
 
     def __init__(self, name, type):
-        """ Construct a new Object AST node.
+        """Construct a new Object AST node.
 
         Keyword arguments:
         name -- the name of the object
@@ -303,7 +303,7 @@ class InitStmt(Visitable):
     """
 
     def __init__(self, predicates):
-        """ Construct a new InitStmt AST node.
+        """Construct a new InitStmt AST node.
 
         Keyword arguments:
         predicates -- a list of predicates denoting the initial codition
@@ -316,7 +316,7 @@ class GoalStmt(Visitable):
     """This class represents the AST node for a pddl problem goal condition."""
 
     def __init__(self, formula):
-        """ Construct a new GoalStmt AST node.
+        """Construct a new GoalStmt AST node.
 
         Keyword arguments:
         predicates -- a list of predicates denoting the goal codition
@@ -337,7 +337,7 @@ def parse_name(iter, father):
 
 
 def parse_list_template(f, iter):
-    """ This function implements a common pattern used in this parser.
+    """This function implements a common pattern used in this parser.
 
     It tries to parse a list of 'f' objects from the string 'string[i:end]'.
     The 'f' objects must be seperated by whitespace
@@ -357,7 +357,7 @@ def _parse_string_helper(iter):
 
 
 def _parse_type_helper(iter, type_class):
-    """ This function implements another common idiom used in this parser.
+    """This function implements another common idiom used in this parser.
 
     It parses a list consisting either of Objects or Variables or Types
     which can all have additional type inheritance information.
@@ -420,9 +420,9 @@ def _parse_type_helper(iter, type_class):
 
 
 def parse_keyword(iter):
-    """ Parses a keyword from a given substring string[i:end].
-        Returns the position in the string after the parsed keyword
-        and the keyword itself as a tuple.
+    """Parses a keyword from a given substring string[i:end].
+    Returns the position in the string after the parsed keyword
+    and the keyword itself as a tuple.
     """
     name = iter.get_word()
     if name == "":
@@ -481,8 +481,8 @@ def parse_parameters(iter):
 
 
 def parse_requirements_stmt(iter):
-    """ Parse the pddl requirements definition.
-        Returns an RequirementsStmt.
+    """Parse the pddl requirements definition.
+    Returns an RequirementsStmt.
     """
     # check for requirements keyword
     if not iter.try_match(":requirements"):
