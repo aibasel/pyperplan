@@ -18,10 +18,9 @@ in the doc directory to convert it to a PDF document.
 
 # Requirements
 
-Pyperplan is written in Python 3, so you need a recent version of Python
-3 installed to run it. If Python 3 is not installed on your system, you
-can download it from <http://python.org>. Alternatively, most current
-Linux distributions include Python 3. For example,
+Pyperplan requires Python >= 3.6. If Python 3 is not installed on your
+system, install it with your package manager or download it from
+<https://python.org>. For example,
 
     sudo apt install python3
 
