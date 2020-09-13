@@ -1,3 +1,8 @@
+# 2.0 (unreleased)
+
+* Bump minimum Python version to 3.6.
+
+
 # 1.3 (2020-03-09)
 
 * Test minisat with GitHub actions.
