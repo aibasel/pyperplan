@@ -1,8 +1,5 @@
 #! /usr/bin/env python
 
-from glob import glob
-import os.path
-
 from setuptools import find_packages, setup
 
 
@@ -24,13 +21,10 @@ setup(
     author_email="jendrik.seipp@unibas.ch",
     url="https://github.com/aibasel/pyperplan",
     license="GPL3+",
-    packages=find_packages("src", exclude=["tests"]),
+    packages=find_packages("src"),
     package_dir={"": "src"},
-    py_modules=[
-        os.path.splitext(os.path.basename(path))[0] for path in glob("src/*.py")
-    ],
-    include_package_data=True,
-    entry_points={"console_scripts": ["pyperplan = pyperplan:main"]},
+    py_modules=["run"],
+    entry_points={"console_scripts": ["pyperplan = run:main"]},
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
