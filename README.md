@@ -60,6 +60,14 @@ For a list of available search algorithms and heuristics, run
 For more information on using the planner and how to extend it to do
 more fancy stuff, see doc/documentation.md.
 
+# FAQs
+
+## PDDL types
+
+Pyperplan follows the semantics that all types other than the universal
+supertype object (which is mentioned as such in the PDDL 1.2 paper) need
+to be explicitly introduced.
+
 # Contact
 
 Pyperplan is hosted on GitHub: <https://github.com/aibasel/pyperplan>
