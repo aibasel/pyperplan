@@ -55,7 +55,7 @@ class RelaxedFact:
 
 
 class RelaxedOperator:
-    """ This class represents a relaxed operator (no delete effects)."""
+    """This class represents a relaxed operator (no delete effects)."""
 
     def __init__(self, name, preconditions, add_effects):
         """Construct a new relaxed operator.

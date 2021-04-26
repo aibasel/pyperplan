@@ -371,7 +371,7 @@ class TraversePDDLDomain(PDDLVisitor):
         precond.append(pddl.Predicate(c.key, signature))
 
     def visit_precondition_stmt(self, node):
-        """ Visits a PDDL precondition statement."""
+        """Visits a PDDL precondition statement."""
         precond = list()
         formula = node.formula
         # For now we only allow and in the precondition.
@@ -455,7 +455,7 @@ class TraversePDDLDomain(PDDLVisitor):
             effect.addlist.add(pddl.Predicate(nextPredicate.key, signature))
 
     def visit_effect_stmt(self, node):
-        """ Visits a PDDL effect statement."""
+        """Visits a PDDL effect statement."""
         formula = node.formula
         effect = pddl.Effect()
         # For now we only allow 'and' in the effect.
@@ -535,7 +535,7 @@ class TraversePDDLProblem(PDDLVisitor):
         )
 
     def visit_object(self, node):
-        """ Visits a PDDL-problem object definition."""
+        """Visits a PDDL-problem object definition."""
         type_def = None
         # Check for multiple definition of objects.
         if node.name in self._objects:
@@ -557,7 +557,7 @@ class TraversePDDLProblem(PDDLVisitor):
         self._objects[node.name] = type_def
 
     def visit_init_stmt(self, node):
-        """ Visits a PDDL-problem initial state statement."""
+        """Visits a PDDL-problem initial state statement."""
         initList = list()
         # Apply to all predicates in the statement.
         for p in node.predicates:
@@ -595,7 +595,7 @@ class TraversePDDLProblem(PDDLVisitor):
         goal.append(pddl.Predicate(c.key, signature))
 
     def visit_goal_stmt(self, node):
-        """ Visits a PDDL-problem goal state statement."""
+        """Visits a PDDL-problem goal state statement."""
         formula = node.formula
         goal = list()
         # For now we only allow 'and' in the goal.
@@ -619,7 +619,7 @@ class TraversePDDLProblem(PDDLVisitor):
         self.set_in(node, goal)
 
     def visit_predicate_instance(self, node):
-        """ Visits a PDDL-problem predicate instance."""
+        """Visits a PDDL-problem predicate instance."""
         signature = list()
         # Visit all parameters.
         for o in node.parameters:

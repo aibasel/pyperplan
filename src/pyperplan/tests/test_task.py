@@ -44,7 +44,7 @@ def test_op_application2():
 
 
 def test_op_application3():
-    """ Test that delete-effects are applied before add-effects """
+    """Test that delete-effects are applied before add-effects"""
     assert op4.apply(s1) == {"var1", "var2"}
 
 

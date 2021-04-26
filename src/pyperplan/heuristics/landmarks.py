@@ -92,7 +92,7 @@ class LandmarkHeuristic(Heuristic):
         self.costs = compute_landmark_costs(task, self.landmarks)
 
     def __call__(self, node):
-        """ Returns the heuristic value for "node". """
+        """Returns the heuristic value for "node"."""
         if node.parent is None:
             # At the beginning only the initial facts are achieved
             node.unreached = self.landmarks - self.task.initial_state

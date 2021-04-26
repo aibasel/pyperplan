@@ -347,7 +347,7 @@ def _create_operator(action, assignment, statics, init):
 
 
 def _get_grounded_string(name, args):
-    """ We use the lisp notation (e.g. "(unstack c e)"). """
+    """We use the lisp notation (e.g. "(unstack c e)")."""
     args_string = " " + " ".join(args) if args else ""
     return f"({name}{args_string})"
 
@@ -367,16 +367,16 @@ def _ground_atom(atom, assignment):
 
 
 def _ground_atoms(atoms, assignment):
-    """ Return a set of the grounded representation of the atoms. """
+    """Return a set of the grounded representation of the atoms."""
     return {_ground_atom(atom, assignment) for atom in atoms}
 
 
 def _get_fact(atom):
-    """ Return the string representation of the grounded atom. """
+    """Return the string representation of the grounded atom."""
     args = [name for name, types in atom.signature]
     return _get_grounded_string(atom.name, args)
 
 
 def _get_partial_state(atoms):
-    """ Return a set of the string representation of the grounded atoms. """
+    """Return a set of the string representation of the grounded atoms."""
     return frozenset(_get_fact(atom) for atom in atoms)

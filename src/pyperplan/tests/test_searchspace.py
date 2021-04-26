@@ -34,7 +34,7 @@ def test_g_values():
 
 
 def test_states():
-    """Tests the states of the node """
+    """Tests the states of the node"""
     assert root.state == "state1"
     assert child2.state == "state3"
     assert grandchild1.state == "state4"

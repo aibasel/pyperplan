@@ -52,7 +52,7 @@ class Keyword(Visitable):
 
 
 class Variable(Visitable):
-    """ This class represents the AST node for a pddl variable."""
+    """This class represents the AST node for a pddl variable."""
 
     def __init__(self, name, types=None):
         """Construct a new Variable.
@@ -130,7 +130,7 @@ class RequirementsStmt(Visitable):
 
 
 class DomainStmt(Visitable):
-    """ This class represents the AST node for a pddl domain statement."""
+    """This class represents the AST node for a pddl domain statement."""
 
     def __init__(self, name):
         """Construct a new RequirementsStmt.
