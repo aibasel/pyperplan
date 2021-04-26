@@ -42,7 +42,7 @@ jobs:
         python -m pip install --upgrade pip tox
 
     - name: Check style
-      if: matrix.python-version == '3.6'
+      if: matrix.os == 'ubuntu-20.04' && matrix.python-version == '3.8'
       run: |
         tox -e style
 
