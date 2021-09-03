@@ -1,11 +1,11 @@
 import itertools
 
+from pytest import raises
+
 from pyperplan.pddl.lisp_parser import parse_lisp_iterator
 from pyperplan.pddl.parser import parse_domain_def, parse_problem_def, Parser
 import pyperplan.pddl.tree_visitor as pddl_tree_visitor
 from pyperplan.pddl.tree_visitor import SemanticError
-
-from pytest import raises
 
 
 _domain_input = """

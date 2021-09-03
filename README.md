@@ -28,20 +28,23 @@ will install Python 3 on an Ubuntu system.
 
 # Installation
 
-In addition to running the planner directly from a repository clone, you
-can install Pyperplan from the Python package index (PyPI):
+From the Python package index (PyPI):
 
     pip install pyperplan
+
+From inside a repository clone:
+
+    pip install --editable .
 
 This makes the `pyperplan` script available globally or in your [virtual
 environment](https://docs.python.org/3/tutorial/venv.html) (recommended).
 
 # Usage
 
-The planner is invoked through the file src/pyperplan.py and accepts two
-arguments: a PDDL domain file and a PDDL problem file. Example:
+The `pyperplan` executable accepts two arguments: a PDDL domain file and a
+PDDL problem file. Example:
 
-    ./src/pyperplan.py benchmarks/tpp/domain.pddl benchmarks/tpp/task01.pddl
+    pyperplan benchmarks/tpp/domain.pddl benchmarks/tpp/task01.pddl
 
 The domain file can be omitted, in which case the planner will attempt
 to guess its name based on the problem file. If a plan is found, it is
@@ -51,11 +54,11 @@ By default, the planner performs a blind breadth-first search, which
 does not scale very well. Heuristic search algorithms are available. For
 example, to use greedy-best-first search with the FF heuristic, run
 
-    ./src/pyperplan.py -H hff -s gbf DOMAIN PROBLEM
+    pyperplan -H hff -s gbf DOMAIN PROBLEM
 
 For a list of available search algorithms and heuristics, run
 
-    ./src/pyperplan.py --help
+    pyperplan --help
 
 For more information on using the planner and how to extend it to do
 more fancy stuff, see doc/documentation.md.

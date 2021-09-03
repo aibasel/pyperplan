@@ -3,6 +3,12 @@ Regression test for a bug where BFS could not find a plan for
 parcprinter:task01.pddl
 """
 
+import os.path
+
+from pyperplan import planner
+from pyperplan.search import searchspace
+
+
 optimal_plan = """\
 initialize
 blackfeeder-feed-letter sheet1
@@ -18,15 +24,8 @@ finisher1-stack-letter sheet1 dummy-sheet
 """
 optimal_plan = [op.strip() for op in optimal_plan.splitlines()]
 
-import os
-
-from pyperplan import planner
-from pyperplan.search import breadth_first_search, searchspace
-from pyperplan.task import Operator, Task
-
-
 benchmarks = os.path.abspath(
-    os.path.join(os.path.abspath(__file__), "../../../../benchmarks")
+    os.path.join(os.path.abspath(__file__), "../../../benchmarks")
 )
 
 # Collect problem files

@@ -166,25 +166,11 @@ in the `heuristics` folder if the class name ends with "Heuristic".
 
 # 4. Tests
 
-A comprehensive unit test suite is available. It can be run with the py.test
-framework (http://pytest.org). To run the tests, install py.test for Python3.
+A comprehensive unit test suite is available. To run the tests, install
+and run `tox` (preferably in a virtual environment).
 
-## 4.1. Requirements
-
-### Ubuntu <= 12.04:
-
-    sudo apt-get install python3-setuptools
-    sudo easy_install3 -U pytest
-
-### Ubuntu >= 12.10:
-
-    sudo apt-get install python3-pip
-    sudo pip-3.x install -U pytest
-## 4.2. Run tests
-
-Change into the `src` directory and run `py.test-3.x`.
-Some of the tests have been marked as "slow" and will only be run if you pass
-py.test the `--slow` parameter.
+    pip install tox
+    tox
 
 # 5. Plan validation
 

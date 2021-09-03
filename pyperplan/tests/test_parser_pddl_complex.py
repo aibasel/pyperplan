@@ -1,7 +1,7 @@
+from pytest import raises
+
 from pyperplan.pddl.lisp_parser import parse_lisp_iterator
 from pyperplan.pddl.parser import *
-
-from pytest import raises
 
 
 ### helper functions

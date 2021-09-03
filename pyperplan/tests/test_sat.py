@@ -1,11 +1,11 @@
 import logging
 import sys
 
+import pytest
+
 from pyperplan import tools
 from pyperplan.search import minisat, sat
 from pyperplan.task import Operator, Task
-
-import pytest
 
 
 logging.basicConfig(

@@ -3,4 +3,4 @@
 .tox/
 build/
 dist/
-src/pyperplan.egg-info/
+pyperplan.egg-info/

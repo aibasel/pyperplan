@@ -24,7 +24,6 @@ import logging
 import os
 import sys
 
-from pyperplan import tools
 from pyperplan.planner import (
     find_domain,
     HEURISTICS,

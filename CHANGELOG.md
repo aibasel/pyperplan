@@ -1,6 +1,7 @@
 # 2.0 (2021-09-03)
 
-* Install code as "pyperplan" package (#6, #7, #10).
+* Install code as single package (#6, #7, #10).
+* Allow executing `python -m pyperplan`.
 * Bump minimum Python version to 3.6 (#5).
 
 

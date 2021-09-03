@@ -1,7 +1,7 @@
+import pytest
+
 from pyperplan import tools
 from pyperplan.search import minisat
-
-import pytest
 
 
 def get_long_formula(len):

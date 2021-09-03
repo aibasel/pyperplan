@@ -1,9 +1,9 @@
 """
 Tests for the task.py module
 """
-from pyperplan.task import Operator, Task
-
 import pytest
+
+from pyperplan.task import Operator, Task
 
 
 s1 = frozenset(["var1"])
