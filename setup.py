@@ -3,7 +3,7 @@
 from setuptools import find_packages, setup
 
 
-VERSION = "1.3"
+VERSION = "2.0"
 
 
 with open("README.md") as f:
