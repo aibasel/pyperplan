@@ -6,8 +6,8 @@ VERSION="$1"
 CHANGES="/tmp/pyperplan-$VERSION-changes"
 
 function set_version {
-    VERSION="$1"
-    sed -i -e "s/VERSION = \".*\"/VERSION = \"$VERSION\"/" setup.py
+    local version="$1"
+    sed -i -e "s/VERSION = \".*\"/VERSION = \"$version\"/" setup.py
 }
 
 cd $(dirname "$0")/../
@@ -28,17 +28,21 @@ if [[ $(git rev-parse --abbrev-ref HEAD) != master ]]; then
     exit 1
 fi
 
+tox
+
 set_version "$VERSION"
 git commit -am "Update version number to ${VERSION} for release."
 git tag -a "v$VERSION" -m "v$VERSION" HEAD
 
-# Upload to PyPI.
+# Requirements:
+#   pipx install twine
+#   pip install --user wheel
 python3 setup.py sdist bdist_wheel --universal
-python3 -m twine upload dist/pyperplan-${VERSION}.tar.gz dist/pyperplan-${VERSION}-py2.py3-none-any.whl
+twine upload dist/pyperplan-${VERSION}.tar.gz dist/pyperplan-${VERSION}-py2.py3-none-any.whl
 
 git push
 git push --tags
 
 # Add changelog to GitHub release.
 ./dev/make-release-notes.py "$VERSION" CHANGELOG.md "$CHANGES"
-hub release create "v$VERSION" --file "$CHANGES"
+hub release create "v$VERSION" --file="$CHANGES"
