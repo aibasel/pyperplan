@@ -11,20 +11,11 @@ is published under the terms of the GNU General Public License 3
 (GPLv3).
 
 Pyperplan supports the following PDDL fragment: STRIPS without action
-costs. This file only gives the basic information to get you up and
-running. The full documentation can be found in the doc directory. You
-can either read the text file documentation.txt directly or run "make"
-in the doc directory to convert it to a PDF document.
+costs.
 
 # Requirements
 
-Pyperplan requires Python >= 3.6. If Python 3 is not installed on your
-system, install it with your package manager or download it from
-<https://python.org>. For example,
-
-    sudo apt install python3
-
-will install Python 3 on an Ubuntu system.
+Pyperplan requires [Python](https://python.org) >= 3.6.
 
 # Installation
 
@@ -36,7 +27,7 @@ From inside a repository clone:
 
     pip install --editable .
 
-This makes the `pyperplan` script available globally or in your [virtual
+This makes the `pyperplan` command available globally or in your [virtual
 environment](https://docs.python.org/3/tutorial/venv.html) (recommended).
 
 # Usage
@@ -61,7 +52,7 @@ For a list of available search algorithms and heuristics, run
     pyperplan --help
 
 For more information on using the planner and how to extend it to do
-more fancy stuff, see doc/documentation.md.
+more fancy stuff, see the [documentation](doc/documentation.md).
 
 # FAQs
 
