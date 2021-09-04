@@ -3,6 +3,7 @@
 * Install code as single package (#6, #7, #10).
 * Allow executing `python -m pyperplan`.
 * Bump minimum Python version to 3.6 (#5).
+* Run continuous integration tests for Python 3.9 (#11).
 * Revise documentation.
 
 
