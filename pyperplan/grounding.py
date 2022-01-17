@@ -32,7 +32,7 @@ from .task import Operator, Task
 verbose_logging = False
 
 
-def ground(problem):
+def ground(problem, remove_statics_from_initial_state=True, remove_irrelevant_operators=True):
     """
     This is the main method that grounds the PDDL task and returns an
     instance of the task.Task class.
@@ -95,12 +95,14 @@ def ground(problem):
         logging.debug("All grounded facts:\n%s" % facts)
 
     # Remove statics from initial state
-    init &= facts
-    if verbose_logging:
-        logging.debug("Initial state without statics:\n%s" % init)
+    if remove_statics_from_initial_state:
+        init &= facts
+        if verbose_logging:
+            logging.debug("Initial state without statics:\n%s" % init)
 
     # perform relevance analysis
-    operators = _relevance_analysis(operators, goals)
+    if remove_irrelevant_operators:
+        operators = _relevance_analysis(operators, goals)
 
     name = problem.name
     return Task(name, facts, init, goals, operators)
