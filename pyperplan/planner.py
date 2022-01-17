@@ -122,9 +122,13 @@ def _parse(domain_file, problem_file):
     return problem
 
 
-def _ground(problem, remove_statics_from_initial_state=True, remove_irrelevant_operators=True):
+def _ground(
+    problem, remove_statics_from_initial_state=True, remove_irrelevant_operators=True
+):
     logging.info(f"Grounding start: {problem.name}")
-    task = grounding.ground(problem, remove_statics_from_initial_state, remove_irrelevant_operators)
+    task = grounding.ground(
+        problem, remove_statics_from_initial_state, remove_irrelevant_operators
+    )
     logging.info(f"Grounding end: {problem.name}")
     logging.info("{} Variables created".format(len(task.facts)))
     logging.info("{} Operators created".format(len(task.operators)))

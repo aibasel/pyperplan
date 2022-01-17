@@ -32,7 +32,9 @@ from .task import Operator, Task
 verbose_logging = False
 
 
-def ground(problem, remove_statics_from_initial_state=True, remove_irrelevant_operators=True):
+def ground(
+    problem, remove_statics_from_initial_state=True, remove_irrelevant_operators=True
+):
     """
     This is the main method that grounds the PDDL task and returns an
     instance of the task.Task class.
