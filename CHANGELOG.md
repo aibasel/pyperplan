@@ -1,3 +1,8 @@
+# 2.1 (2022-01-17)
+
+* Add options to API for removal of static facts from init, and removal of irrelevant operators (Blai Bonet, #14).
+
+
 # 2.0 (2021-09-04)
 
 * Install code as single package (#6, #7, #10).
