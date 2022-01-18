@@ -239,6 +239,7 @@ class DomainDef(Visitable):
         predicates=None,
         actions=None,
         constants=None,
+        equality=False
     ):
         """Construct a new Domain AST node.
 
@@ -259,12 +260,13 @@ class DomainDef(Visitable):
         else:
             self.actions = actions  # a list of ActionStmt
         self.constants = constants
+        self.equality = equality # True iff :equality required
 
 
 class ProblemDef(Visitable):
     """This class represents the AST node for a pddl domain."""
 
-    def __init__(self, name, domainName, objects=None, init=None, goal=None):
+    def __init__(self, name, domainName, objects=None, init=None, goal=None, eqDenotations=None):
         """Construct a new Problem AST node.
 
         Keyword arguments:
@@ -280,6 +282,7 @@ class ProblemDef(Visitable):
         self.objects = objects
         self.init = init
         self.goal = goal
+        self.eqDenotations = eqDenotations
 
 
 class Object(Visitable):
@@ -666,12 +669,23 @@ def parse_domain_def(iter):
         if key.name == "requirements":
             req = parse_requirements_stmt(next_iter)
             domain.requirements = req
+            domain.equality = "equality" in map(lambda k: k.name, domain.requirements.keywords)
         elif key.name == "types":
             types = parse_types_stmt(next_iter)
             domain.types = types
         elif key.name == "predicates":
             pred = parse_predicates_stmt(next_iter)
             domain.predicates = pred
+            if domain.equality:
+                # Create two predicates '=' and 'not='. The second is used to translate literals
+                # '(not (= ?x ?y))' in preconditions into literals '(not= ?x ?y)' since 'native'
+                # negative preconditions aren't supported
+                eq_params = [ Variable("?x"), Variable("?y") ]
+                eq = Predicate("=", eq_params)
+                domain.predicates.predicates.append(eq)
+                neq_params = [ Variable("?x"), Variable("?y") ]
+                neq = Predicate("not=", neq_params)
+                domain.predicates.predicates.append(neq)
         elif key.name == "constants":
             const = parse_constants_stmt(next_iter)
             domain.constants = const
@@ -735,8 +749,18 @@ def parse_problem_def(iter):
     goal = parse_goal_stmt(next(iter))
     # assert end is reached
     iter.match_end()
+
+    # create static denotation for predicates '=' and 'not='
+    list_eq, list_neq = [], []
+    for o1 in objects:
+        list_eq.append(PredicateInstance("=", [o1.name, o1.name]))
+        for o2 in objects:
+            if o1 != o2:
+                list_neq.append(PredicateInstance("not=", [o1.name, o2.name]))
+    eqDenotations = InitStmt(list_eq + list_neq)
+
     # create new ProblemDef instance
-    return ProblemDef(probname, dom.name, objects, init, goal)
+    return ProblemDef(probname, dom.name, objects, init, goal, eqDenotations)
 
 
 def parse_init_stmt(iter):

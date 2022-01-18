@@ -79,6 +79,13 @@ class Effect:
         self.addlist = set()
         self.dellist = set()
 
+    def __repr__(self):
+        return ("add=[" + ", ".join(map(lambda e: str(e), self.addlist)) + "], " +
+            "del=[" + ", ".join(map(lambda e: str(e), self.dellist)) + "]"
+        )
+
+    __str__ = __repr__
+
 
 class Action:
     def __init__(self, name, signature, precondition, effect):

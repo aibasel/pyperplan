@@ -95,6 +95,7 @@ class PDDLVisitor:
             o.accept(self)
         node.init.accept(self)
         node.goal.accept(self)
+        node.eqDenotations.accept(self)
 
     def visit_predicates_stmt(self, node):
         for p in node.predicates:
@@ -383,15 +384,48 @@ class TraversePDDLDomain(PDDLVisitor):
                         "Error predicate with non str key: "
                         + "".join([c2.key.name + " " for c2 in formula.children])
                     )
-                # Check whether predicate was defined.
-                if not c.key in self._predicates:
+
+                # We may have either (not <predicate>) or <predicate>
+                if c.key == "not":
+                    if len(c.children) != 1:
+                        raise SemanticError(
+                            "Error not statement with multiple " "children in precondition of action"
+                        )
+                    if c.children[0].key != "=":
+                        raise SemanticError(
+                            "Error not statement in precondition only supported for equality '='"
+                        )
+                    else:
+                        # Hack: change key to "not=" since framework doesn't support for negative preconditions
+                        c.children[0].key = "not="
+                    children = list()
+                    self.add_precond(children, c.children[0])
+                    precond.append(children[0])
+                elif c.key in self._predicates:
+                    # Predicate was defined; call helper.
+                    self.add_precond(precond, c)
+                else:
+                    # Predicate was not defined.
                     raise SemanticError(
-                        "Error unknown predicate "
+                        'Error unknown predicate "'
                         + c.key
-                        + " used in precondition of action"
+                        + '" used in precondition of action'
                     )
-                # Call helper.
-                self.add_precond(precond, c)
+        elif formula.key == "not":
+            if len(formula.children) != 1:
+                raise SemanticError(
+                    "Error not statement with multiple " "children in precondition of action"
+                )
+            if formula.children[0].key != "=":
+                raise SemanticError(
+                    "Error not statement in precondition only supported for equality '='"
+                )
+            else:
+                # Hack: change key to "not=" since framework doesn't support for negative preconditions
+                formula.children[0].key = "not="
+            children = list()
+            self.add_precond(children, formula.children[0])
+            precond.append(children[0])
         else:
             # If not 'and' we only allow a single predicate in precondition.
             if not formula.key in self._predicates:
@@ -429,6 +463,9 @@ class TraversePDDLDomain(PDDLVisitor):
                 "Error: unknown predicate %s used in effect "
                 "of action" % nextPredicate.key
             )
+        # Check whether equality predicate is used in effects
+        if nextPredicate.key in ["=", "not="]:
+            raise SemanticError("Error: equality used in effect")
         if nextPredicate == None:
             raise SemanticError("Error: NoneType predicate used in effect of " "action")
         predDef = self._predicates[nextPredicate.key]
@@ -528,6 +565,11 @@ class TraversePDDLProblem(PDDLVisitor):
         # Apply to the goal state definition.
         node.goal.accept(self)
         goal_list = self.get_in(node.goal)
+
+        # Get equality denotations and append to init_list
+        node.eqDenotations.accept(self)
+        eq_denotations = self.get_in(node.eqDenotations)
+        init_list.extend(eq_denotations)
 
         # Create the problem data structure.
         self._problemDef = pddl.Problem(
