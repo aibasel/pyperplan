@@ -20,6 +20,10 @@ from .heuristic_base import Heuristic
 from itertools import combinations
 
 
+DEBUG = False
+DEBUG_VERBOSE = False
+
+
 def can_regress(conjunction, action):
     conj = frozenset(conjunction)
     return not action.del_effects.intersection(conj) and action.add_effects.intersection(conj)
@@ -44,16 +48,18 @@ class H2Heuristic(Heuristic):
     def __init__(self, task):
         super().__init__()
         self.task = task
-        print(task.facts)
-        print(task.initial_state)
-        print(task.goals)
-        print(task.operators)
         sorted_facts = sorted(task.facts)
-        print(sorted_facts)
         self.conjunctions = get_subsets(sorted_facts)
         self.facts_to_id = {value: index for index, value in enumerate(self.conjunctions)}
-        print(f"conjunctions: {self.conjunctions}")
-        print(f"conjunctions to ids: {self.facts_to_id}")
+        if DEBUG:
+            print(sorted_facts)
+            print(task.initial_state)
+            print(task.goals)
+            print(task.operators)
+            print("conjunctions")
+            for conj in self.conjunctions:
+                print(conj)
+        # print(f"conjunctions to ids: {self.facts_to_id}")
 
 
     def _get_id(self, conj):
@@ -87,25 +93,40 @@ class H2Heuristic(Heuristic):
 
     def __call__(self, node):
         state = node.state
-        print(f"evaluate heuristic for {state}")
+        if DEBUG:
+            print(f"evaluate heuristic for {state}")
         h_values = self._get_initial_h_values(state)
         converged = False
         while not converged:
-            print("========= starting iteration to update h values ======")
+            if DEBUG_VERBOSE:
+                print("========= starting iteration to update h values ======")
             converged = True
+            new_h_values = list(h_values)
             for conj in self.conjunctions:
                 min_h = h_values[self._get_id(conj)]
                 if min_h > 0:
-                    print(f"update {conj}, current h = {min_h}")
+                    if DEBUG_VERBOSE:
+                        print(f"update {conj}, current h = {min_h}")
                     for action in self.task.operators:
                         if can_regress(conj, action):
                             regr = regress(conj, action)
-                            # print(f"regression through {action} led to {regr}")
-                            h = self._compute_h(h_values, regr) + 1
-                            min_h = min(min_h, h)
+                            h = self._compute_h(h_values, regr)
+                            if DEBUG_VERBOSE:
+                                print(f"regression through {action.name} led to {regr} which has h-value of {h}")
+                            min_h = min(min_h, h+1)
                     if min_h != h_values[self._get_id(conj)]:
                         converged = False
-                        h_values[self._get_id(conj)] = min_h
-                        print(f"updated h = {h_values[self._get_id(conj)]}")
-            print()
-        return self._compute_h(h_values, tuple(sorted(state)))
+                        new_h_values[self._get_id(conj)] = min_h
+                        if DEBUG_VERBOSE:
+                            print(f"updated h = {new_h_values[self._get_id(conj)]}")
+            h_values = list(new_h_values)
+            if DEBUG_VERBOSE:
+                print()
+        if DEBUG:
+            for idx, conj in enumerate(self.conjunctions):
+                assert self._get_id(conj) == idx
+                print(f"h-value of {conj} = {h_values[idx]}")
+        h = self._compute_h(h_values, tuple(sorted(self.task.goals)))
+        if DEBUG:
+            print(f"computed h-value: {h}")
+        return h
