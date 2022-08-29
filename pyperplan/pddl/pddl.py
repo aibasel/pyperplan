@@ -148,7 +148,7 @@ class Problem:
             % (
                 self.name,
                 self.domain.name,
-                [self.objects[o].name for o in self.objects],
+                sorted(self.objects),
                 [str(p) for p in self.initial_state],
                 [str(p) for p in self.goal],
             )
