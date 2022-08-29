@@ -245,7 +245,7 @@ def _find_pred_in_init(pred_name, param, sig_pos, init):
     """
     match_init = None
     if sig_pos == 0:
-        match_init = re.compile(fr"\({pred_name} {param}.*")
+        match_init = re.compile(rf"\({pred_name} {param}.*")
     else:
         reg_ex = r"\(%s\s+" % pred_name
         reg_ex += r"[\w\d-]+\s+" * sig_pos
