@@ -96,19 +96,6 @@ def greedy_best_first_search(task, heuristic, use_relaxed_plan=False):
         task, heuristic, ordered_node_greedy_best_first, use_relaxed_plan
     )
 
-def test_greedy_best_first_search(task, heuristic, use_relaxed_plan=False):
-    """
-    Searches for a plan in the given task using greedy best first search.
-
-    @param task The task to be solved.
-    @param heuristic A heuristic callable which computes the estimated steps
-                     from a search node to reach the goal.
-    """
-    print('test')
-    return astar_search(
-        task, heuristic, ordered_node_greedy_best_first, use_relaxed_plan
-    )
-
 
 def weighted_astar_search(task, heuristic, weight=5, use_relaxed_plan=False):
     """
@@ -209,11 +196,17 @@ def astar_search(
     return None
 
 
-def random_walk():
+def random_walk(current_state, h_min, max_walk_len, restart_probability):
+    c = current_state
+    h_min = h_min
+    max_walk_len = max_walk_len
+    restart_probability = restart_probability
+    walk_len = 0 #setting counter for the restart threshold 
+
     pass
 
 def monte_carlo_rrw_search(
-    task, heuristic, max_walk_len=100, restart_probability=0.2, make_open_entry=ordered_node_greedy_best_first, use_relaxed_plan=False,
+    task, heuristic, max_walk_len=100, restart_probability=0.2, time_limit=3000, make_open_entry=ordered_node_greedy_best_first, use_relaxed_plan=False,
 ):
     """
     Searches for a plan in the given task using monte carlo RRW search.
@@ -228,23 +221,29 @@ def monte_carlo_rrw_search(
                            ordered_node_greedy_best_first with obvious
                            meanings.
     """
-    max_walk_len = max_walk_len
-    restart_probability = restart_probability
-    open = []
+    walk_len = 0 # setting counter for the restart threshold 
+    # open = [] replacing open list with h_min integer to track state with smallest h
     state_cost = {task.initial_state: 0}
     node_tiebreaker = 0
 
-    root = searchspace.make_root_node(task.initial_state) 
-    init_h = heuristic(root)
-    heapq.heappush(open, make_open_entry(root, init_h, node_tiebreaker))
+    root = searchspace.make_root_node(task.initial_state)  # setting root node s_0
+    init_h = heuristic(root)  # setting initial heuristic
+    h_min = heuristic(root)
+
+    current_state = make_open_entry(root, init_h, node_tiebreaker)  # setting current state to initial state (returns (f, h, node_tiebreaker, node))
+
+
+    # heapq.heappush(open, make_open_entry(root, init_h, node_tiebreaker))  deleted step of adding node to the heap
     logging.info("Initial h value: %f" % init_h)
 
     besth = float("inf")
     counter = 0
     expansions = 0
+    time = 0
 
-    while open:
-        (f, h, _tie, pop_node) = heapq.heappop(open)
+    while time <= time_limit:
+        (f, h, _tie, pop_node) = current_state
+        sampled_state = random_walk(current_state, h_min, max_walk_len, restart_probability)
         if h < besth:
             besth = h
             logging.debug("Found new best h: %d after %d expansions" % (besth, counter))
@@ -294,6 +293,7 @@ def monte_carlo_rrw_search(
                     state_cost[succ_state] = succ_node.g
 
         counter += 1
+        time += 1
     logging.info("No operators left. Task unsolvable.")
     logging.info("%d Nodes expanded" % expansions)
     return None
