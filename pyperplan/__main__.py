@@ -35,6 +35,7 @@ from pyperplan.planner import (
 
 
 def main():
+
     # Commandline parsing
     log_levels = ["debug", "info", "warning", "error"]
 

@@ -31,6 +31,7 @@ SEARCHES = {
     "astar": search.astar_search,
     "wastar": search.weighted_astar_search,
     "gbf": search.greedy_best_first_search,
+    "tgbf": search.test_greedy_best_first_search,
     "bfs": search.breadth_first_search,
     "ehs": search.enforced_hillclimbing_search,
     "ids": search.iterative_deepening_search,
