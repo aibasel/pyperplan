@@ -203,7 +203,7 @@ def random_walk(current_state, h_min, max_walk_len, restart_probability):
     restart_probability = restart_probability
     walk_len = 0 #setting counter for the restart threshold 
 
-    pass
+    return current_state
 
 def monte_carlo_rrw_search(
     task, heuristic, max_walk_len=100, restart_probability=0.2, time_limit=3000, make_open_entry=ordered_node_greedy_best_first, use_relaxed_plan=False,
@@ -236,17 +236,30 @@ def monte_carlo_rrw_search(
     # heapq.heappush(open, make_open_entry(root, init_h, node_tiebreaker))  deleted step of adding node to the heap
     logging.info("Initial h value: %f" % init_h)
 
-    besth = float("inf")
     counter = 0
     expansions = 0
-    time = 0
+    time = 0 # setting counter for overall search time limit
 
     while time <= time_limit:
-        (f, h, _tie, pop_node) = current_state
-        sampled_state = random_walk(current_state, h_min, max_walk_len, restart_probability)
-        if h < besth:
-            besth = h
-            logging.debug("Found new best h: %d after %d expansions" % (besth, counter))
+        sampled = random_walk(current_state, h_min, max_walk_len, restart_probability)
+        (f_sampled, h_sampled, _tie_sampled, sampled_node) = sampled
+        # print(sampled_node, "hello test")
+
+        sampled_state = sampled_node.state
+        num_applicable_actions = len(task.get_successor_states(sampled_state))
+
+        if task.goal_reached(sampled_state):
+            return sampled_node.extract_solution()  # TODO: look at details of extract_solution and chaining action sequences
+
+        elif num_applicable_actions > 0 and h_sampled <= h_min: # TODO: update this to < after fixing RRW function
+            print(f"Actions: {task.get_successor_states(sampled_node.state)}")
+            current_state = sampled
+
+        (f, h, _tie, pop_node) = current_state #current_state returns (f, h, node_tiebreaker, node)
+        # print(current_state)
+        if h < h_min:
+            h_min = h
+            logging.debug("Found new best h: %d after %d expansions" % (h_min, counter))
 
         pop_state = pop_node.state
         # Only expand the node if its associated cost (g value) is the lowest
