@@ -272,7 +272,7 @@ def monte_carlo_rrw_search(
 
 
     logging.info("Initial h value: %f" % init_h)
-
+    #hi
     expansions = 0
     time = 0 # setting counter for overall search time limit
     num_walks = 0
