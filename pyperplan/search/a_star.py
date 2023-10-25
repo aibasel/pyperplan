@@ -21,6 +21,7 @@ Implements the A* (a-star) and weighted A* search algorithm.
 
 import heapq
 import logging
+import random
 
 from . import searchspace
 
@@ -196,23 +197,47 @@ def astar_search(
     return None
 
 
-def random_walk(task, current_state, h_min, max_walk_len, restart_probability):
+def random_walk(task, heuristic, current_state, h_min, max_walk_len, restart_probability):
     walk_len = 0
-    while walk_len < max_walk_len:
-        sampled = current_state
-        (f_sampled, h_sampled, _tie_sampled, sampled_node) = sampled   
+    sampled_node = current_state
+    action_sequence = []
+    restart_probability = restart_probability * 100
+
+
+    while walk_len < max_walk_len:    # restart hardcoded threshold t_g = 100
         sampled_state = sampled_node.state
-        print("test", sampled_state)
-        actions = task.get_successor_states(sampled_state)
-        num_applicable_actions = len(actions)
-        print("Test", actions)
+        # print("test", sampled_state)
+        sampled_actions = task.get_successor_states(sampled_state)
+        num_applicable_actions = len(sampled_actions)
+        # print("Test", actions)
+        if num_applicable_actions == 0 or heuristic(sampled_node) == float("inf"):
+            return sampled_node    # dead end situation
+        
+        random_num = random.randint(0,num_applicable_actions-1)     # perform random action selection
+        chosen_operator = sampled_actions[random_num][0]
+        chosen_succ_state = sampled_actions[random_num][1]
+        action_sequence.append((chosen_operator, chosen_succ_state))
+        print(f"action_sequence! {action_sequence}")
 
+        sampled_node = searchspace.make_child_node(sampled_node, chosen_operator, chosen_succ_state)    # the successor node object
+        sampled_node_state = sampled_node.state
+        h_succ = heuristic(sampled_node)
+        succ_actions = task.get_successor_states(sampled_node_state)
 
+        print(f"actions1: {len(sampled_actions)}, actions2: {len(succ_actions)}")
 
+        if h_succ < h_min or task.goal_reached(sampled_node_state):
+            return sampled_node
+        
+        restart_rv = random.randint(1,100)
+        if restart_rv <= restart_probability: 
+            print(restart_rv, restart_probability, "test: restart probability condition hit")
+            print("len action seq", len(action_sequence))
+            return sampled_node     # restarting probability condition based on r_p
 
         walk_len += 1 #setting counter for the restart threshold 
 
-    return current_state
+    return sampled_node
 
 
 def monte_carlo_rrw_search(
@@ -240,7 +265,7 @@ def monte_carlo_rrw_search(
     init_h = heuristic(root)  # setting initial heuristic
     h_min = heuristic(root)
 
-    current_state = make_open_entry(root, init_h, node_tiebreaker)  # setting current state to initial state (returns (f, h, node_tiebreaker, node))
+    current_state = make_open_entry(root, init_h, node_tiebreaker)[-1]  # setting current state to initial state (returns (f, h, node_tiebreaker, node))
 
 
     # heapq.heappush(open, make_open_entry(root, init_h, node_tiebreaker))  deleted step of adding node to the heap
@@ -249,10 +274,12 @@ def monte_carlo_rrw_search(
     counter = 0
     expansions = 0
     time = 0 # setting counter for overall search time limit
+    num_walks = 0
 
     while time <= time_limit:
-        sampled = random_walk(task, current_state, h_min, max_walk_len, restart_probability)   # sampled is a tuple containing (f, h, tiebreak, sampled_node). the sampled node itself is the last index
-        (f_sampled, h_sampled, _tie_sampled, sampled_node) = sampled    # sampled_node is the node object
+        sampled_node = random_walk(task, heuristic, current_state, h_min, max_walk_len, restart_probability)   # sampled is a tuple containing (f, h, tiebreak, sampled_node). the sampled node itself is the last index
+        print("ALMOOOOSSSTT", sampled_node)
+        h_sampled = heuristic(sampled_node)    # sampled_node is the node object
         sampled_state = sampled_node.state
         print("test,", sampled_state)
 
@@ -266,70 +293,72 @@ def monte_carlo_rrw_search(
         elif num_applicable_actions > 0 and h_sampled < h_min:  # successfully found new lowest h state, update current state to new lowest h state
 
             print(f"Actions: {task.get_successor_states(sampled_node.state)}")
-            current_state = sampled
+            current_state = sampled_node
             # print(sampled)
             h_min = heuristic(sampled_node)
 
         
         else:   # restart r_p condition hit or max walk length hit 
-            current_state = make_open_entry(root, init_h, node_tiebreaker)  # restart by setting current state = to initial state
-            h_min = heuristic(current_state[-1])
+            current_state = make_open_entry(root, init_h, node_tiebreaker)[-1]      # restart by setting current state = to initial state
+            h_min = heuristic(current_state)
+            num_walks += 1
             time += 1
 
             """FIGURE OUT"""
-
-        (f, h, _tie, pop_node) = current_state #current_state returns (f, h, node_tiebreaker, node)
-        # print(current_state)
-        if h < h_min:
-            h_min = h
-            logging.debug("Found new best h: %d after %d expansions" % (h_min, counter))
-
-        pop_state = pop_node.state
-        # Only expand the node if its associated cost (g value) is the lowest
-        # cost known for this state. Otherwise we already found a cheaper
-        # path after creating this node and hence can disregard it.
-        if state_cost[pop_state] == pop_node.g:
-            expansions += 1
-
-            if task.goal_reached(pop_state):
-                logging.info("Goal reached. Start extraction of solution.")
-                logging.info("%d Nodes expanded" % expansions)
-                return pop_node.extract_solution()
-            rplan = None
-            if use_relaxed_plan:
-                (rh, rplan) = heuristic.calc_h_with_plan(
-                    searchspace.make_root_node(pop_state)
-                )
-                logging.debug("relaxed plan %s " % rplan)
-
-            for op, succ_state in task.get_successor_states(pop_state):
-                if use_relaxed_plan:
-                    if rplan and not op.name in rplan:
-                        # ignore this operator if we use the relaxed plan
-                        # criterion
-                        logging.debug(
-                            "removing operator %s << not a "
-                            "preferred operator" % op.name
-                        )
-                        continue
-                    else:
-                        logging.debug("keeping operator %s" % op.name)
-
-                succ_node = searchspace.make_child_node(pop_node, op, succ_state)
-                h = heuristic(succ_node)
-                if h == float("inf"):
-                    # don't bother with states that can't reach the goal anyway
-                    continue
-                old_succ_g = state_cost.get(succ_state, float("inf"))
-                if succ_node.g < old_succ_g:
-                    # We either never saw succ_state before, or we found a
-                    # cheaper path to succ_state than previously.
-                    node_tiebreaker += 1
-                    heapq.heappush(open, make_open_entry(succ_node, h, node_tiebreaker))
-                    state_cost[succ_state] = succ_node.g
-
-        counter += 1
+        print(heuristic(sampled_node))
         time += 1
-    logging.info("No operators left. Task unsolvable.")
-    logging.info("%d Nodes expanded" % expansions)
+    #     (f, h, _tie, pop_node) = current_state #current_state returns (f, h, node_tiebreaker, node)
+    #     # print(current_state)
+    #     if h < h_min:
+    #         h_min = h
+    #         logging.debug("Found new best h: %d after %d expansions" % (h_min, counter))
+
+    #     pop_state = pop_node.state
+    #     # Only expand the node if its associated cost (g value) is the lowest
+    #     # cost known for this state. Otherwise we already found a cheaper
+    #     # path after creating this node and hence can disregard it.
+    #     if state_cost[pop_state] == pop_node.g:
+    #         expansions += 1
+
+    #         if task.goal_reached(pop_state):
+    #             logging.info("Goal reached. Start extraction of solution.")
+    #             logging.info("%d Nodes expanded" % expansions)
+    #             return pop_node.extract_solution()
+    #         rplan = None
+    #         if use_relaxed_plan:
+    #             (rh, rplan) = heuristic.calc_h_with_plan(
+    #                 searchspace.make_root_node(pop_state)
+    #             )
+    #             logging.debug("relaxed plan %s " % rplan)
+
+    #         for op, succ_state in task.get_successor_states(pop_state):
+    #             if use_relaxed_plan:
+    #                 if rplan and not op.name in rplan:
+    #                     # ignore this operator if we use the relaxed plan
+    #                     # criterion
+    #                     logging.debug(
+    #                         "removing operator %s << not a "
+    #                         "preferred operator" % op.name
+    #                     )
+    #                     continue
+    #                 else:
+    #                     logging.debug("keeping operator %s" % op.name)
+
+    #             succ_node = searchspace.make_child_node(pop_node, op, succ_state)
+    #             h = heuristic(succ_node)
+    #             if h == float("inf"):
+    #                 # don't bother with states that can't reach the goal anyway
+    #                 continue
+    #             old_succ_g = state_cost.get(succ_state, float("inf"))
+    #             if succ_node.g < old_succ_g:
+    #                 # We either never saw succ_state before, or we found a
+    #                 # cheaper path to succ_state than previously.
+    #                 node_tiebreaker += 1
+    #                 heapq.heappush(open, make_open_entry(succ_node, h, node_tiebreaker))
+    #                 state_cost[succ_state] = succ_node.g
+
+    #     counter += 1
+    #     time += 1
+    # logging.info("No operators left. Task unsolvable.")
+    # logging.info("%d Nodes expanded" % expansions)
     return None
