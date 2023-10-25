@@ -225,9 +225,8 @@ def random_walk(task, heuristic, action_sequence, current_state, h_min, walk_len
 
 
         if h_succ < h_min or task.goal_reached(sampled_node_state):
-            print("heuristic decrease detected")
-            walk_len += 1
-            print(f"h decreased, walk length: {walk_len}")
+            # walk_len += 1
+            # print(f"h decreased, walk length: {walk_len}")
             return sampled_node
         
         restart_rv = random.randint(1,100)
@@ -279,13 +278,11 @@ def monte_carlo_rrw_search(
     num_walks = 0
     action_sequence = []
     walk_len = 0
-    curr_walk_len = 0
 
-    while time <= time_limit:
+    while time < time_limit: 
         sampled_node = random_walk(task, heuristic, action_sequence, current_state, h_min, walk_len, max_walk_len, restart_probability)   # sampled is a tuple containing (f, h, tiebreak, sampled_node). the sampled node itself is the last index
         h_sampled = heuristic(sampled_node)    # sampled_node is the node object
         # walk_len += 1
-        print(f"curr h = {h_sampled}", walk_len)
 
         sampled_state = sampled_node.state
 
@@ -294,7 +291,10 @@ def monte_carlo_rrw_search(
         if task.goal_reached(sampled_state):
             logging.info("Goal reached. Start extraction of solution.")
             logging.info("%d Nodes expanded" % expansions)
-            print(len(action_sequence))
+            print(f"length of plan: {len(action_sequence)}")
+            print([i[0] for i in action_sequence])
+            sol = sampled_node.extract_solution()
+            print(sol)
             return sampled_node.extract_solution()  # TODO: look at details of extract_solution and chaining action sequences
 
         elif num_applicable_actions > 0 and h_sampled < h_min:  # successfully found new lowest h state, update current state to new lowest h state
@@ -302,6 +302,7 @@ def monte_carlo_rrw_search(
             current_state = sampled_node
             # print(sampled)
             h_min = heuristic(sampled_node)
+            walk_len +=1
         
 
         
@@ -312,10 +313,8 @@ def monte_carlo_rrw_search(
             walk_len = 0
             print("restart condition hit", walk_len)
 
-            num_walks += 1
-            time += 1
 
-        print(f"current h = {heuristic(sampled_node)}", walk_len)
+        print(f"current h = {heuristic(sampled_node)}, walk_len = {walk_len}")      # not
         time += 1
     #     (f, h, _tie, pop_node) = current_state #current_state returns (f, h, node_tiebreaker, node)
     #     # print(current_state)
@@ -371,4 +370,5 @@ def monte_carlo_rrw_search(
     #     time += 1
     # logging.info("No operators left. Task unsolvable.")
     # logging.info("%d Nodes expanded" % expansions)
+    print("Time limit reached, failed to find a solution")
     return None
