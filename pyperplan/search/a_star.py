@@ -197,9 +197,10 @@ def astar_search(
     return None
 
 
-def random_walk(task, heuristic, action_sequence, current_state, h_min, walk_len, max_walk_len, restart_probability):
+def random_walk(task, heuristic, action_sequence, current_state, h_min, max_walk_len, restart_probability):
+    global walk_len
     sampled_node = current_state
-    print(f"current heuristic min: {heuristic(sampled_node)}")
+    # print(f"current heuristic min: {heuristic(sampled_node)}")
     restart_probability = restart_probability * 100
 
 
@@ -233,14 +234,16 @@ def random_walk(task, heuristic, action_sequence, current_state, h_min, walk_len
         if restart_rv <= restart_probability: 
             print(restart_rv, restart_probability, "test: restart probability condition hit", h_min, h_succ)
             print("len action seq", len(action_sequence))
+            walk_len = 0
             return searchspace.make_root_node(task.initial_state)     # restarting probability condition based on r_p
 
-        walk_len += 1 #setting counter for the restart threshold 
-        print(f"No h decrease, walk length: {walk_len}")
+        walk_len += 1   # setting counter for the restart threshold 
+        print(f"current h = {heuristic(sampled_node)}, walk length = {walk_len}")
+
 
     return sampled_node
 
-
+global walk_len
 def monte_carlo_rrw_search(
     task, heuristic, max_walk_len=100, restart_probability=0.2, time_limit=3000, make_open_entry=ordered_node_greedy_best_first, use_relaxed_plan=False,
 ):
@@ -277,12 +280,15 @@ def monte_carlo_rrw_search(
     time = 0 # setting counter for overall search time limit
     num_walks = 0
     action_sequence = []
+    global walk_len
     walk_len = 0
 
     while time < time_limit: 
-        sampled_node = random_walk(task, heuristic, action_sequence, current_state, h_min, walk_len, max_walk_len, restart_probability)   # sampled is a tuple containing (f, h, tiebreak, sampled_node). the sampled node itself is the last index
+        sampled_node = random_walk(task, heuristic, action_sequence, current_state, h_min, max_walk_len, restart_probability)   # sampled is a tuple containing (f, h, tiebreak, sampled_node). the sampled node itself is the last index
         h_sampled = heuristic(sampled_node)    # sampled_node is the node object
         # walk_len += 1
+        print(f"current h = {h_sampled}, walk length = {walk_len}")
+
 
         sampled_state = sampled_node.state
 
@@ -314,7 +320,7 @@ def monte_carlo_rrw_search(
             print("restart condition hit", walk_len)
 
 
-        print(f"current h = {heuristic(sampled_node)}, walk_len = {walk_len}")      # not
+        # print(f"current h = {heuristic(sampled_node)}, walk_length = {walk_len}")      # not
         time += 1
     #     (f, h, _tie, pop_node) = current_state #current_state returns (f, h, node_tiebreaker, node)
     #     # print(current_state)
