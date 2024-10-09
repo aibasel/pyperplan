@@ -15,7 +15,7 @@ costs.
 
 # Requirements
 
-Pyperplan requires [Python](https://python.org) >= 3.6.
+Pyperplan requires [Python](https://python.org) >= 3.7.
 
 # Installation
 
