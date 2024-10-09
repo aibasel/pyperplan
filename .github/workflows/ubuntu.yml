@@ -4,10 +4,10 @@ name: Ubuntu
 on:
   push:
     branches:
-    - master
+    - main
   pull_request:
     branches:
-    - master
+    - main
 
 jobs:
   build:
@@ -17,16 +17,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-18.04, ubuntu-20.04]
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        os: [ubuntu-20.04, ubuntu-22.04]
+        python-version: [3.6, 3.7, 3.8, 3.9, '3.10', '3.11', '3.12', '3.13']
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
+        allow-prereleases: true
 
     - name: Show environment
       run: |
@@ -35,14 +36,13 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get -y install minisat
-        python -m pip install --upgrade pip tox
+        sudo apt-get -y install minisat python3-pip tox
 
     - name: Check style
-      if: matrix.os == 'ubuntu-20.04' && matrix.python-version == '3.9'
+      if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.12'
       run: |
         tox -e style
 
     - name: Run tests
       run: |
-        tox -e slow
+        tox -e py,slow
