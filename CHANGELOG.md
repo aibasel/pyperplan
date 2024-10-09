@@ -1,3 +1,8 @@
+# 2.2 (unreleased)
+
+* Raise minimum Python version to 3.7 and maximum Python version to 3.13 (#28).
+
+
 # 2.1 (2022-01-17)
 
 * Add options to API for removal of static facts from init, and removal of irrelevant operators (Blai Bonet, #14).
