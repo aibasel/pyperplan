@@ -139,13 +139,13 @@ def _search(task, search, heuristic, use_preferred_ops=False):
     logging.info(f"Search start: {task.name}")
     if heuristic:
         if use_preferred_ops:
-            solution = search(task, heuristic, use_preferred_ops)
+            result = search(task, heuristic, use_preferred_ops)
         else:
-            solution = search(task, heuristic)
+            result = search(task, heuristic)
     else:
-        solution = search(task)
+        result = search(task)
     logging.info(f"Search end: {task.name}")
-    return solution
+    return result.goal_node.extract_solution()
 
 
 def write_solution(solution, filename):

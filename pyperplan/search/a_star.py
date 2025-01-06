@@ -21,9 +21,12 @@ Implements the A* (a-star) and weighted A* search algorithm.
 
 import heapq
 import logging
+import time
+import os
+import psutil
 
 from . import searchspace
-
+from .search_stat import SearchLimit, SearchResult
 
 def ordered_node_astar(node, h, node_tiebreaker):
     """
@@ -109,6 +112,7 @@ def weighted_astar_search(*args, weight=5, **kwargs):
 def astar_search(task, heuristic,
                  make_open_entry=ordered_node_astar,
                  use_relaxed_plan=False,
+                 limit=SearchLimit(),
                  early_goal_detection=False,
                  **kwargs):
     """
@@ -126,19 +130,33 @@ def astar_search(task, heuristic,
     """
     logging.warning(f"unrecognized keywords for astar_search (ignored): {kwargs}")
     open = []
-    state_cost = {task.initial_state: 0}
+    state_g = {task.initial_state: 0}
+    state_h = {}
     node_tiebreaker = 0
 
     root = searchspace.make_root_node(task.initial_state)
     init_h = heuristic(root)
+    state_h[task.initial_state] = init_h
     heapq.heappush(open, make_open_entry(root, init_h, node_tiebreaker))
     logging.info("Initial h value: %f" % init_h)
 
     besth = float("inf")
     counter = 0
-    expansions = 0
+    result = SearchResult(
+        expansions  = 0,
+        generations = 0,
+        evaluations = 1,
+        elapsed     = 0.0)
+    # The number of heuristic evaluations.
+    # Note that this is not the number of g-value update, which is also called evaluations.
+    # It is 1 because we have already evaluated init_h.
 
-    while open:
+    time1 = time.process_time()
+    def check_limit():
+        result.rss = psutil.Process(os.getpid()).memory_info().rss
+        result.elapsed = time.process_time() - time1
+        return limit.satisfy(result)
+    while open and check_limit():
         (f, h, _tie, pop_node) = heapq.heappop(open)
         if h < besth:
             besth = h
@@ -148,13 +166,14 @@ def astar_search(task, heuristic,
         # Only expand the node if its associated cost (g value) is the lowest
         # cost known for this state. Otherwise we already found a cheaper
         # path after creating this node and hence can disregard it.
-        if state_cost[pop_state] == pop_node.g:
-            expansions += 1
+        if state_g[pop_state] == pop_node.g:
+            result.expansions += 1
 
             if task.goal_reached(pop_state):
                 logging.info("Goal reached. Start extraction of solution.")
-                logging.info("%d Nodes expanded" % expansions)
-                return pop_node.extract_solution()
+                logging.info("%d Nodes expanded" % result.expansions)
+                result.goal_node = pop_node
+                return result
             rplan = None
             if use_relaxed_plan:
                 (rh, rplan) = heuristic.calc_h_with_plan(
@@ -163,6 +182,7 @@ def astar_search(task, heuristic,
                 logging.debug("relaxed plan %s " % rplan)
 
             for op, succ_state in task.get_successor_states(pop_state):
+                result.generations += 1
                 if use_relaxed_plan:
                     if rplan and not op.name in rplan:
                         # ignore this operator if we use the relaxed plan
@@ -179,22 +199,29 @@ def astar_search(task, heuristic,
 
                 if early_goal_detection and task.goal_reached(succ_state):
                     logging.info("Goal reached (early goal detection).")
-                    logging.info("%d Nodes expanded" % expansions)
-                    return succ_node.extract_solution()
+                    logging.info("%d Nodes expanded" % result.expansions)
+                    result.goal_node = succ_node
+                    return result
 
                 h = heuristic(succ_node)
+
+                if succ_state not in state_h:
+                    result.evaluations += 1
+                    h = heuristic(succ_node)
+                    state_h[succ_state] = h # cache heuristics
+                else:
+                    h = state_h[succ_state] # cached heuristics
                 if h == float("inf"):
                     # don't bother with states that can't reach the goal anyway
                     continue
-                old_succ_g = state_cost.get(succ_state, float("inf"))
+                old_succ_g = state_g.get(succ_state, float("inf"))
                 if succ_node.g < old_succ_g:
                     # We either never saw succ_state before, or we found a
                     # cheaper path to succ_state than previously.
                     node_tiebreaker += 1
                     heapq.heappush(open, make_open_entry(succ_node, h, node_tiebreaker))
-                    state_cost[succ_state] = succ_node.g
+                    state_g[succ_state] = succ_node.g
 
         counter += 1
-    logging.info("No operators left. Task unsolvable.")
-    logging.info("%d Nodes expanded" % expansions)
-    return None
+    logging.info("No operators left and task unsolvable, or exceeded the search limit")
+    return result
