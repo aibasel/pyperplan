@@ -91,7 +91,7 @@ def greedy_best_first_search(*args, **kwargs):
     @param heuristic A heuristic callable which computes the estimated steps
                      from a search node to reach the goal.
     """
-    return astar_search(*args, ordered_node_greedy_best_first, **kwargs)
+    return astar_search(*args, ordered_node_greedy_best_first, early_goal_detection=True, **kwargs)
 
 
 def weighted_astar_search(*args, weight=5, **kwargs):
@@ -109,6 +109,7 @@ def weighted_astar_search(*args, weight=5, **kwargs):
 def astar_search(task, heuristic,
                  make_open_entry=ordered_node_astar,
                  use_relaxed_plan=False,
+                 early_goal_detection=False,
                  **kwargs):
     """
     Searches for a plan in the given task using A* search.
@@ -175,6 +176,12 @@ def astar_search(task, heuristic,
                         logging.debug("keeping operator %s" % op.name)
 
                 succ_node = searchspace.make_child_node(pop_node, op, succ_state)
+
+                if early_goal_detection and task.goal_reached(succ_state):
+                    logging.info("Goal reached (early goal detection).")
+                    logging.info("%d Nodes expanded" % expansions)
+                    return succ_node.extract_solution()
+
                 h = heuristic(succ_node)
                 if h == float("inf"):
                     # don't bother with states that can't reach the goal anyway
