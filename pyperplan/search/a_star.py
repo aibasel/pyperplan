@@ -225,3 +225,167 @@ def astar_search(task, heuristic,
         counter += 1
     logging.info("No operators left and task unsolvable, or exceeded the search limit")
     return result
+
+
+
+def greedy_best_first_search_bucket(*args, **kwargs):
+    """
+    Searches for a plan in the given task using greedy best first search.
+    Uses a bucket-based open list rather than a heap-base open list.
+
+    @param task The task to be solved.
+    @param heuristic A heuristic callable which computes the estimated steps
+                     from a search node to reach the goal.
+    """
+    return astar_search_bucket(*args, ordered_node_greedy_best_first, early_goal_detection=True, **kwargs)
+
+
+def weighted_astar_search_bucket(*args, weight=5, **kwargs):
+    """
+    Searches for a plan in the given task using A* search.
+    Uses a bucket-based open list rather than a heap-base open list.
+
+    @param task The task to be solved.
+    @param heuristic  A heuristic callable which computes the estimated steps.
+                      from a search node to reach the goal.
+    @param weight A weight to be applied to the heuristics value for each node.
+    """
+    return astar_search_bucket(*args, ordered_node_weighted_astar(weight), **kwargs)
+
+
+from collections import deque
+from sortedcontainers import SortedDict
+
+def astar_search_bucket(task, heuristic, make_open_entry=ordered_node_astar, use_relaxed_plan=False, limit=SearchLimit(), early_goal_detection=False, **kwargs):
+    """
+    Searches for a plan in the given task using A* search.
+    Uses a bucket-based open list rather than a heap-base open list.
+
+    @param task The task to be solved
+    @param heuristic  A heuristic callable which computes the estimated steps
+                      from a search node to reach the goal.
+    @param make_open_entry An optional parameter to change the bahavior of the
+                           astar search. The callable should return a search
+                           node, possible values are ordered_node_astar,
+                           ordered_node_weighted_astar and
+                           ordered_node_greedy_best_first with obvious
+                           meanings.
+    """
+    logging.warning(f"unrecognized keywords for astar_search_bucket (ignored): {kwargs}")
+
+    open = SortedDict()
+
+    def insert(entry):
+        key = entry[:-2]        # we don't use node_tiebreaker
+        if key not in open:
+            bucket = deque()
+            open[key] = bucket
+        else:
+            bucket = open[key]
+        bucket.append(entry)    # FIFO: append to the right
+
+
+    def popmin():
+        _, bucket = open.peekitem(0) # note: may error.
+        assert bucket
+        entry = bucket.popleft() # FIFO: pop from the left
+        if not bucket:
+            open.popitem(0)     # remove the bucket if empty
+        return entry
+
+
+    state_g = {task.initial_state: 0}
+    state_h = {}
+    node_tiebreaker = 0
+
+    root = searchspace.make_root_node(task.initial_state)
+    init_h = heuristic(root)
+    state_h[task.initial_state] = init_h
+    logging.info("Initial h value: %f" % init_h)
+
+    insert(make_open_entry(root, init_h, node_tiebreaker))
+
+    besth = float("inf")
+    counter = 0
+    result = SearchResult(
+        expansions  = 0,
+        generations = 0,
+        evaluations = 1,
+        elapsed     = 0.0)
+    # The number of heuristic evaluations.
+    # Note that this is not the number of g-value update, which is also called evaluations.
+    # It is 1 because we have already evaluated init_h.
+
+    time1 = time.process_time()
+    def check_limit():
+        result.rss = psutil.Process(os.getpid()).memory_info().rss
+        result.elapsed = time.process_time() - time1
+        return limit.satisfy(result)
+    while open and check_limit():
+        (f, h, _tie, pop_node) = popmin()
+        if h < besth:
+            besth = h
+            logging.debug("Found new best h: %d after %d expansions" % (besth, counter))
+
+        pop_state = pop_node.state
+        # Only expand the node if its associated cost (g value) is the lowest
+        # cost known for this state. Otherwise we already found a cheaper
+        # path after creating this node and hence can disregard it.
+        if state_g[pop_state] == pop_node.g:
+            result.expansions += 1
+
+            if task.goal_reached(pop_state):
+                logging.info("Goal reached. Start extraction of solution.")
+                logging.info("%d Nodes expanded" % result.expansions)
+                result.goal_node = pop_node
+                return result
+            rplan = None
+            if use_relaxed_plan:
+                (rh, rplan) = heuristic.calc_h_with_plan(
+                    searchspace.make_root_node(pop_state)
+                )
+                logging.debug("relaxed plan %s " % rplan)
+
+            for op, succ_state in task.get_successor_states(pop_state):
+                result.generations += 1
+                if use_relaxed_plan:
+                    if rplan and not op.name in rplan:
+                        # ignore this operator if we use the relaxed plan
+                        # criterion
+                        logging.debug(
+                            "removing operator %s << not a "
+                            "preferred operator" % op.name
+                        )
+                        continue
+                    else:
+                        logging.debug("keeping operator %s" % op.name)
+
+                succ_node = searchspace.make_child_node(pop_node, op, succ_state)
+
+                if early_goal_detection and task.goal_reached(succ_state):
+                    logging.info("Goal reached (early goal detection). Start extraction of solution.")
+                    logging.info("%d Nodes expanded" % result.expansions)
+                    result.goal_node = succ_node
+                    return result
+
+                if succ_state not in state_h:
+                    result.evaluations += 1
+                    h = heuristic(succ_node)
+                    state_h[succ_state] = h # cache heuristics
+                else:
+                    h = state_h[succ_state] # cached heuristics
+                if h == float("inf"):
+                    # don't bother with states that can't reach the goal anyway
+                    continue
+                old_succ_g = state_g.get(succ_state, float("inf"))
+                if succ_node.g < old_succ_g:
+                    # We either never saw succ_state before, or we found a
+                    # cheaper path to succ_state than previously.
+                    node_tiebreaker += 1
+                    insert(make_open_entry(succ_node, h, node_tiebreaker))
+                    state_g[succ_state] = succ_node.g
+
+        counter += 1
+    logging.info("No operators left and task unsolvable, or exceeded the search limit")
+    return result
+
