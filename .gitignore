@@ -1,6 +1,11 @@
 *~
+#*
 *.py[cod]
 .tox/
 build/
 dist/
 pyperplan.egg-info/
+.env/
+.venv/
+.vscode/
+.trunk/
