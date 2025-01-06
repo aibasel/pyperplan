@@ -83,7 +83,7 @@ def ordered_node_greedy_best_first(node, h, node_tiebreaker):
     return (f, h, node_tiebreaker, node)
 
 
-def greedy_best_first_search(task, heuristic, use_relaxed_plan=False):
+def greedy_best_first_search(*args, **kwargs):
     """
     Searches for a plan in the given task using greedy best first search.
 
@@ -91,12 +91,10 @@ def greedy_best_first_search(task, heuristic, use_relaxed_plan=False):
     @param heuristic A heuristic callable which computes the estimated steps
                      from a search node to reach the goal.
     """
-    return astar_search(
-        task, heuristic, ordered_node_greedy_best_first, use_relaxed_plan
-    )
+    return astar_search(*args, ordered_node_greedy_best_first, **kwargs)
 
 
-def weighted_astar_search(task, heuristic, weight=5, use_relaxed_plan=False):
+def weighted_astar_search(*args, weight=5, **kwargs):
     """
     Searches for a plan in the given task using A* search.
 
@@ -105,14 +103,13 @@ def weighted_astar_search(task, heuristic, weight=5, use_relaxed_plan=False):
                       from a search node to reach the goal.
     @param weight A weight to be applied to the heuristics value for each node.
     """
-    return astar_search(
-        task, heuristic, ordered_node_weighted_astar(weight), use_relaxed_plan
-    )
+    return astar_search(*args, ordered_node_weighted_astar(weight), **kwargs)
 
 
-def astar_search(
-    task, heuristic, make_open_entry=ordered_node_astar, use_relaxed_plan=False
-):
+def astar_search(task, heuristic,
+                 make_open_entry=ordered_node_astar,
+                 use_relaxed_plan=False,
+                 **kwargs):
     """
     Searches for a plan in the given task using A* search.
 
@@ -126,6 +123,7 @@ def astar_search(
                            ordered_node_greedy_best_first with obvious
                            meanings.
     """
+    logging.warning(f"unrecognized keywords for astar_search (ignored): {kwargs}")
     open = []
     state_cost = {task.initial_state: 0}
     node_tiebreaker = 0
