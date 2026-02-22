@@ -15,11 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-import logging
 import os
 import subprocess
-import sys
-import traceback
 
 
 def command_available(command):
@@ -33,7 +30,7 @@ def command_available(command):
     try:
         subprocess.check_call(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return True
-    except (subprocess.CalledProcessError, OSError) as err:
+    except (subprocess.CalledProcessError, OSError):
         return False
 
 

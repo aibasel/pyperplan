@@ -5,7 +5,6 @@ import sys
 
 from pyperplan import tools
 
-
 INPUT = "input.cnf"
 OUTPUT = "output.txt"
 MINISAT = "minisat"

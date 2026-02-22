@@ -3,7 +3,7 @@ import pytest
 from pyperplan import grounding
 from pyperplan.heuristics.lm_cut import LmCutHeuristic
 from pyperplan.pddl.parser import Parser
-from pyperplan.search import astar_search, enforced_hillclimbing_search, make_root_node
+from pyperplan.search import make_root_node
 from pyperplan.task import Operator, Task
 
 from .heuristic_test_instances import (
@@ -11,7 +11,6 @@ from .heuristic_test_instances import (
     blocks_problem_1,
     gen_blocks_test_astar,
 )
-
 
 """
 Test problems
@@ -207,7 +206,7 @@ def test_lm_cut_relaxed_operators():
     assert heuristic.relaxed_ops["op3"].cost == 1
     assert [f.name for f in heuristic.relaxed_ops["op3"].precondition] == ["var2"]
     assert [f.name for f in heuristic.relaxed_ops["op3"].effects] == ["var1"]
-    assert not "ALWAYSTRUE" in heuristic.relaxed_facts
+    assert "ALWAYSTRUE" not in heuristic.relaxed_facts
 
 
 def test_lm_cut_relaxed_operators2():
@@ -276,7 +275,7 @@ def test_lm_cut_hmax_intermediate_two_paths():
     assert heuristic.relaxed_facts["v2"].hmax_value == 1.0
     assert heuristic.relaxed_facts["v3"].hmax_value == 2.0
     assert heuristic.relaxed_facts["v6"].hmax_value == float("inf")
-    assert not heuristic.relaxed_facts["v6"] in heuristic.reachable
+    assert heuristic.relaxed_facts["v6"] not in heuristic.reachable
     assert heuristic.relaxed_facts["v4"].hmax_value == 2.0
     assert heuristic.relaxed_facts["v5"].hmax_value == 2.0
     assert heuristic.relaxed_facts["v7"].hmax_value == 3.0
@@ -402,7 +401,6 @@ def test_lm_cut_blocksworld_complete_astar():
 
 @pytest.mark.slow
 def test_lm_cut_blocksworld_complete_enforced_hillclimbing():
-    true_h_values = [6.0, 5.0, 5.0, 4.0, 5.0, 5.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0]
-    plan_length = 16
+    pass
     # TODO: Result is currently nondeterministic.
     # gen_blocks_test_ehc(LmCutHeuristic, true_h_values, plan_length)

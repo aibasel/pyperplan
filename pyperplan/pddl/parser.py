@@ -21,7 +21,6 @@ from .lisp_parser import parse_lisp_iterator
 from .parser_common import *
 from .tree_visitor import TraversePDDLDomain, TraversePDDLProblem, Visitable
 
-
 """
 This module contains the main parser logic.
 Partial parser for each AST node are implemented
@@ -66,7 +65,7 @@ class Variable(Visitable):
         """
         self._visitorName = "visit_variable"
         self.name = name
-        self.typed = types != None  # either True or False
+        self.typed = types is not None  # either True or False
         self.types = types  # either None or a List of Types
 
 
@@ -254,7 +253,7 @@ class DomainDef(Visitable):
         self.requirements = requirements  # a RequirementsStmt
         self.types = types  # a list of Types
         self.predicates = predicates  # a PredicatesStmt
-        if actions == None:
+        if actions is None:
             self.actions = []
         else:
             self.actions = actions  # a list of ActionStmt
@@ -347,7 +346,7 @@ def parse_list_template(f, iter):
     # parse all possible occurences up to the end of the substring
     for elem in iter:
         var = f(elem)
-        if var != None:
+        if var is not None:
             result.append(var)
     return result
 
@@ -400,7 +399,7 @@ def _parse_type_helper(iter, type_class):
                         result.append(type_class(tmpList.pop(), [ctype]))
                     else:
                         result.append(type_class(tmpList.pop(), ctype))
-        elif var != None and var != "":
+        elif var is not None and var != "":
             # found new object definition --> enqueue
             if type_class == Variable:
                 if var[0] != "?":
@@ -523,8 +522,10 @@ def _parse_domain_helper(iter, keyword):
     return DomainStmt(name)
 
 
-parse_domain_stmt = lambda it: _parse_domain_helper(it, "domain")
-parse_problem_domain_stmt = lambda it: _parse_domain_helper(it, ":domain")
+def parse_domain_stmt(it):
+    return _parse_domain_helper(it, "domain")
+def parse_problem_domain_stmt(it):
+    return _parse_domain_helper(it, ":domain")
 
 
 def parse_predicate(iter):
@@ -850,7 +851,7 @@ if __name__ == "__main__":
     argparser.add_argument(dest="domain", help="specify domain file")
     argparser.add_argument(dest="problem", help="specify problem file", nargs="?")
     options = argparser.parse_args()
-    if options.domain == None:
+    if options.domain is None:
         parser.print_usage()
         parser.error("Error domain file must be specified")
     pddlParser = Parser(options.domain)
@@ -858,7 +859,7 @@ if __name__ == "__main__":
     domain = pddlParser.parse_domain()
     print("++++++++ parsed domain file successfully")
     print(domain)
-    if options.problem != None:
+    if options.problem is not None:
         print("-------- Starting to parse supplied problem file!")
         pddlParser.set_prob_file(options.problem)
         problem = pddlParser.parse_problem(domain)

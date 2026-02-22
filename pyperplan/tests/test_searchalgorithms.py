@@ -12,7 +12,7 @@ def test_breadth_first_search_at_goal():
     task = dummy_task.get_search_space_at_goal()
     solution = breadth_first_search(task)
     print(solution)
-    assert solution != None
+    assert solution is not None
     assert len(solution) == 0
 
 
@@ -21,7 +21,7 @@ def test_breadth_first_search_no_solution():
     task = dummy_task.get_search_space_no_solution()
     solution = breadth_first_search(task)
     print(solution)
-    assert solution == None
+    assert solution is None
 
 
 def test_breadth_first_search_three_step():
@@ -29,7 +29,7 @@ def test_breadth_first_search_three_step():
     task = dummy_task.get_simple_search_space()
     solution = breadth_first_search(task)
     print(solution)
-    assert solution != None
+    assert solution is not None
     assert len(solution) == 3
 
 
@@ -38,5 +38,5 @@ def test_breadth_first_search_four_step():
     task = dummy_task.get_simple_search_space_2()
     solution = breadth_first_search(task)
     print(solution)
-    assert solution != None
+    assert solution is not None
     assert len(solution) == 4

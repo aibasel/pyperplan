@@ -2,14 +2,13 @@
 Tests for parsing and grounding all problems
 """
 
-from glob import glob
 import os
+from glob import glob
 
 import pytest
 
 from pyperplan import planner
 from pyperplan.search import breadth_first_search
-
 
 benchmarks = os.path.abspath(
     os.path.join(os.path.abspath(__file__), "../../../benchmarks")

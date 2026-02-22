@@ -1,8 +1,7 @@
-from collections import defaultdict
 import logging
+from collections import defaultdict
 
 from . import minisat
-
 
 # Max number of steps in a plan
 HORIZON = 1000

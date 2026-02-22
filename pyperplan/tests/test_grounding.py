@@ -142,7 +142,7 @@ def test_statics1():
 
 
 def test_statics2():
-    type_object = Type("object", None)
+    Type("object", None)
 
     predicate_a = Predicate("a", [])
     predicate_b = Predicate("b", [])
@@ -300,7 +300,7 @@ def test_operators():
     )
 
     problem = Problem("test_problem", domain, objects, initial_state, goal_state)
-    task = grounding.ground(problem)
+    grounding.ground(problem)
 
     expected = [
         ("(DRIVE-CAR red_car freiburg basel)", grounded_drive_car),
@@ -315,7 +315,7 @@ def test_operators():
 
 
 def test_create_operator():
-    statics = grounding._get_statics(
+    grounding._get_statics(
         standard_domain.predicates.values(), [action_drive_car]
     )
     initial_state = [

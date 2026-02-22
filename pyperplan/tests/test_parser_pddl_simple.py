@@ -4,7 +4,6 @@ from pyperplan.pddl.errors import ParseError
 from pyperplan.pddl.lisp_parser import parse_lisp_iterator
 from pyperplan.pddl.parser import *
 
-
 ## helper functions
 
 
@@ -63,8 +62,8 @@ def test_parseVariableNoTyping():
     iter = parse_lisp_iterator(test)
     key = parse_variable(next(iter))
     assert key.name == "?x"
-    assert key.typed == False
-    assert key.types == None
+    assert key.typed is False
+    assert key.types is None
 
 
 def test_parseVariableTyping():
@@ -73,7 +72,7 @@ def test_parseVariableTyping():
     vlist = parse_typed_var_list(iter)
     assert len(vlist) == 1
     assert vlist[0].name == "?x"
-    assert vlist[0].typed == True
+    assert vlist[0].typed is True
     assert vlist[0].types[0] == "block"
 
 
@@ -147,7 +146,7 @@ def test_parsePredicateMixed():
     pred = parse_predicate(iter)
     assert pred.name == "on"
     assert [x.name for x in pred.parameters] == ["?x", "?y"]
-    assert [x.types[0] for x in pred.parameters if x.types != None] == ["block"]
+    assert [x.types[0] for x in pred.parameters if x.types is not None] == ["block"]
 
 
 def test_parsePredicateList():
@@ -186,7 +185,7 @@ def test_parseFormulaFail():
 def test_parseFormulaLispFail2():
     test = ["(and (on ?x table) (true) (free( ?x))"]
     with raises(ParseError):
-        iter = parse_lisp_iterator(test)
+        parse_lisp_iterator(test)
 
 
 def test_parse_variable():
@@ -199,7 +198,7 @@ def test_parse_variable():
 def test_lisp_parser_start_brace():
     test = ["test string)"]
     with raises(ParseError):
-        iter = parse_lisp_iterator(test)
+        parse_lisp_iterator(test)
 
 
 def test_parse_keyword_raise():

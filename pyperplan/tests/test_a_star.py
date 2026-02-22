@@ -2,7 +2,6 @@ from pyperplan.search import a_star, searchspace
 
 from . import dummy_task
 
-
 # create 4 dummy tasks
 task1 = dummy_task.get_search_space_at_goal()
 task2 = dummy_task.get_simple_search_space()

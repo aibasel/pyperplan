@@ -5,7 +5,6 @@ import pytest
 
 from pyperplan.task import Operator, Task
 
-
 s1 = frozenset(["var1"])
 s2 = frozenset(["var2"])
 s3 = frozenset(["var1", "var2"])

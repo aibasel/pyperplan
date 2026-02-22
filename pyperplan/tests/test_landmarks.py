@@ -75,7 +75,7 @@ def test_heuristics():
     )
 
     # task with one operator with equal precondition and effect,
-    task4b = Task(
+    Task(
         "task4b",
         {"A", "B", "C"},
         frozenset(["A"]),
@@ -85,7 +85,7 @@ def test_heuristics():
 
     # task with one operator with several effects,
     # 2 operators have to be applied
-    task5 = Task(
+    Task(
         "task5",
         {"A", "B", "C", "D", "E", "F"},
         ["A"],
@@ -97,7 +97,7 @@ def test_heuristics():
     )
 
     # task with one operator with several preconditions
-    task6 = Task(
+    Task(
         "task6",
         {"A", "B", "C", "D", "E"},
         ["A"],
@@ -111,7 +111,7 @@ def test_heuristics():
     )
 
     # task with empty initial state: no operator can be applied
-    task7 = Task(
+    Task(
         "task7",
         {"A", "B", "C"},
         [],
@@ -120,7 +120,7 @@ def test_heuristics():
     )
 
     # task with initial state = goal state: no operator has to be applied
-    task8 = Task(
+    Task(
         "task8",
         {"A", "B", "C"},
         ["C"],
@@ -129,7 +129,7 @@ def test_heuristics():
     )
 
     # task with operator with empty precondition
-    task9 = Task(
+    Task(
         "task9",
         {"A", "B", "C"},
         [],
@@ -138,7 +138,7 @@ def test_heuristics():
     )
 
     # a more complex task
-    task10 = Task(
+    Task(
         "task10",
         {"v1", "v2", "v3", "v4", "v5", "v6", "g"},
         ["v1"],
@@ -154,7 +154,7 @@ def test_heuristics():
     )
 
     # another complex task
-    task12 = Task(
+    Task(
         "task12",
         {"A", "B", "C", "D", "E", "F", "G", "H", "I"},
         ["A", "B"],
@@ -169,7 +169,7 @@ def test_heuristics():
     )
 
     # task with no goal:
-    task13 = Task(
+    Task(
         "task13",
         {"A", "B", "C"},
         ["A", "B"],
@@ -177,7 +177,7 @@ def test_heuristics():
         [Operator("op1", {"A", "B"}, {"C"}, set())],
     )
     # task with no reachable goal:
-    task14 = Task(
+    Task(
         "task14",
         {"A", "B", "C"},
         ["A"],

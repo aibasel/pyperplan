@@ -1,6 +1,5 @@
 from pyperplan.pddl.parser import *
 
-
 _parser = Parser("")
 
 
@@ -28,7 +27,7 @@ def test_untyped_constants():
     _parser.probInput = problem_input
 
     domain = _parser.parse_domain(False)
-    problem = _parser.parse_problem(domain, False)
+    _parser.parse_problem(domain, False)
 
     _parser.domInput = domain_input
     domain = _parser.parse_domain(False)

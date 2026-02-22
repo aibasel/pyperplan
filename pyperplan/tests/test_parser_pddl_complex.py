@@ -3,7 +3,6 @@ from pytest import raises
 from pyperplan.pddl.lisp_parser import parse_lisp_iterator
 from pyperplan.pddl.parser import *
 
-
 ### helper functions
 
 
@@ -124,7 +123,7 @@ def test_parseTypes():
         "place",
         "physobj",
     ]
-    assert [t.parent for t in types if t.parent != None] == [
+    assert [t.parent for t in types if t.parent is not None] == [
         "vehicle",
         "vehicle",
         "physobj",
@@ -270,7 +269,7 @@ def test_parseDomainDef2():
     ]
     iter = parse_lisp_iterator(test)
     with raises(ValueError):
-        dom = parse_domain_def(iter)
+        parse_domain_def(iter)
 
 
 def test_parseDomainDef():
@@ -327,7 +326,7 @@ def test_parseDomainDef():
     ]
     iter = parse_lisp_iterator(test)
     with raises(ValueError):
-        dom = parse_domain_def(iter)
+        parse_domain_def(iter)
 
 
 def test_predList2():
@@ -351,7 +350,7 @@ def test_predList2():
     assert [
         p.parameters[0].types[0]
         for p in pred.predicates
-        if p.parameters[0].types != None
+        if p.parameters[0].types is not None
     ] == ["person", "person", "aircraft", "flevel"]
 
 
@@ -366,7 +365,7 @@ def test_predList3():
     ]
     iter = parse_lisp_iterator(test)
     with raises(ValueError):
-        pred = parse_predicates_stmt(iter)
+        parse_predicates_stmt(iter)
 
 
 def test_predList4():
@@ -380,7 +379,7 @@ def test_predList4():
     ]
     iter = parse_lisp_iterator(test)
     with raises(ValueError):
-        pred = parse_predicates_stmt(iter)
+        parse_predicates_stmt(iter)
 
 
 def test_parseObjectsStmt():

@@ -60,7 +60,7 @@ class LispIterator:
 
     def empty(self):
         self._raise_if(self.is_word(), "cannot call empty on word")
-        return self.peek() == None
+        return self.peek() is None
 
     def get_word(self):
         """If called on a word, return the word as a string.

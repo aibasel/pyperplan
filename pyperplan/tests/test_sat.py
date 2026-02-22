@@ -7,7 +7,6 @@ from pyperplan import tools
 from pyperplan.search import minisat, sat
 from pyperplan.task import Operator, Task
 
-
 logging.basicConfig(
     level=logging.DEBUG,
     format="%(asctime)s %(levelname)-8s %(message)s",
@@ -181,7 +180,7 @@ def test_sat_solve():
     task5 = Task("task5", {"a", "b", "c"}, set(), {"c"}, [op1, op2, op4])
     task6 = Task("task6", {"a", "b", "c", "d"}, {"a"}, {"d"}, [op2, op4, op5])
     task7 = Task("task7c", {"a", "b", "c", "d"}, {"a"}, {"d"}, [op3, op5])
-    task8 = Task(
+    Task(
         "task8",
         {"a", "b", "c", "d", "e", "f", "g"},
         {"a"},

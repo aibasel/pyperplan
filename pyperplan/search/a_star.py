@@ -165,7 +165,7 @@ def astar_search(
 
             for op, succ_state in task.get_successor_states(pop_state):
                 if use_relaxed_plan:
-                    if rplan and not op.name in rplan:
+                    if rplan and op.name not in rplan:
                         # ignore this operator if we use the relaxed plan
                         # criterion
                         logging.debug(

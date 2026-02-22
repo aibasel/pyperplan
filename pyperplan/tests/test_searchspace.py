@@ -4,7 +4,6 @@ Unit Testing for the search space module
 
 from pyperplan.search.searchspace import make_child_node, make_root_node
 
-
 # Construct a small tree in order to perform some needed test methods
 
 root = make_root_node("state1")

@@ -3,7 +3,7 @@ import pytest
 from pyperplan import grounding
 from pyperplan.heuristics.relaxation import *
 from pyperplan.pddl.parser import Parser
-from pyperplan.search import a_star, enforced_hillclimbing_search, make_root_node
+from pyperplan.search import make_root_node
 from pyperplan.task import Operator, Task
 
 from .heuristic_test_instances import *

@@ -19,8 +19,8 @@
 Implements the breadth first search algorithm.
 """
 
-from collections import deque
 import logging
+from collections import deque
 
 from . import searchspace
 
