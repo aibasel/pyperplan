@@ -191,8 +191,7 @@ def search_plan(
 def validate_solution(domain_file, problem_file, solution_file):
     if not validator_available():
         logging.info(
-            "validate could not be found on the PATH so the plan can "
-            "not be validated."
+            "validate could not be found on the PATH so the plan can not be validated."
         )
         return
 

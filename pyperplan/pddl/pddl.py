@@ -112,15 +112,11 @@ class Domain:
         self.constants = constants
 
     def __repr__(self):
-        return (
-            "< Domain definition: %s Predicates: %s Actions: %s "
-            "Constants: %s >"
-            % (
-                self.name,
-                [str(p) for p in self.predicates],
-                [str(a) for a in self.actions],
-                [str(c) for c in self.constants],
-            )
+        return "< Domain definition: %s Predicates: %s Actions: %s Constants: %s >" % (
+            self.name,
+            [str(p) for p in self.predicates],
+            [str(a) for a in self.actions],
+            [str(c) for c in self.constants],
         )
 
     __str__ = __repr__

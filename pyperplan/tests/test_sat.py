@@ -33,7 +33,7 @@ def sort_formula(formula):
     strings = [part for part in formula if isinstance(part, str)]
     lists = [part for part in formula if isinstance(part, list)]
     assert len(strings) + len(lists) == len(formula)
-    return sorted(strings) + sorted(sort_formula(l) for l in lists)
+    return sorted(strings) + sorted(sort_formula(subformula) for subformula in lists)
 
 
 def test_formula_string1():

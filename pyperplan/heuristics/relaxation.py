@@ -323,14 +323,14 @@ class hSAHeuristic(_RelaxationHeuristic):
 
         if operator.preconditions:
             # Collect the sa-sets from all preconditions in a list.
-            l = [
+            sa_sets = [
                 self.facts[pre].sa_set
                 for pre in operator.preconditions
                 if self.facts[pre].sa_set is not None
             ]
-            if l:
+            if sa_sets:
                 # Union all these sets.
-                unioned_sets = set.union(*l)
+                unioned_sets = set.union(*sa_sets)
                 # The heuristic value equals the cardinality of the unioned
                 # sets.
                 cost = len(unioned_sets)
@@ -350,16 +350,16 @@ class hSAHeuristic(_RelaxationHeuristic):
         """
         if self.goals:
             # Collect the sa-sets of all facts that are part of the goal.
-            l = [
+            sa_sets = [
                 self.facts[fact].sa_set
                 for fact in self.goals
                 if self.facts[fact].sa_set is not None
             ]
             # Check whether all subgoals are fulfilled.
-            if len(l) == len(self.goals):
+            if len(sa_sets) == len(self.goals):
                 # Union all these sets and take the length of the union as
                 # heuristic value.
-                h_value = len(set.union(*l))
+                h_value = len(set.union(*sa_sets))
             else:
                 # Ff not, return infinty.
                 h_value = float("inf")

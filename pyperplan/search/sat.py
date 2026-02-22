@@ -11,7 +11,7 @@ def _formula_str(formula, sep="&"):
     """Returns a representation of 'formula' for prettyprinting"""
     next_sep = "|" if sep == "&" else "&"
     items = [
-        item if (type(item) == str) else _formula_str(item, next_sep)
+        item if isinstance(item, str) else _formula_str(item, next_sep)
         for item in formula
     ]
     return "({})".format(f" {sep} ".join(items))

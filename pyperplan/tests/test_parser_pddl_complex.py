@@ -157,7 +157,7 @@ def test_parsePredicatesLogistics():
     ] == ["place", "physobj", "package"]
 
 
-def test_parseDomainDef():
+def test_parseDomainDef_blocks():
     test = [
         """
     (define (domain BLOCKS)

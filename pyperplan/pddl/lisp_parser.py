@@ -17,7 +17,6 @@
 
 """Basic functions for parsing simple Lisp files."""
 
-
 from .errors import ParseError
 from .lisp_iterators import LispIterator
 

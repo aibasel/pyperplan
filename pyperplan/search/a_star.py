@@ -169,8 +169,7 @@ def astar_search(
                         # ignore this operator if we use the relaxed plan
                         # criterion
                         logging.debug(
-                            "removing operator %s << not a "
-                            "preferred operator" % op.name
+                            "removing operator %s << not a preferred operator" % op.name
                         )
                         continue
                     else:

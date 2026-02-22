@@ -20,7 +20,7 @@ Implementation of LM-cut heuristic.
 """
 
 import logging
-from heapq import *
+from heapq import heappop, heappush
 
 from .heuristic_base import Heuristic
 
