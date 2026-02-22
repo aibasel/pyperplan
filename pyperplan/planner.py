@@ -30,7 +30,7 @@ from .pddl.parser import Parser
 SEARCHES = {
     "astar": search.astar_search,
     "wastar": search.weighted_astar_search,
-    "gbf": search.greedy_best_first_search,
+    "gbfs": search.greedy_best_first_search,
     "bfs": search.breadth_first_search,
     "ehs": search.enforced_hillclimbing_search,
     "ids": search.iterative_deepening_search,
@@ -171,6 +171,7 @@ def search_plan(
                             interface
     @return A list of actions that solve the problem
     """
+    overall_start_time = time.process_time()
     problem = _parse(domain_file, problem_file)
     task = _ground(problem)
     heuristic = None
@@ -181,7 +182,10 @@ def search_plan(
         solution = _search(task, search, heuristic, use_preferred_ops=True)
     else:
         solution = _search(task, search, heuristic)
-    logging.info("Search time: {:.2}".format(time.process_time() - search_start_time))
+    logging.info("Search time: {:.2f}".format(time.process_time() - search_start_time))
+    logging.info(
+        "Overall time: {:.2f}".format(time.process_time() - overall_start_time)
+    )
     return solution
 
 

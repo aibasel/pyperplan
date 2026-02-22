@@ -30,6 +30,10 @@ From inside a repository clone:
 This makes the `pyperplan` command available globally or in your [virtual
 environment](https://docs.python.org/3/tutorial/venv.html) (recommended).
 
+Alternatively, you can use [uv](https://docs.astral.sh/uv/):
+
+    uv tool install pyperplan
+
 # Usage
 
 The `pyperplan` executable accepts two arguments: a PDDL domain file and a
@@ -45,7 +49,7 @@ By default, the planner performs a blind breadth-first search, which
 does not scale very well. Heuristic search algorithms are available. For
 example, to use greedy-best-first search with the FF heuristic, run
 
-    pyperplan -H hff -s gbf DOMAIN PROBLEM
+    pyperplan -H hff -s gbfs DOMAIN PROBLEM
 
 For a list of available search algorithms and heuristics, run
 
