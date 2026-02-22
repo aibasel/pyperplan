@@ -33,6 +33,8 @@ from pyperplan.planner import (
     write_solution,
 )
 
+from pyperplan import tools
+
 
 def main():
     # Commandline parsing
@@ -74,8 +76,9 @@ def main():
         format="%(asctime)s %(levelname)-8s %(message)s",
         stream=sys.stdout,
     )
+    logging.info(f"Python version: {sys.version}")
 
-    hffpo_searches = ["gbf", "wastar", "ehs"]
+    hffpo_searches = ["gbfs", "wastar", "ehs"]
     if args.heuristic == "hffpo" and args.search not in hffpo_searches:
         print(
             "ERROR: hffpo can currently only be used with %s\n" % hffpo_searches,
@@ -114,6 +117,13 @@ def main():
         logging.info("Plan length: %s" % len(solution))
         write_solution(solution, solution_file)
         validate_solution(args.domain, args.problem, solution_file)
+
+    try:
+        peak_memory = tools.get_peak_memory_in_kb()
+    except Warning as warning:
+        logging.warning(warning)
+    else:
+        logging.info("Peak memory: %d KB" % peak_memory)
 
 
 if __name__ == "__main__":

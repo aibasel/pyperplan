@@ -1,5 +1,7 @@
 *~
 *.py[cod]
+*.soln
+uv.lock
 .tox/
 build/
 dist/

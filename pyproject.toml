@@ -1,3 +1,19 @@
+[project]
+name = "pyperplan"
+version = "2.1"
+description = "A lightweight STRIPS planner written in Python."
+readme = "README.md"
+requires-python = ">=3.7"
+license = { text = "GPL3+" }
+dependencies = []
+
+[project.scripts]
+pyperplan = "pyperplan.__main__:main"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
 # NOTE: you have to use single-quoted strings in TOML for regular expressions.
 # It's the equivalent of r-strings in Python.  Multiline strings are treated as
 # verbose regular expressions by Black.  Use [ ] to denote a significant space

@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-import importlib
 import logging
 import os
 import subprocess
@@ -47,3 +46,16 @@ def remove(filename):
         os.remove(filename)
     except OSError:
         pass
+
+
+def get_peak_memory_in_kb():
+    try:
+        # This will only work on Linux systems.
+        with open("/proc/self/status") as status_file:
+            for line in status_file:
+                parts = line.split()
+                if parts[0] == "VmPeak:":
+                    return int(parts[1])
+    except OSError:
+        pass
+    raise Warning("warning: could not determine peak memory")
