@@ -7,7 +7,7 @@ CHANGES="/tmp/pyperplan-$VERSION-changes"
 
 function set_version {
     local version="$1"
-    sed -i -e "s/VERSION = \".*\"/VERSION = \"$version\"/" setup.py
+    sed -i -e "s/^version = \".*\"/version = \"$version\"/" pyproject.toml
 }
 
 cd $(dirname "$0")/../
@@ -36,9 +36,9 @@ git tag -a "v$VERSION" -m "v$VERSION" HEAD
 
 # Requirements:
 #   pipx install twine
-#   pip install --user wheel
-python3 setup.py sdist bdist_wheel --universal
-twine upload dist/pyperplan-${VERSION}.tar.gz dist/pyperplan-${VERSION}-py2.py3-none-any.whl
+#   pipx install uv
+uv build
+twine upload dist/pyperplan-${VERSION}.tar.gz dist/pyperplan-${VERSION}-py3-none-any.whl
 
 git push
 git push --tags
