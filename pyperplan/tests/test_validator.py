@@ -7,7 +7,6 @@ import pytest
 from pyperplan import tools
 from pyperplan.planner import validate_solution, validator_available
 
-
 DOMAIN_FILE = "DOMAIN.TEST"
 PROBLEM_FILE = "PROBLEM.TEST"
 CORRECT_SOLN_FILE = "CORRECT.SOLN.TEST"

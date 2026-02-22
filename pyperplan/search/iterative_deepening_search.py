@@ -19,7 +19,6 @@
 Implements the iterative deepening search algorithm.
 """
 
-from collections import deque
 import logging
 
 

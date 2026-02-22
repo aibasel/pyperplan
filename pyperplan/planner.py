@@ -26,7 +26,6 @@ import time
 from . import grounding, heuristics, search, tools
 from .pddl.parser import Parser
 
-
 SEARCHES = {
     "astar": search.astar_search,
     "wastar": search.weighted_astar_search,
@@ -175,7 +174,7 @@ def search_plan(
     problem = _parse(domain_file, problem_file)
     task = _ground(problem)
     heuristic = None
-    if not heuristic_class is None:
+    if heuristic_class is not None:
         heuristic = heuristic_class(task)
     search_start_time = time.process_time()
     if use_preferred_ops and isinstance(heuristic, heuristics.hFFHeuristic):

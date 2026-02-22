@@ -8,7 +8,6 @@ import os.path
 from pyperplan import planner
 from pyperplan.search import searchspace
 
-
 optimal_plan = """\
 initialize
 blackfeeder-feed-letter sheet1

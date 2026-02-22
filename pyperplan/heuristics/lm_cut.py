@@ -19,8 +19,8 @@
 Implementation of LM-cut heuristic.
 """
 
-from heapq import *
 import logging
+from heapq import *
 
 from .heuristic_base import Heuristic
 
@@ -165,7 +165,7 @@ class LmCutHeuristic(Heuristic):
             self.relaxed_facts[fact] = RelaxedFact(fact)
 
         for op in task.operators:
-            assert not op.name in self.relaxed_ops
+            assert op.name not in self.relaxed_ops
             # build new relaxed operator from the task operator
             relaxed_op = RelaxedOp(op.name)
             # insert all preconditions into relaxed_op and
@@ -175,7 +175,7 @@ class LmCutHeuristic(Heuristic):
                 # insert one fact that is always true if not already defined
                 # --> this fact will be used for all operators with empty
                 # preconditions
-                if not self.always_true in self.relaxed_facts:
+                if self.always_true not in self.relaxed_facts:
                     self.relaxed_facts[self.always_true] = RelaxedFact(self.always_true)
                 link_op_to_precondition(relaxed_op, self.always_true)
             else:
@@ -235,7 +235,7 @@ class LmCutHeuristic(Heuristic):
                 # --> if this is not the case then precond_fulfilled might
                 # still contain facts from a previous heuristic computation
                 # hence we need to clear it first!
-                if not op in op_cleared:
+                if op not in op_cleared:
                     op.clear(clear_op_cost)
                     op_cleared.add(op)
                 op.preconditions_unsat -= 1
@@ -251,13 +251,13 @@ class LmCutHeuristic(Heuristic):
                         op.hmax_value = hmax_value + op.cost
                     hmax_next = op.hmax_supporter.hmax_value + op.cost
                     for eff in op.effects:
-                        if not eff in fact_cleared:
+                        if eff not in fact_cleared:
                             # clear fact if necessary
                             eff.clear()
                             fact_cleared.add(eff)
                         if hmax_next < eff.hmax_value:
                             eff.hmax_value = hmax_next
-                        if not eff in facts_seen:
+                        if eff not in facts_seen:
                             # enqueue effect if not already explored
                             facts_seen.add(eff)
                             heappush(unexpanded, eff)
@@ -305,7 +305,7 @@ class LmCutHeuristic(Heuristic):
         fact_in_plateau = self.relaxed_facts[fact_name]
         if (
             fact_in_plateau in self.reachable
-            and not fact_in_plateau in self.goal_plateau
+            and fact_in_plateau not in self.goal_plateau
         ):
             # add this fact to the goal plateau
             self.goal_plateau.add(fact_in_plateau)
@@ -332,7 +332,7 @@ class LmCutHeuristic(Heuristic):
         while unexpanded:
             fact_obj = heappop(unexpanded)
             for relaxed_op in fact_obj.precondition_of:
-                if not relaxed_op in op_cleared:
+                if relaxed_op not in op_cleared:
                     relaxed_op.precond_unsat = len(relaxed_op.precondition)
                     op_cleared.add(relaxed_op)
                 relaxed_op.precond_unsat -= 1

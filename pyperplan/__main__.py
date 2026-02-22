@@ -24,16 +24,15 @@ import logging
 import os
 import sys
 
+from pyperplan import tools
 from pyperplan.planner import (
-    find_domain,
     HEURISTICS,
-    search_plan,
     SEARCHES,
+    find_domain,
+    search_plan,
     validate_solution,
     write_solution,
 )
-
-from pyperplan import tools
 
 
 def main():

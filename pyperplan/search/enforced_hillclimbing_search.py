@@ -19,8 +19,8 @@
 Implements the enforced hill climbing search algorithm.
 """
 
-from collections import deque
 import logging
+from collections import deque
 
 from . import searchspace
 
@@ -70,7 +70,7 @@ def enforced_hillclimbing_search(planning_task, heuristic, use_preferred_ops=Fal
             # for the preferred operator version ignore all non preferred
             # operators
             if use_preferred_ops:
-                if rplan and not operator.name in rplan:
+                if rplan and operator.name not in rplan:
                     # ignore this operator if we use the relaxed plan criterion
                     logging.debug(
                         "removing operator %s << not a preferred "

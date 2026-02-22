@@ -16,11 +16,8 @@
 #
 
 import heapq
-import logging
 
-from ..task import Operator, Task
 from .heuristic_base import Heuristic
-
 
 """ This module contains the relaxation heuristics hAdd, hMax, hSA and hFF. """
 
@@ -438,7 +435,7 @@ class hFFHeuristic(_RelaxationHeuristic):
                 # is not already expanded
                 if (
                     fact.cheapest_achiever is not None
-                    and not fact.cheapest_achiever in relaxed_plan
+                    and fact.cheapest_achiever not in relaxed_plan
                 ):
                     # Add all preconditions of the cheapest achiever to the
                     # queue.

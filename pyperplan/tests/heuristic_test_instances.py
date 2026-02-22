@@ -1,8 +1,6 @@
 from pyperplan import grounding
 from pyperplan.pddl.parser import Parser
 from pyperplan.search import astar_search, enforced_hillclimbing_search, searchspace
-from pyperplan.task import Operator, Task
-
 
 blocks_dom = """\
 (define (domain BLOCKS)

@@ -56,7 +56,7 @@ class Visitable:
         self._visitorName = vname
 
     def accept(self, visitor):
-        if self._visitorName == None:
+        if self._visitorName is None:
             raise ValueError("Error: visit method of uninitialized visitor " "called!")
         # get the appropriate method of the visitor instance
         m = getattr(visitor, self._visitorName)
@@ -79,14 +79,14 @@ class PDDLVisitor:
 
     def visit_domain_def(self, node):
         node.requirements.accept(self)
-        if node.types != None:
+        if node.types is not None:
             for t in node.types:
                 t.accept(self)
-        if node.constants != None:
+        if node.constants is not None:
             for c in node.constants:
                 c.accept(self)
         node.predicates.accept(self)
-        if node.actions != None:
+        if node.actions is not None:
             for a in node.actions:
                 a.accept(self)
 
@@ -188,7 +188,7 @@ class TraversePDDLDomain(PDDLVisitor):
             node.requirements.accept(self)
 
         # Visit all type definitions.
-        if node.types != None:
+        if node.types is not None:
             for t in node.types:
                 if t.name == "object":
                     explicitObjectDef = True
@@ -205,7 +205,7 @@ class TraversePDDLDomain(PDDLVisitor):
             # Object type has no parent.
             if t.name == "object":
                 continue
-            if not t.parent in self._types:
+            if t.parent not in self._types:
                 raise SemanticError("Error unknown parent type: " + t.parent)
             t.parent = self._types[t.parent]
 
@@ -213,7 +213,7 @@ class TraversePDDLDomain(PDDLVisitor):
         node.predicates.accept(self)
 
         # Visit all actions.
-        if node.actions != None:
+        if node.actions is not None:
             for a in node.actions:
                 a.accept(self)
                 action = self.get_in(a)
@@ -226,7 +226,7 @@ class TraversePDDLDomain(PDDLVisitor):
                 self._actions[action.name] = action
 
         # Visit all constants.
-        if node.constants != None:
+        if node.constants is not None:
             for c in node.constants:
                 c.accept(self)
 
@@ -238,9 +238,9 @@ class TraversePDDLDomain(PDDLVisitor):
     def visit_object(self, node):
         """Visits a PDDL object definition."""
         type_name = node.typeName
-        if type_name == None:
+        if type_name is None:
             type_name = "object"
-        if not type_name in self._types:
+        if type_name not in self._types:
             raise SemanticError(
                 "Error: unknown type " + type_name + " used in object definition!"
             )
@@ -255,7 +255,7 @@ class TraversePDDLDomain(PDDLVisitor):
         """Visits a PDDL type definition."""
         # Store matching parent type in node
         # (if none is given, it's always object)
-        if node.parent == None:
+        if node.parent is None:
             self.set_in(node, pddl.Type(node.name, "object"))
         else:
             self.set_in(node, pddl.Type(node.name, node.parent))
@@ -312,7 +312,7 @@ class TraversePDDLDomain(PDDLVisitor):
             typelist = list()
             for t in node.types:
                 # Check whether they have been defined.
-                if not t in self._types:
+                if t not in self._types:
                     raise SemanticError(
                         "Error unknown type " + t + " used in predicate definition"
                     )
@@ -384,7 +384,7 @@ class TraversePDDLDomain(PDDLVisitor):
                         + "".join([c2.key.name + " " for c2 in formula.children])
                     )
                 # Check whether predicate was defined.
-                if not c.key in self._predicates:
+                if c.key not in self._predicates:
                     raise SemanticError(
                         "Error unknown predicate "
                         + c.key
@@ -394,7 +394,7 @@ class TraversePDDLDomain(PDDLVisitor):
                 self.add_precond(precond, c)
         else:
             # If not 'and' we only allow a single predicate in precondition.
-            if not formula.key in self._predicates:
+            if formula.key not in self._predicates:
                 raise SemanticError("Error: predicate in precondition is not " "in CNF")
             # Call helper.
             self.add_precond(precond, formula)
@@ -424,12 +424,12 @@ class TraversePDDLDomain(PDDLVisitor):
         else:
             nextPredicate = c
         # Check whether predicate was defined previously.
-        if not nextPredicate.key in self._predicates:
+        if nextPredicate.key not in self._predicates:
             raise SemanticError(
                 "Error: unknown predicate %s used in effect "
                 "of action" % nextPredicate.key
             )
-        if nextPredicate == None:
+        if nextPredicate is None:
             raise SemanticError("Error: NoneType predicate used in effect of " "action")
         predDef = self._predicates[nextPredicate.key]
         signature = list()
@@ -543,11 +543,11 @@ class TraversePDDLProblem(PDDLVisitor):
                 "Error multiple defines of object with name " + node.name
             )
         # Untyped objects get the standard type 'object'.
-        if node.typeName == None:
+        if node.typeName is None:
             type_def = self._domain.types["object"]
         else:
             # Check whether used type was introduced in domain file.
-            if not node.typeName in self._domain.types:
+            if node.typeName not in self._domain.types:
                 raise SemanticError(
                     "Error: unknown type "
                     + node.typeName
@@ -574,7 +574,7 @@ class TraversePDDLProblem(PDDLVisitor):
         c -- a formula representing a goal we want to add to the goal list
         """
         # Check whether predicate was introduced in domain file.
-        if not c.key in self._domain.predicates:
+        if c.key not in self._domain.predicates:
             raise SemanticError(
                 "Error: unknown predicate " + c.key + " in goal definition"
             )
@@ -610,7 +610,7 @@ class TraversePDDLProblem(PDDLVisitor):
                 self.add_goal(goal, c)
         else:
             # Only a single predicate is allowed then (s.a.)
-            if not formula.key in self._domain.predicates:
+            if formula.key not in self._domain.predicates:
                 raise SemanticError(
                     "Error: predicate in goal definition is " "not in CNF"
                 )
