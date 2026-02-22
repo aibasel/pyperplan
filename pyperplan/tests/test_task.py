@@ -1,6 +1,7 @@
 """
 Tests for the task.py module
 """
+
 import pytest
 
 from pyperplan.task import Operator, Task

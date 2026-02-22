@@ -66,7 +66,6 @@ def enforced_hillclimbing_search(planning_task, heuristic, use_preferred_ops=Fal
             logging.debug("relaxed plan %s " % rplan)
 
         for operator, successor_state in planning_task.get_successor_states(node.state):
-
             # for the preferred operator version ignore all non preferred
             # operators
             if use_preferred_ops:

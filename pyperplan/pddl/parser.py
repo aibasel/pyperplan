@@ -386,7 +386,7 @@ def _parse_type_helper(iter, type_class):
                 types_iter = next(iter)
                 if not types_iter.try_match("either"):
                     raise ValueError(
-                        "Error multiple parent definition must " 'start with "either"'
+                        'Error multiple parent definition must start with "either"'
                     )
                 tlist = parse_list_template(_parse_string_helper, types_iter)
                 while len(tmpList) != 0:
@@ -472,9 +472,7 @@ def parse_parameters(iter):
     """
     # check that the parameters definition starts with the correct keyword
     if not iter.try_match(":parameters"):
-        raise ValueError(
-            'Error keyword ":parameters" required before ' "parameter list!"
-        )
+        raise ValueError('Error keyword ":parameters" required before parameter list!')
     varList = parse_typed_var_list(next(iter))
     return varList
 
@@ -485,9 +483,7 @@ def parse_requirements_stmt(iter):
     """
     # check for requirements keyword
     if not iter.try_match(":requirements"):
-        raise ValueError(
-            "Error requirements list must contain keyword " '":requirements"'
-        )
+        raise ValueError('Error requirements list must contain keyword ":requirements"')
     keywords = parse_keyword_list(iter)
     return RequirementsStmt(keywords)
 
@@ -515,15 +511,15 @@ def _parse_domain_helper(iter, keyword):
     Returns a DomainStmt instance.
     """
     if not iter.try_match(keyword):
-        raise ValueError(
-            "Error domain statement must be present before " "domain name!"
-        )
+        raise ValueError("Error domain statement must be present before domain name!")
     name = parse_name(iter, "domain")
     return DomainStmt(name)
 
 
 def parse_domain_stmt(it):
     return _parse_domain_helper(it, "domain")
+
+
 def parse_problem_domain_stmt(it):
     return _parse_domain_helper(it, ":domain")
 
@@ -579,7 +575,7 @@ def parse_formula(iter):
         key = iter.peek().get_word()
         next(iter)
         if key[0] in reserved:
-            raise ValueError("Error: Formula must not start with reserved " "char!")
+            raise ValueError("Error: Formula must not start with reserved char!")
         children = parse_list_template(parse_formula, iter)
     else:
         # non nested formula
@@ -639,7 +635,7 @@ def parse_predicates_stmt(iter):
     """
     if not iter.try_match(":predicates"):
         raise ValueError(
-            "Error predicate definition must start with " '":predicates" keyword!'
+            'Error predicate definition must start with ":predicates" keyword!'
         )
     preds = parse_predicate_list(iter)
     return PredicatesStmt(preds)
@@ -654,8 +650,7 @@ def parse_domain_def(iter):
     defString = parse_name(iter, "domain def")
     if defString != "define":
         raise ValueError(
-            "Invalid domain definition! --> domain definition "
-            'must start with "define"'
+            'Invalid domain definition! --> domain definition must start with "define"'
         )
     dom = parse_domain_stmt(next(iter))
     # create new DomainDef
@@ -688,7 +683,7 @@ def parse_domain_def(iter):
         next_iter = next(iter)
         key = parse_keyword(next_iter.peek())
         if key.name != "action":
-            raise ValueError("Error: Found invalid keyword while parsing " "actions")
+            raise ValueError("Error: Found invalid keyword while parsing actions")
         action = parse_action_stmt(next_iter)
         domain.actions.append(action)
     # assert end is reached

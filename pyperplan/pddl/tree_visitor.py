@@ -57,14 +57,13 @@ class Visitable:
 
     def accept(self, visitor):
         if self._visitorName is None:
-            raise ValueError("Error: visit method of uninitialized visitor " "called!")
+            raise ValueError("Error: visit method of uninitialized visitor called!")
         # get the appropriate method of the visitor instance
         m = getattr(visitor, self._visitorName)
         # ensure that the method is callable
         if not hasattr(m, "__call__"):
             raise ValueError(
-                "Error: cannot call undefined method: %s on "
-                "visitor" % self._visitorName
+                "Error: cannot call undefined method: %s on visitor" % self._visitorName
             )
         # and finally call the callback
         m(self)
@@ -246,7 +245,7 @@ class TraversePDDLDomain(PDDLVisitor):
             )
         if node.name in self._constants:
             raise SemanticError(
-                "Error: multiple defines of object with " "name " + node.name
+                "Error: multiple defines of object with name " + node.name
             )
         # Add constant with its corresponding type to the constants dict.
         self._constants[node.name] = self._types[type_name]
@@ -395,7 +394,7 @@ class TraversePDDLDomain(PDDLVisitor):
         else:
             # If not 'and' we only allow a single predicate in precondition.
             if formula.key not in self._predicates:
-                raise SemanticError("Error: predicate in precondition is not " "in CNF")
+                raise SemanticError("Error: predicate in precondition is not in CNF")
             # Call helper.
             self.add_precond(precond, formula)
         self.set_in(node, precond)
@@ -417,7 +416,7 @@ class TraversePDDLDomain(PDDLVisitor):
             # This is a negative effect, only one child allowed.
             if len(c.children) != 1:
                 raise SemanticError(
-                    "Error not statement with multiple " "children in effect of action"
+                    "Error not statement with multiple children in effect of action"
                 )
             nextPredicate = c.children[0]
             isNegative = True
@@ -430,7 +429,7 @@ class TraversePDDLDomain(PDDLVisitor):
                 "of action" % nextPredicate.key
             )
         if nextPredicate is None:
-            raise SemanticError("Error: NoneType predicate used in effect of " "action")
+            raise SemanticError("Error: NoneType predicate used in effect of action")
         predDef = self._predicates[nextPredicate.key]
         signature = list()
         count = 0
@@ -585,8 +584,7 @@ class TraversePDDLProblem(PDDLVisitor):
         # Check whether the predicate uses the correct signature.
         if len(c.children) != len(predDef.signature):
             raise SemanticError(
-                "Error: wrong number of arguments for "
-                "predicate " + c.key + " in goal"
+                "Error: wrong number of arguments for predicate " + c.key + " in goal"
             )
         for v in c.children:
             signature.append((v.key, predDef.signature[count][1]))
@@ -611,9 +609,7 @@ class TraversePDDLProblem(PDDLVisitor):
         else:
             # Only a single predicate is allowed then (s.a.)
             if formula.key not in self._domain.predicates:
-                raise SemanticError(
-                    "Error: predicate in goal definition is " "not in CNF"
-                )
+                raise SemanticError("Error: predicate in goal definition is not in CNF")
             # Call helper.
             self.add_goal(goal, formula)
         self.set_in(node, goal)

@@ -207,7 +207,6 @@ def test_collect_facts():
 
 
 def test_operators():
-
     # action with signature with 2 types
     action_drive_vehicle = get_action(
         "DRIVE-VEHICLE",
@@ -315,9 +314,7 @@ def test_operators():
 
 
 def test_create_operator():
-    grounding._get_statics(
-        standard_domain.predicates.values(), [action_drive_car]
-    )
+    grounding._get_statics(standard_domain.predicates.values(), [action_drive_car])
     initial_state = [
         Predicate("at", [("ford", types["car"]), ("freiburg", types["city"])])
     ]
