@@ -17,8 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, ubuntu-22.04]
-        python-version: [3.7, 3.8, 3.9, '3.10', '3.11', '3.12', '3.13']
+        os: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04]
+        python-version: [3.7, 3.8, 3.9, '3.10', '3.11', '3.12', '3.13', '3.14']
 
     steps:
     - uses: actions/checkout@v3
@@ -39,7 +39,7 @@ jobs:
         sudo apt-get -y install minisat python3-pip tox
 
     - name: Check style
-      if: matrix.os == 'ubuntu-22.04' && matrix.python-version == '3.12'
+      if: matrix.os == 'ubuntu-24.04' && matrix.python-version == '3.14'
       run: |
         tox -e style
 
