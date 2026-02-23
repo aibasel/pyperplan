@@ -13,26 +13,15 @@ is published under the terms of the GNU General Public License 3
 Pyperplan supports the following PDDL fragment: STRIPS without action
 costs.
 
-# Requirements
-
-Pyperplan requires [Python](https://python.org) >= 3.7.
-
 # Installation
 
-From the Python package index (PyPI):
-
-    pip install pyperplan
-
-From inside a repository clone:
-
-    pip install --editable .
-
-This makes the `pyperplan` command available globally or in your [virtual
-environment](https://docs.python.org/3/tutorial/venv.html) (recommended).
-
-Alternatively, you can use [uv](https://docs.astral.sh/uv/):
+From the Python package index (PyPI) via [uv](https://docs.astral.sh/uv/):
 
     uv tool install pyperplan
+
+From inside a repository clone via [uv](https://docs.astral.sh/uv/):
+
+    uv pip install --editable .
 
 # Usage
 
