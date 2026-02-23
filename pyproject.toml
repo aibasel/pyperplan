@@ -3,7 +3,7 @@ name = "pyperplan"
 version = "2.1"
 description = "A lightweight STRIPS planner written in Python."
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = "GPL-3.0-or-later"
 keywords = ["classical planning", "STRIPS"]
 authors = [{ name = "Jendrik Seipp", email = "jendrik.seipp@liu.se" }]
@@ -14,7 +14,6 @@ classifiers = [
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
     "Programming Language :: Python",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
