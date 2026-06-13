@@ -15,9 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-"""
-Landmarks Heuristic
-"""
+"""Landmark heuristic."""
 
 import copy
 from collections import defaultdict
@@ -26,9 +24,7 @@ from .heuristic_base import Heuristic
 
 
 def _get_relaxed_task(task):
-    """
-    Removes the delete effects of every operator in task
-    """
+    """Return a copy of ``task`` with the delete effects of every operator removed."""
     relaxed_task = copy.deepcopy(task)
     for op in relaxed_task.operators:
         op.del_effects = set()
@@ -36,7 +32,7 @@ def _get_relaxed_task(task):
 
 
 def get_landmarks(task):
-    """Returns a set of landmarks.
+    """Return a set of landmarks.
 
     In this implementation a fact is a landmark if the goal facts cannot be
     reached without it.
@@ -76,10 +72,10 @@ def compute_landmark_costs(task, landmarks):
             if landmark in operator.add_effects:
                 op_to_lm[operator].add(landmark)
     min_cost = defaultdict(lambda: float("inf"))
-    for operator, landmarks in op_to_lm.items():
-        landmarks_achieving = len(landmarks)
-        for landmark in landmarks:
-            min_cost[landmark] = min(min_cost[landmark], 1 / landmarks_achieving)
+    for operator, achieved in op_to_lm.items():
+        cost = 1 / len(achieved)
+        for landmark in achieved:
+            min_cost[landmark] = min(min_cost[landmark], cost)
     return min_cost
 
 
@@ -92,16 +88,14 @@ class LandmarkHeuristic(Heuristic):
         self.costs = compute_landmark_costs(task, self.landmarks)
 
     def __call__(self, node):
-        """Returns the heuristic value for "node"."""
+        """Return the heuristic value for ``node``."""
         if node.parent is None:
-            # At the beginning only the initial facts are achieved
+            # At the beginning only the initial facts are achieved.
             node.unreached = self.landmarks - self.task.initial_state
         else:
-            # A new node reaches the facts in its add_effects
+            # A new node reaches the facts in its add effects.
             node.unreached = node.parent.unreached - node.action.add_effects
         # We always want to keep the goal facts unreached if they are not true
-        # in the current state, even if they have been reached before
+        # in the current state, even if they have been reached before.
         unreached = node.unreached | (self.task.goals - node.state)
-
-        h = sum(self.costs[landmark] for landmark in unreached)
-        return h
+        return sum(self.costs[landmark] for landmark in unreached)

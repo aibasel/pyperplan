@@ -29,10 +29,10 @@ def parse_nested_list(input_file):
     tokens = _tokenize(input_file)
     next_token = next(tokens)
     if next_token != "(":
-        raise ParseError("Expected '(', got %s." % next_token)
+        raise ParseError(f"Expected '(', got {next_token}.")
     result = list(_parse_list_aux(tokens))
     for tok in tokens:  # Check that generator is exhausted.
-        raise ParseError("Unexpected token: %s." % tok)
+        raise ParseError(f"Unexpected token: {tok}.")
     return result
 
 

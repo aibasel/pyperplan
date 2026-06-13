@@ -16,18 +16,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-from .errors import *
+"""The main parser logic.
+
+A partial parser is implemented for each AST node, and these are called
+recursively to construct a complete parse.
+"""
+
 from .lisp_parser import parse_lisp_iterator
-from .parser_common import *
+from .parser_common import reserved
 from .tree_visitor import TraversePDDLDomain, TraversePDDLProblem, Visitable
 
-"""
-This module contains the main parser logic.
-Partial parser for each AST node are implemented
-and called recursively to construct a complete parse.
-"""
-
-# This emulates an c/c++ enum to distinguish between formulas variables and
+# This emulates a C/C++ enum to distinguish between formulas, variables and
 # constants in formulas.
 (TypeFormula, TypeVariable, TypeConstant) = range(3)
 
@@ -77,7 +76,7 @@ class Type(Visitable):
 
         Keyword arguments:
         name -- the name of the type
-        parent -- a string that denotes the Typ instance that is the parent of
+        parent -- a string that denotes the Type instance that is the parent of
                   this type or None
         """
         self._visitorName = "visit_type"
@@ -103,7 +102,7 @@ class Predicate(Visitable):
 class PredicateInstance(Visitable):
     """This class represents the AST node for a pddl predicate instance."""
 
-    def __init__(self, name, parameters=[]):
+    def __init__(self, name, parameters=None):
         """Construct a new Predicate.
 
         Keyword arguments:
@@ -112,7 +111,7 @@ class PredicateInstance(Visitable):
         """
         self._visitorName = "visit_predicate_instance"
         self.name = name
-        self.parameters = parameters  # a list of object names
+        self.parameters = parameters or []  # a list of object names
 
 
 class RequirementsStmt(Visitable):
@@ -305,7 +304,7 @@ class InitStmt(Visitable):
         """Construct a new InitStmt AST node.
 
         Keyword arguments:
-        predicates -- a list of predicates denoting the initial codition
+        predicates -- a list of predicates denoting the initial condition
         """
         self._visitorName = "visit_init_stmt"
         self.predicates = predicates
@@ -318,7 +317,7 @@ class GoalStmt(Visitable):
         """Construct a new GoalStmt AST node.
 
         Keyword arguments:
-        predicates -- a list of predicates denoting the goal codition
+        predicates -- a list of predicates denoting the goal condition
         """
         self._visitorName = "visit_goal_stmt"
         self.formula = formula
@@ -331,7 +330,7 @@ class GoalStmt(Visitable):
 
 def parse_name(iter, father):
     if not iter.peek().is_word():
-        raise ValueError("Error %s predicate statement must contain a name!" % father)
+        raise ValueError(f"Error {father} predicate statement must contain a name!")
     return next(iter).get_word()
 
 
@@ -339,11 +338,11 @@ def parse_list_template(f, iter):
     """This function implements a common pattern used in this parser.
 
     It tries to parse a list of 'f' objects from the string 'string[i:end]'.
-    The 'f' objects must be seperated by whitespace
+    The 'f' objects must be separated by whitespace.
     Returns a tuple of the position after the parsed list and the list.
     """
-    result = list()
-    # parse all possible occurences up to the end of the substring
+    result = []
+    # Parse all possible occurrences up to the end of the substring.
     for elem in iter:
         var = f(elem)
         if var is not None:
@@ -369,14 +368,13 @@ def _parse_type_helper(iter, type_class):
 
     Returns the parsed list of instances.
     """
-    # there may be several objects with the same type
-    # hence we need to store each parsed object in a list and attach a new type
-    # instance whenever a type is specified
-    result = list()
-    tmpList = list()
+    # There may be several objects with the same type, hence we store each
+    # parsed object in a list and attach a new type instance whenever a type is
+    # specified.
+    result = []
+    tmpList = []
     while not iter.empty():
         var = next(iter).get_word()
-        # print('VAR:', var)
         if type_class != Variable and len(var) > 0 and var[0] in reserved:
             raise ValueError("Error type must not begin with reserved char!")
         elif var == "-":
@@ -389,26 +387,23 @@ def _parse_type_helper(iter, type_class):
                         'Error multiple parent definition must start with "either"'
                     )
                 tlist = parse_list_template(_parse_string_helper, types_iter)
-                while len(tmpList) != 0:
+                while tmpList:
                     result.append(type_class(tmpList.pop(), tlist))
             else:
-                # found type information --> flush objects into result list
+                # Found type information, so flush objects into the result list.
                 ctype = next(iter).get_word()
-                while len(tmpList) != 0:
+                while tmpList:
                     if type_class == Variable:
                         result.append(type_class(tmpList.pop(), [ctype]))
                     else:
                         result.append(type_class(tmpList.pop(), ctype))
         elif var is not None and var != "":
-            # found new object definition --> enqueue
-            if type_class == Variable:
-                if var[0] != "?":
-                    raise ValueError('Error variables must start with a "?"')
-                tmpList.insert(0, var)
-            else:
-                tmpList.insert(0, var)
-    while len(tmpList) != 0:
-        # append all left over objects --> these are untyped !!
+            # Found a new object definition, so enqueue it.
+            if type_class == Variable and var[0] != "?":
+                raise ValueError('Error variables must start with a "?"')
+            tmpList.insert(0, var)
+    while tmpList:
+        # Append all left-over objects; these are untyped.
         result.append(type_class(tmpList.pop(), None))
     return result
 
@@ -473,8 +468,7 @@ def parse_parameters(iter):
     # check that the parameters definition starts with the correct keyword
     if not iter.try_match(":parameters"):
         raise ValueError('Error keyword ":parameters" required before parameter list!')
-    varList = parse_typed_var_list(next(iter))
-    return varList
+    return parse_typed_var_list(next(iter))
 
 
 def parse_requirements_stmt(iter):
@@ -497,8 +491,7 @@ def _parse_types_with_error(iter, keyword, classt):
 
 
 # Constants / Objects and types can be parsed in the same way because of their
-# familiar structure.
-# Hence instantiate them with _parse_types_with_error.
+# similar structure, so we instantiate them with _parse_types_with_error.
 _common_types = [(":types", Type), (":objects", Object), (":constants", Object)]
 (parse_types_stmt, parse_objects_stmt, parse_constants_stmt) = map(
     lambda tup: lambda it: _parse_types_with_error(it, tup[0], tup[1]), _common_types
@@ -710,7 +703,7 @@ def parse_problem_name(iter):
 def parse_problem_def(iter):
     """Main method to parse a problem definition.
 
-    All parser metthods that are needed to parse a problem are called
+    All parser methods that are needed to parse a problem are called
     recursively by this function.
 
     Returns a ProblemDef instance
@@ -724,7 +717,7 @@ def parse_problem_def(iter):
     probname = parse_problem_name(next(iter))
     dom = parse_problem_domain_stmt(next(iter))
     # parse all object definitions
-    objects = dict()
+    objects = {}
     if iter.peek_tag() == ":objects":
         objects = parse_objects_stmt(next(iter))
     init = parse_init_stmt(next(iter))
@@ -783,12 +776,11 @@ class Parser:
         self.probInput = ""
 
     def _read_input(self, source):
-        """Reads the lisp input from a given source and normalizes it.
+        """Read the lisp input from a given source and normalize it.
 
         Returns the LispIterator that is read from the source.
         """
-        result = parse_lisp_iterator(source)
-        return result
+        return parse_lisp_iterator(source)
 
     def parse_domain(self, read_from_file=True):
         """
@@ -841,14 +833,15 @@ class Parser:
 
 
 if __name__ == "__main__":
-    # additional imports here to prevent cyclic imports!
+    import argparse
+
     argparser = argparse.ArgumentParser()
     argparser.add_argument(dest="domain", help="specify domain file")
     argparser.add_argument(dest="problem", help="specify problem file", nargs="?")
     options = argparser.parse_args()
     if options.domain is None:
-        parser.print_usage()
-        parser.error("Error domain file must be specified")
+        argparser.print_usage()
+        argparser.error("Error domain file must be specified")
     pddlParser = Parser(options.domain)
     print("-------- Starting to parse supplied domain file!")
     domain = pddlParser.parse_domain()

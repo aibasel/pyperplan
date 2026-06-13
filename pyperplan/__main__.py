@@ -36,14 +36,14 @@ from pyperplan.planner import (
 
 
 def main():
-    # Commandline parsing
     log_levels = ["debug", "info", "warning", "error"]
 
-    # get pretty print names for the search algorithms:
-    # use the function/class name and strip off '_search'
+    # Build pretty-printed names for the search algorithms by taking each
+    # function/class name and stripping off the "_search" suffix.
     def get_callable_names(callables, omit_string):
-        names = [c.__name__ for c in callables]
-        names = [n.replace(omit_string, "").replace("_", " ") for n in names]
+        names = [
+            c.__name__.replace(omit_string, "").replace("_", " ") for c in callables
+        ]
         return ", ".join(names)
 
     search_names = get_callable_names(SEARCHES.values(), "_search")
@@ -80,7 +80,7 @@ def main():
     hffpo_searches = ["gbfs", "wastar", "ehs"]
     if args.heuristic == "hffpo" and args.search not in hffpo_searches:
         print(
-            "ERROR: hffpo can currently only be used with %s\n" % hffpo_searches,
+            f"ERROR: hffpo can currently only be used with {hffpo_searches}\n",
             file=sys.stderr,
         )
         argparser.print_help()
@@ -98,8 +98,8 @@ def main():
     if args.search in ["bfs", "ids", "sat"]:
         heuristic = None
 
-    logging.info("using search: %s" % search.__name__)
-    logging.info("using heuristic: %s" % (heuristic.__name__ if heuristic else None))
+    logging.info(f"using search: {search.__name__}")
+    logging.info(f"using heuristic: {heuristic.__name__ if heuristic else None}")
     use_preferred_ops = args.heuristic == "hffpo"
     solution = search_plan(
         args.domain,
@@ -113,7 +113,7 @@ def main():
         logging.warning("No solution could be found")
     else:
         solution_file = args.problem + ".soln"
-        logging.info("Plan length: %s" % len(solution))
+        logging.info(f"Plan length: {len(solution)}")
         write_solution(solution, solution_file)
         validate_solution(args.domain, args.problem, solution_file)
 
@@ -122,7 +122,7 @@ def main():
     except Warning as warning:
         logging.warning(warning)
     else:
-        logging.info("Peak memory: %d KB" % peak_memory)
+        logging.info(f"Peak memory: {peak_memory} KB")
 
 
 if __name__ == "__main__":

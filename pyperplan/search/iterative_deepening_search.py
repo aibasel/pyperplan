@@ -15,77 +15,60 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-"""
-Implements the iterative deepening search algorithm.
-"""
+"""Implements the iterative deepening search algorithm."""
 
 import logging
 
 
 def iterative_deepening_search(task, *args):
-    """
-    Searches for a plan on a task using iterative deepening search. Uses loop
-    detection.
-    The function creates an object of the IterativeDeepeningSearchAlgorithm
-    class and calls the corresponding search function.
+    """Search for a plan on ``task`` using iterative deepening search.
 
-    @param task: The planning task to solve.
-    @param args: Additional arguments for the search.
-    @return: The solution as a list of operators or None if the task is
-    unsolvable.
+    Uses loop detection. Creates an ``IterativeDeepeningSearchAlgorithm`` and
+    delegates to its ``search`` method. Returns the solution as a list of
+    operators, or None if the task is unsolvable.
     """
     searcher = IterativeDeepeningSearchAlgorithm()
     return searcher.search(task, *args)
 
 
 class IterativeDeepeningSearchAlgorithm:
-    """
-    Searches for a plan on a task using iterative deepening search.
-    """
+    """Searches for a plan on a task using iterative deepening search."""
 
     def __init__(self):
-        # stores the maximal reachable depth, needed to terminate if the goal
-        # is not reachable
+        # Maximal reachable depth, needed to terminate if the goal is
+        # unreachable.
         self.maxreacheddepth = 0
-        # number of explored nodes during search
+        # Number of explored nodes during the search.
         self.explorednodes = 0
 
     def search(self, task, maxdepth=1000000):
-        """
-        Searches for a plan on a task using iterative deepening search. Uses
-        loop detection.
+        """Search for a plan on ``task`` using iterative deepening search.
 
-        @param task: The planning task to solve.
-        @param maxdepth: Limit the search to a fixed depth. If there is no plan
-                         in this depth then returns None.
-        @return: The solution as a list of operators or None if the task is
-                 unsolvable.
+        Uses loop detection. ``maxdepth`` limits the search to a fixed depth; if
+        there is no plan within that depth, None is returned. Returns the
+        solution as a list of operators, or None if the task is unsolvable.
         """
-        # testing the first case, initial is a goal
+        # Special case: the initial state already satisfies the goal.
         if task.goal_reached(task.initial_state):
             self.print_search_results(0, 0)
             return []
-        # loop detection
-        path = set()
-        # actual search depth
+        path = set()  # States on the current path, used for loop detection.
         depth = 1
-        # run until at goal or fail to explore to the given depth
+        # Run until we reach the goal or fail to explore up to the given depth.
         while depth < maxdepth:
             self.maxreacheddepth = 0
             self.explorednodes = 0
             plan = self.deepening_search_step(task, task.initial_state, depth, 0, path)
             if plan is not None:
-                # plan comes in the wrong order
-                plan.reverse()
+                plan.reverse()  # The plan is built up in reverse order.
                 self.print_search_results(depth, len(plan))
                 return plan
-            # can not explore until depth?
             if self.maxreacheddepth < depth:
-                # can not get any goal state
+                # We could not explore up to the target depth, so no goal state
+                # is reachable.
                 logging.debug("Dead end. Task unsolvable.")
                 self.print_search_results(depth, -1)
                 return None
-            # try to find a plan ones deeper
             depth += 1
         logging.debug("Emergency brake. Loop? Increase maxdepth.")
         self.print_search_results(depth, -1)
@@ -93,32 +76,29 @@ class IterativeDeepeningSearchAlgorithm:
 
     def print_search_results(self, depth, planlength):
         logging.info(
-            "iterative_deepening_search: depth=%d planlength=%d " % (depth, planlength)
+            f"iterative_deepening_search: depth={depth} planlength={planlength} "
         )
-        logging.info("%d Nodes expanded" % self.explorednodes)
+        logging.info(f"{self.explorednodes} Nodes expanded")
 
     def deepening_search_step(self, task, state, depth, step, path):
-        """
-        Helper function for the search, each call is a step on the a path to
-        the goal. Allows easy and fast backtracking.
+        """Take one step on a path to the goal during depth-limited search.
 
-        @param task: The planning task to solve.
-        @param state: The current state on the path.
-        @param depth: The maximal search depth in the actual iteration.
-        @param step: The current search step.
-        @param path: The current set of states on the path, needed for the loop
-                     detection.
-        @return: The solution as a list of operators or None if the task is
-        unsolvable.
+        Each call advances by one step and supports easy backtracking.
+
+        state: The current state on the path.
+        depth: The maximal search depth in the current iteration.
+        step: The current search step.
+        path: The set of states on the current path, used for loop detection.
+
+        Returns the (reversed) solution as a list of operators, or None if no
+        plan was found below ``state`` within the depth limit.
         """
         if step < depth:
             nextstep = step + 1
-            # remember the actual state
             path.add(state)
             for operator, successor_state in task.get_successor_states(state):
                 self.explorednodes += 1
-                # already on path? Yes then it is an loop, so ignore the
-                # successor and return to the caller without a plan
+                # Skip successors already on the path; they would form a loop.
                 if successor_state not in path:
                     if task.goal_reached(successor_state):
                         logging.info("Goal reached. Start extraction of solution.")
@@ -129,16 +109,13 @@ class IterativeDeepeningSearchAlgorithm:
                             task, successor_state, depth, nextstep, path
                         )
                         if plan is not None:
-                            # extracting the plan and terminating
                             plan.append(operator)
                             return plan
-            # found no plan on the explored path and children
-            # remove the actual state
+            # Found no plan below this state, so backtrack.
             path.remove(state)
             if self.maxreacheddepth < step:
                 self.maxreacheddepth = step
         else:
-            # can not finish search on this path, because
+            # Reached the depth limit without finding a plan on this path.
             self.maxreacheddepth = step
-            # found no plan on this sub tree of possible paths
         return None

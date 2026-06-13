@@ -15,34 +15,29 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
+"""The relaxation heuristics hAdd, hMax, hSA and hFF."""
+
 import heapq
 
 from .heuristic_base import Heuristic
 
-""" This module contains the relaxation heuristics hAdd, hMax, hSA and hFF. """
-
 
 class RelaxedFact:
-    """This class represents a relaxed fact."""
+    """A fact in the delete-relaxed task.
+
+    Attributes:
+        name: The name of the relaxed fact.
+        precondition_of: The operators this fact is a precondition of.
+        expanded: Whether this fact has been expanded during the Dijkstra
+            forward pass.
+        distance: The heuristic distance value.
+        sa_set: The set of operators that have been applied to make this fact
+            true (only for hSA).
+        cheapest_achiever: The cheapest operator applied to reach this fact
+            (only for hFF).
+    """
 
     def __init__(self, name):
-        """Construct a new relaxed fact.
-
-        Keyword arguments:
-        name -- the name of the relaxed fact.
-
-        Member variables:
-        name -- the name of the relaxed fact.
-        precondition_of -- a list that contains all operators, this fact is a
-                           precondition of.
-        expanded -- stores whether this fact has been expanded during the
-                    Dijkstra forward pass.
-        distance -- stores the heuristic distance value
-        sa_set -- stores a set of operators that have been applied to make this
-                  fact True (only for hSA).
-        cheapest_achiever -- stores the cheapest operator that was applied to
-                             reach this fact (only for hFF).
-        """
         self.name = name
         self.precondition_of = []
         self.expanded = False
@@ -52,24 +47,18 @@ class RelaxedFact:
 
 
 class RelaxedOperator:
-    """This class represents a relaxed operator (no delete effects)."""
+    """An operator in the delete-relaxed task (no delete effects).
+
+    Attributes:
+        name: The name of the relaxed operator.
+        preconditions: The preconditions of this operator.
+        add_effects: The add effects of this operator.
+        cost: The cost of applying this operator.
+        counter: Counts the preconditions not yet reached; the operator becomes
+            applicable once it reaches zero.
+    """
 
     def __init__(self, name, preconditions, add_effects):
-        """Construct a new relaxed operator.
-
-        Keyword arguments:
-        name -- the name of the relaxed operator.
-        preconditions -- the preconditions of this operator
-        add_effects -- the add effects of this operator
-
-        Member variables:
-        name -- the name of the relaxed operator.
-        preconditions -- the preconditions of this operator
-        counter -- alternative method to check whether all preconditions are
-                   True
-        add_effects -- the add effects of this operator
-        cost -- the cost for applying this operator
-        """
         self.name = name
         self.preconditions = preconditions
         self.add_effects = add_effects
@@ -78,28 +67,22 @@ class RelaxedOperator:
 
 
 class _RelaxationHeuristic(Heuristic):
-    """This class is the base class for all relaxation heuristics.
+    """Base class for all relaxation heuristics.
 
-    It is not meant to be instantiated. Nevertheless it is in principle an
-    implementation of the hAdd heuristic.
+    It is not meant to be instantiated directly. In principle it already
+    implements the hAdd heuristic.
+
+    Attributes:
+        facts: A dict mapping fact names to ``RelaxedFact`` objects.
+        operators: A list of relaxed operators.
+        init: The set of facts that define the initial state.
+        goals: The set of facts that define the goal state.
+        tie_breaker: A counter used to break ties in the priority queue.
+        eval: A function used to evaluate the cost of applying an operator.
     """
 
     def __init__(self, task):
-        """Construct a instance of _RelaxationHeuristic.
-
-        Keyword arguments:
-        task -- an instance of the Task class.
-
-        Member variables:
-        facts -- a dict that maps from fact names to fact objects
-        operators -- a list of operators
-        init -- the set of facts that define the initial state
-        goals -- the set of facts that define the goal state
-        tie_breaker -- a tie breaker needed for qeueing
-        eval -- a function that is used to evaluate the cost of applying an
-                operator
-        """
-        self.facts = dict()
+        self.facts = {}
         self.operators = []
         self.goals = task.goals
         self.init = task.initial_state
@@ -121,19 +104,14 @@ class _RelaxationHeuristic(Heuristic):
 
             # Handle operators that have no preconditions.
             if not op.preconditions:
-                # We add this operator to the precondtion_of list of the start
-                # state. This way it can be applied to the start state. This
-                # helps also when the initial state is empty.
+                # We add this operator to the precondition_of list of the start
+                # state. This way it can be applied to the start state, which
+                # also helps when the initial state is empty.
                 self.start_state.precondition_of.append(ro)
 
     def __call__(self, node):
-        """This function is called whenever the heuristic needs to be computed.
-
-        Keyword arguments:
-        node -- the current state
-        """
-        state = node.state
-        state = set(state)
+        """Compute the heuristic value for the state stored in ``node``."""
+        state = set(node.state)
 
         # Reset distance and set to default values.
         self.init_distance(state)
@@ -157,15 +135,10 @@ class _RelaxationHeuristic(Heuristic):
         self.dijkstra(heap)
 
         # Extract the goal heuristic.
-        h_value = self.calc_goal_h()
-
-        return h_value
+        return self.calc_goal_h()
 
     def init_distance(self, state):
-        """
-        This function resets all member variables that store information that
-        needs to be recomputed for each call of the heuristic.
-        """
+        """Reset all state that has to be recomputed for each heuristic call."""
 
         def reset_fact(fact):
             fact.expanded = False
@@ -189,32 +162,29 @@ class _RelaxationHeuristic(Heuristic):
             operator.counter = len(operator.preconditions)
 
     def get_cost(self, operator, pre):
-        """This function calculated the cost of applying an operator.
+        """Calculate the cost of applying ``operator``.
 
-        For hMax and hAdd this nothing has to be changed here, but to use
-        different functions for eval. hFF and hSA overwrite this function.
+        For hMax and hAdd nothing has to change here apart from the ``eval``
+        function. hFF and hSA override this method.
         """
-
         if operator.preconditions:
-            # If this operator has preconditions, we sum / maximize over the
-            # heuristic values of all preconditions.
+            # Sum / maximize over the heuristic values of all preconditions.
             cost = self.eval(
                 [self.facts[pre].distance for pre in operator.preconditions]
             )
         else:
-            # If there are no preconditions for this operator, its cost is 0.
+            # An operator without preconditions has cost 0.
             cost = 0
 
-        # The return value is a tuple, because in hSA instead of None, the
-        # unioned set is returned.
+        # The return value is a tuple because hSA returns the unioned set
+        # instead of None.
         return None, cost + operator.cost
 
     def calc_goal_h(self):
-        """This function calculates the heuristic value of the whole goal.
+        """Calculate the heuristic value of the whole goal.
 
-        As get_cost, it is makes use of the eval function, and has to be
-        overwritten for hSA and hFF.
-        If the goal is empty: Return 0
+        Like ``get_cost``, this uses the ``eval`` function and is overridden for
+        hSA and hFF. Returns 0 if the goal is empty.
         """
         if self.goals:
             return self.eval([self.facts[fact].distance for fact in self.goals])
@@ -222,16 +192,16 @@ class _RelaxationHeuristic(Heuristic):
             return 0
 
     def finished(self, achieved_goals, queue):
-        """
-        This function is used as a stopping criterion for the Dijkstra search,
-        which differs for different heuristics.
+        """Return the stopping criterion for the Dijkstra search.
+
+        The criterion differs between heuristics.
         """
         return achieved_goals == self.goals or not queue
 
     def dijkstra(self, queue):
-        """This function is an implementation of a Dijkstra search.
+        """Perform the Dijkstra forward pass.
 
-        For efficiency reasons, it is used instead of an explicit graph
+        For efficiency reasons, this is used instead of an explicit graph
         representation of the problem.
         """
         # Stores the achieved subgoals. Needed for abortion criterion of hMax.
@@ -273,46 +243,31 @@ class _RelaxationHeuristic(Heuristic):
 
 
 class hAddHeuristic(_RelaxationHeuristic):
-    """This class is an implementation of the hADD heuristic.
-
-    It derives from the _RelaxationHeuristic class.
-    """
+    """The hAdd heuristic, which sums over the precondition costs."""
 
     def __init__(self, task):
-        """
-        To make this class an implementation of hADD, apart from deriving from
-        _RelaxationHeuristic,  we only need to set eval to sum().
-        """
+        # hAdd is the base heuristic with ``eval`` set to sum().
         super().__init__(task)
         self.eval = sum
 
 
 class hMaxHeuristic(_RelaxationHeuristic):
-    """This class is an implementation of the hMax heuristic.
-
-    It derives from the _RelaxationHeuristic class.
-    """
+    """The hMax heuristic, which maximizes over the precondition costs."""
 
     def __init__(self, task):
-        """
-        To make this class an implementation of hADD, apart from deriving from
-        _RelaxationHeuristic, we only need to set eval to max().
-        """
+        # hMax is the base heuristic with ``eval`` set to max().
         super().__init__(task)
         self.eval = max
 
 
 class hSAHeuristic(_RelaxationHeuristic):
-    """This class is an implementation of the hSA heuristic.
-
-    It derives from the _RelaxationHeuristic class.
-    """
+    """The hSA (set-additive) heuristic."""
 
     def get_cost(self, operator, pre):
-        """
-        This function has to be overwritten, because the hSA heuristic not
-        only relies on a real valued distance, but also on a set of operators
-        that have been applied.
+        """Calculate the cost of applying ``operator``.
+
+        hSA relies not only on a real-valued distance but also on the set of
+        operators that have been applied, so this method is overridden.
         """
         # Initialize.
         cost = 0
@@ -341,12 +296,11 @@ class hSAHeuristic(_RelaxationHeuristic):
         return (unioned_sets, cost + operator.cost)
 
     def calc_goal_h(self):
-        """
-        This function has to be overwritten, because the hSA heuristic not only
-        relies on a real valued distance, but also on a set of operators that
-        have been applied.
+        """Calculate the heuristic value of the whole goal.
 
-        Return 0 if the goal is empty
+        hSA relies not only on a real-valued distance but also on the set of
+        operators that have been applied, so this method is overridden. Returns
+        0 if the goal is empty.
         """
         if self.goals:
             # Collect the sa-sets of all facts that are part of the goal.
@@ -355,47 +309,33 @@ class hSAHeuristic(_RelaxationHeuristic):
                 for fact in self.goals
                 if self.facts[fact].sa_set is not None
             ]
-            # Check whether all subgoals are fulfilled.
+            # All subgoals fulfilled? Then the heuristic value is the size of
+            # the union of their sa-sets; otherwise the goal is unreachable.
             if len(sa_sets) == len(self.goals):
-                # Union all these sets and take the length of the union as
-                # heuristic value.
-                h_value = len(set.union(*sa_sets))
+                return len(set.union(*sa_sets))
             else:
-                # Ff not, return infinty.
-                h_value = float("inf")
-            return h_value
+                return float("inf")
         else:
             return 0
 
 
 class hFFHeuristic(_RelaxationHeuristic):
-    """This class is an implementation of the hFF heuristic.
-
-    It derives from the _RelaxationHeuristic class.
-    """
+    """The hFF (FF) heuristic, which uses the same forward pass as hAdd."""
 
     def __init__(self, task):
-        """Construct a hFFHeuristic.
-
-        FF uses same forward pass as hAdd.
-        """
         super().__init__(task)
         self.eval = sum
 
     def calc_h_with_plan(self, node):
-        """
-        Helper method to calculate hFF value together with a relaxed plan.
-        """
-        state = node.state
-        state = set(state)
+        """Calculate the hFF value together with a relaxed plan."""
+        state = set(node.state)
         # Reset distance and set to default values.
         self.init_distance(state)
-        # reset dead end status
 
         # Construct the priority queue.
         heap = []
         for fact in state:
-            # Its order is determined by the distance the facts.
+            # The order is determined by the distance of the facts.
             # As a tie breaker we use a simple counter.
             heapq.heappush(
                 heap, (self.facts[fact].distance, self.tie_breaker, self.facts[fact])
@@ -404,18 +344,10 @@ class hFFHeuristic(_RelaxationHeuristic):
 
         # Call the Dijkstra search that performs the forward pass.
         self.dijkstra(heap)
-        h_value = self.calc_goal_h(True)
-
-        if type(h_value) is tuple:
-            return h_value[0], h_value[1]
-        else:
-            return h_value
+        return self.calc_goal_h(return_relaxed_plan=True)
 
     def calc_goal_h(self, return_relaxed_plan=False):
-        """
-        This function has to be overwritten, because the hFF heuristic needs an
-        additional backward pass.
-        """
+        """Calculate the heuristic value, which for hFF needs a backward pass."""
         relaxed_plan = set()
         # Check whether we achieved all subgoals.
         hAdd_value = self.eval([self.facts[fact].distance for fact in self.goals])

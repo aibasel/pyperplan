@@ -45,17 +45,17 @@ class LispIterator:
             raise ParseError(msg, self)
 
     def __repr__(self):
-        return "<LispIterator(%d, %r)>" % (self.position, self.contents)
+        return f"<LispIterator({self.position}, {self.contents!r})>"
 
     ## Low-level interface. The following methods may access the
     ## position and contents attributes directly.
 
     def is_word(self):
-        """Returns true iff the tree is a word (has no subtrees)."""
+        """Return True iff the tree is a word (has no subtrees)."""
         return isinstance(self.contents, str)
 
     def is_structure(self):
-        """Returns true iff the tree is a structure (has subtrees)."""
+        """Return True iff the tree is a structure (has subtrees)."""
         return isinstance(self.contents, list)
 
     def empty(self):
@@ -116,7 +116,7 @@ class LispIterator:
         """Structure only. Verify that next element is the given word
         and advance. If at the end or if next element is something
         else, raise ParseError."""
-        self._raise_if(not self.try_match(word), "expected %r" % word)
+        self._raise_if(not self.try_match(word), f"expected {word!r}")
 
     def match_end(self):
         """Structure only. Raise ParseError if not at the end."""

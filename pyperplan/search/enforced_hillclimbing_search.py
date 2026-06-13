@@ -15,9 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-"""
-Implements the enforced hill climbing search algorithm.
-"""
+"""Implements the enforced hill-climbing search algorithm."""
 
 import logging
 from collections import deque
@@ -26,61 +24,50 @@ from . import searchspace
 
 
 def enforced_hillclimbing_search(planning_task, heuristic, use_preferred_ops=False):
-    """
-    Searches for a plan on the given task using enforced hill climbing and
-    duplicate detection.
+    """Search for a plan on the given task using enforced hill climbing.
 
-    @param planning_task: The planning task to solve.
-    @return: The solution as a list of operators or None if no solution was
-    found. Note that enforced hill climbing is an incomplete algorith, so it
-    may fail to find a solution even though the task is solvable.
+    Duplicate states are detected and skipped. Returns the solution as a list of
+    operators, or None if no solution was found. Note that enforced hill
+    climbing is incomplete, so it may fail to find a solution even though the
+    task is solvable.
     """
-    # counts the number of loops (only for printing)
-    iteration = 0
-    # fifo-queue storing the nodes which are next to explore
+    iteration = 0  # Number of expanded nodes (only used for logging).
+    # FIFO queue storing the nodes that are next to explore.
     queue = deque()
     initial_node = searchspace.make_root_node(planning_task.initial_state)
     queue.append(initial_node)
     best_heuristic_value = heuristic(initial_node)
-    logging.info("Initial h value: %f" % best_heuristic_value)
-    # set storing the explored nodes, used for duplicate detection
+    logging.info(f"Initial h value: {best_heuristic_value:f}")
+    # Set of explored states, used for duplicate detection.
     closed = set()
     visited = set()
     while queue:
         iteration += 1
-        # get the next node to explore
         node = queue.popleft()
-        # remember the successor state
         closed.add(node.state)
         visited.add(node.state)
-        # exploring the node or if it is a goal node extracting the plan
         if planning_task.goal_reached(node.state):
             logging.info("Goal reached. Start extraction of solution.")
-            logging.info("%d Nodes expanded" % len(visited))
+            logging.info(f"{len(visited)} Nodes expanded")
             return node.extract_solution()
 
-        # for the preferred operator version --> recompute heuristic and
-        # relaxed plan
+        # For the preferred operator version, recompute the relaxed plan.
         if use_preferred_ops:
             (rh, rplan) = heuristic.calc_h_with_plan(node)
-            logging.debug("relaxed plan %s " % rplan)
+            logging.debug(f"relaxed plan {rplan} ")
 
         for operator, successor_state in planning_task.get_successor_states(node.state):
-            # for the preferred operator version ignore all non preferred
-            # operators
+            # For the preferred operator version, ignore non-preferred operators.
             if use_preferred_ops:
                 if rplan and operator.name not in rplan:
-                    # ignore this operator if we use the relaxed plan criterion
                     logging.debug(
-                        "removing operator %s << not a preferred "
-                        "operator" % operator.name
+                        f"removing operator {operator.name} << not a preferred operator"
                     )
                     continue
                 else:
-                    logging.debug("keeping operator %s" % operator.name)
+                    logging.debug(f"keeping operator {operator.name}")
 
-            # duplicate detection
-            if successor_state not in closed:
+            if successor_state not in closed:  # Duplicate detection.
                 successor_node = searchspace.make_child_node(
                     node, operator, successor_state
                 )
@@ -88,12 +75,11 @@ def enforced_hillclimbing_search(planning_task, heuristic, use_preferred_ops=Fal
                 if heuristic_value == float("inf"):
                     continue
                 elif heuristic_value < best_heuristic_value:
-                    # Just take the first successor node that has a lower
-                    # heuristic value than the current best_heuristic_value
-                    # and ignore the other successor nodes.
+                    # Take the first successor node with a lower heuristic value
+                    # than the current best and ignore the other successors.
                     logging.debug(
-                        "Found new best h: %f after %d expansions"
-                        % (heuristic_value, iteration)
+                        f"Found new best h: {heuristic_value:f} "
+                        f"after {iteration} expansions"
                     )
                     queue.clear()
                     closed.clear()
@@ -103,5 +89,5 @@ def enforced_hillclimbing_search(planning_task, heuristic, use_preferred_ops=Fal
                 else:
                     queue.append(successor_node)
     logging.info("Enforced hill climbing failed")
-    logging.info("%d Nodes expanded" % len(visited))
+    logging.info(f"{len(visited)} Nodes expanded")
     return None

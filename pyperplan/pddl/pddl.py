@@ -22,9 +22,7 @@ possibly a task definition.
 
 
 class Type:
-    """
-    This class represents a PDDL type.
-    """
+    """A PDDL type."""
 
     def __init__(self, name, parent):
         self.name = name.lower()
@@ -112,11 +110,12 @@ class Domain:
         self.constants = constants
 
     def __repr__(self):
-        return "< Domain definition: %s Predicates: %s Actions: %s Constants: %s >" % (
-            self.name,
-            [str(p) for p in self.predicates],
-            [str(a) for a in self.actions],
-            [str(c) for c in self.constants],
+        predicates = [str(p) for p in self.predicates]
+        actions = [str(a) for a in self.actions]
+        constants = [str(c) for c in self.constants]
+        return (
+            f"< Domain definition: {self.name} Predicates: {predicates} "
+            f"Actions: {actions} Constants: {constants} >"
         )
 
     __str__ = __repr__
@@ -138,16 +137,12 @@ class Problem:
         self.goal = goal
 
     def __repr__(self):
+        init = [str(p) for p in self.initial_state]
+        goal = [str(p) for p in self.goal]
         return (
-            "< Problem definition: %s "
-            "Domain: %s Objects: %s Initial State: %s Goal State : %s >"
-            % (
-                self.name,
-                self.domain.name,
-                sorted(self.objects),
-                [str(p) for p in self.initial_state],
-                [str(p) for p in self.goal],
-            )
+            f"< Problem definition: {self.name} Domain: {self.domain.name} "
+            f"Objects: {sorted(self.objects)} Initial State: {init} "
+            f"Goal State : {goal} >"
         )
 
     __str__ = __repr__
