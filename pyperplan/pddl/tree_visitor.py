@@ -27,11 +27,7 @@ class SemanticError(Exception):
     """Exception indicating an error during traversal of AST."""
 
     def __init__(self, value):
-        """Constructor of SemanticError.
-
-        Keyword arguments:
-        value -- the error message
-        """
+        # ``value`` is the error message.
         self.value = value
 
     def __str__(self):
@@ -39,20 +35,13 @@ class SemanticError(Exception):
 
 
 class Visitable:
-    """
-    The Visitable class is part of the Visitor Pattern. Every AST node created
-    by the Parser derives from this class.
+    """Base class of the Visitor Pattern that every AST node derives from.
 
-    The accept-method calls the appropriate method of the visitor.
+    The ``accept`` method calls the appropriate method of the visitor.
     """
 
     def __init__(self, vname=None):
-        """Constructor of the Visitable.
-
-        Keyword arguments:
-        vname -- the name of the of the callback that will be called on the
-                 visitor instance
-        """
+        # ``vname`` is the name of the visitor callback to call for this node.
         self._visitorName = vname
 
     def accept(self, visitor):
@@ -153,17 +142,11 @@ class TraversePDDLDomain(PDDLVisitor):
     """
 
     def get_in(self, node):
-        """
-        Helper method to access a global hash in which information for each
-        node in the AST can be stored.
-        """
+        """Return the information stored for ``node`` during traversal."""
         return self._nodeHash[node]
 
     def set_in(self, node, val):
-        """
-        Helper method to write a global hash in which information for each node
-        in the AST can be stored.
-        """
+        """Store ``val`` as the information for ``node`` during traversal."""
         self._nodeHash[node] = val
 
     def __init__(self):
@@ -333,12 +316,7 @@ class TraversePDDLDomain(PDDLVisitor):
         self.set_in(node, pddl.Action(node.name, signature, precond, effect))
 
     def add_precond(self, precond, c):
-        """Helper function for visit_precondition_stmt.
-
-        Keyword arguments:
-        precond -- a list of preconditions
-        c -- the formula representing a precondition we want to add to the list
-        """
+        """Add the precondition described by formula ``c`` to the ``precond`` list."""
         from .parser import Variable
 
         predDef = self._predicates[c.key]
@@ -384,15 +362,12 @@ class TraversePDDLDomain(PDDLVisitor):
         self.set_in(node, precond)
 
     def add_effect(self, effect, c):
-        """Helper function for visit_effect_stmt.
+        """Add the effect described by formula ``c`` to ``effect``.
 
-        Keyword arguments:
-        effect -- instance of the effect data structure
-        c -- the formula representing the effect that we want to add to the
-             addlist or dellist
+        The effect is added to ``effect.addlist`` or ``effect.dellist``
+        depending on whether ``c`` is negated.
         """
-        # Needed for instance check.
-        from .parser import Variable
+        from .parser import Variable  # Imported here to avoid a cyclic import.
 
         nextPredicate = None
         isNegative = False
@@ -454,17 +429,11 @@ class TraversePDDLProblem(PDDLVisitor):
     """
 
     def get_in(self, node):
-        """
-        Helper method to access a global hash in which information for each
-        node in the AST can be stored.
-        """
+        """Return the information stored for ``node`` during traversal."""
         return self._nodeHash[node]
 
     def set_in(self, node, val):
-        """
-        Helper method to write a global hash in which information for each node
-        in the AST can be stored.
-        """
+        """Store ``val`` as the information for ``node`` during traversal."""
         self._nodeHash[node] = val
 
     def get_problem(self):
@@ -472,11 +441,7 @@ class TraversePDDLProblem(PDDLVisitor):
         return self._problemDef
 
     def __init__(self, domain):
-        """Constructor for pddl-problem visitor.
-
-        Keyword arguments:
-        domain -- the corresponding pddl-domain data structure
-        """
+        # ``domain`` is the corresponding pddl.Domain data structure.
         self._domain = domain
         self._nodeHash = {}
         self._objects = {}
@@ -538,12 +503,7 @@ class TraversePDDLProblem(PDDLVisitor):
         self.set_in(node, initList)
 
     def add_goal(self, goal, c):
-        """Helper function for visit_goal_stmt.
-
-        Keyword arguments:
-        goal -- a list of goals
-        c -- a formula representing a goal we want to add to the goal list
-        """
+        """Add the goal described by formula ``c`` to the ``goal`` list."""
         # Check whether predicate was introduced in domain file.
         if c.key not in self._domain.predicates:
             raise SemanticError(f"Error: unknown predicate {c.key} in goal definition")

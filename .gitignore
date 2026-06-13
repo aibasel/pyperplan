@@ -1,6 +1,9 @@
 *~
 *.py[cod]
 *.soln
+# Temporary files written by the SAT planner (see search/minisat.py).
+input.cnf
+output.txt
 uv.lock
 .tox/
 build/
