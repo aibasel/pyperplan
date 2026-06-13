@@ -52,22 +52,6 @@ class Predicate:
         return self.name + str(self.signature)
 
 
-# Formula is unused right now!
-# class Formula:
-#    def __init__(self, operator, operands=[]):
-#        # right now we only need AND
-#        self._operator = operator # 'AND' | 'OR' | 'NOT'
-#        self._operands = operands
-#
-#    def getOperator(self):
-#        return self._operator
-#    operator = property(getOperator)
-#
-#    def getOperands(self):
-#        return self._operands
-#    operands = property(getOperands)
-
-
 class Effect:
     def __init__(self):
         """

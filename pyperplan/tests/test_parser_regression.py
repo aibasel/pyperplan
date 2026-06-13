@@ -23,13 +23,13 @@ def test_untyped_constants():
       (:init (the-predicate x))
       (:goal (the-predicate x)))
     """
-    _parser.domInput = domain_input
-    _parser.probInput = problem_input
+    _parser.dom_input = domain_input
+    _parser.prob_input = problem_input
 
     domain = _parser.parse_domain(False)
     _parser.parse_problem(domain, False)
 
-    _parser.domInput = domain_input
+    _parser.dom_input = domain_input
     domain = _parser.parse_domain(False)
 
     assert domain.constants.keys() == {"x"}
@@ -41,7 +41,7 @@ def test_empty_actions():
     (:predicates (trivial-goal))
     )
     """
-    _parser.domInput = domain_input
+    _parser.dom_input = domain_input
     domain = _parser.parse_domain(False)
 
     assert not domain.actions

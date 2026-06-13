@@ -40,7 +40,7 @@ class Keyword(Visitable):
 
     def __init__(self, name):
         # ``name`` is the keyword without its colon, e.g. 'typed' for ':typed'.
-        self._visitorName = "visit_keyword"
+        self._visitor_name = "visit_keyword"
         self.name = name
 
 
@@ -53,7 +53,7 @@ class Variable(Visitable):
         types: a list of names of the possible types of this variable, or None.
             Whether these types exist is checked later by the TreeVisitor.
         """
-        self._visitorName = "visit_variable"
+        self._visitor_name = "visit_variable"
         self.name = name
         self.typed = types is not None
         self.types = types
@@ -64,7 +64,7 @@ class Type(Visitable):
 
     def __init__(self, name, parent=None):
         # ``parent`` is the name of the parent type, or None.
-        self._visitorName = "visit_type"
+        self._visitor_name = "visit_type"
         self.name = name
         self.parent = parent
 
@@ -74,7 +74,7 @@ class Predicate(Visitable):
 
     def __init__(self, name, parameters=None):
         # ``parameters`` is a list of Variables.
-        self._visitorName = "visit_predicate"
+        self._visitor_name = "visit_predicate"
         self.name = name
         self.parameters = parameters or []
 
@@ -84,7 +84,7 @@ class PredicateInstance(Visitable):
 
     def __init__(self, name, parameters=None):
         # ``parameters`` is a list of object names.
-        self._visitorName = "visit_predicate_instance"
+        self._visitor_name = "visit_predicate_instance"
         self.name = name
         self.parameters = parameters or []
 
@@ -94,7 +94,7 @@ class RequirementsStmt(Visitable):
 
     def __init__(self, keywords=None):
         # ``keywords`` is the list of requirements, represented as Keywords.
-        self._visitorName = "visit_requirements_stmt"
+        self._visitor_name = "visit_requirements_stmt"
         self.keywords = keywords or []
 
 
@@ -102,7 +102,7 @@ class DomainStmt(Visitable):
     """AST node for a PDDL domain statement (the domain name)."""
 
     def __init__(self, name):
-        self._visitorName = "visit_domain_stmt"
+        self._visitor_name = "visit_domain_stmt"
         self.name = name
 
 
@@ -112,7 +112,7 @@ class PreconditionStmt(Visitable):
     def __init__(self, formula):
         # ``formula`` is the parsed Formula. Arbitrary formulas are allowed
         # here; STRIPS compatibility is checked later by the TreeVisitor.
-        self._visitorName = "visit_precondition_stmt"
+        self._visitor_name = "visit_precondition_stmt"
         self.formula = formula
 
 
@@ -122,7 +122,7 @@ class EffectStmt(Visitable):
     def __init__(self, formula):
         # ``formula`` is the parsed Formula. Arbitrary formulas are allowed
         # here; STRIPS compatibility is checked later by the TreeVisitor.
-        self._visitorName = "visit_effect_stmt"
+        self._visitor_name = "visit_effect_stmt"
         self.formula = formula
 
 
@@ -136,7 +136,7 @@ class Formula(Visitable):
         type: the type of the key, one of TypeFormula, TypeVariable or
             TypeConstant.
         """
-        self._visitorName = "visit_formula"
+        self._visitor_name = "visit_formula"
         self.key = key
         self.children = children or []
         self.type = type
@@ -151,7 +151,7 @@ class ActionStmt(Visitable):
         precond: the precondition of the action, given as a Formula.
         effect: the effect of the action, given as a Formula.
         """
-        self._visitorName = "visit_action_stmt"
+        self._visitor_name = "visit_action_stmt"
         self.name = name
         self.parameters = parameters
         self.precond = precond
@@ -163,7 +163,7 @@ class PredicatesStmt(Visitable):
 
     def __init__(self, predicates):
         # ``predicates`` is a list of Predicates.
-        self._visitorName = "visit_predicates_stmt"
+        self._visitor_name = "visit_predicates_stmt"
         self.predicates = predicates
 
 
@@ -187,7 +187,7 @@ class DomainDef(Visitable):
         actions: a list of ActionStmt AST nodes.
         constants: a list of constants, as Object AST nodes.
         """
-        self._visitorName = "visit_domain_def"
+        self._visitor_name = "visit_domain_def"
         self.name = name
         self.requirements = requirements
         self.types = types
@@ -199,17 +199,17 @@ class DomainDef(Visitable):
 class ProblemDef(Visitable):
     """AST node for a PDDL problem."""
 
-    def __init__(self, name, domainName, objects=None, init=None, goal=None):
+    def __init__(self, name, domain_name, objects=None, init=None, goal=None):
         """
         name: the problem name.
-        domainName: the name of the domain this problem belongs to.
+        domain_name: the name of the domain this problem belongs to.
         objects: a list of objects defined in the problem file.
         init: an initial condition represented by an InitStmt.
         goal: a goal condition represented by a GoalStmt.
         """
-        self._visitorName = "visit_problem_def"
+        self._visitor_name = "visit_problem_def"
         self.name = name
-        self.domainName = domainName
+        self.domain_name = domain_name
         self.objects = objects
         self.init = init
         self.goal = goal
@@ -220,9 +220,9 @@ class Object(Visitable):
 
     def __init__(self, name, type):
         # ``type`` is the name of this object's type.
-        self._visitorName = "visit_object"
+        self._visitor_name = "visit_object"
         self.name = name
-        self.typeName = type
+        self.type_name = type
 
 
 class InitStmt(Visitable):
@@ -230,7 +230,7 @@ class InitStmt(Visitable):
 
     def __init__(self, predicates):
         # ``predicates`` is a list of predicates denoting the initial condition.
-        self._visitorName = "visit_init_stmt"
+        self._visitor_name = "visit_init_stmt"
         self.predicates = predicates
 
 
@@ -239,7 +239,7 @@ class GoalStmt(Visitable):
 
     def __init__(self, formula):
         # ``formula`` is the Formula denoting the goal condition.
-        self._visitorName = "visit_goal_stmt"
+        self._visitor_name = "visit_goal_stmt"
         self.formula = formula
 
 
@@ -292,7 +292,7 @@ def _parse_type_helper(iterator, type_class):
     # parsed object in a list and attach a new type instance whenever a type is
     # specified.
     result = []
-    tmpList = []
+    tmp_list = []
     while not iterator.empty():
         var = next(iterator).get_word()
         if type_class != Variable and len(var) > 0 and var[0] in reserved:
@@ -307,24 +307,24 @@ def _parse_type_helper(iterator, type_class):
                         'Error multiple parent definition must start with "either"'
                     )
                 tlist = parse_list_template(_parse_string_helper, types_iter)
-                while tmpList:
-                    result.append(type_class(tmpList.pop(), tlist))
+                while tmp_list:
+                    result.append(type_class(tmp_list.pop(), tlist))
             else:
                 # Found type information, so flush objects into the result list.
                 ctype = next(iterator).get_word()
-                while tmpList:
+                while tmp_list:
                     if type_class == Variable:
-                        result.append(type_class(tmpList.pop(), [ctype]))
+                        result.append(type_class(tmp_list.pop(), [ctype]))
                     else:
-                        result.append(type_class(tmpList.pop(), ctype))
+                        result.append(type_class(tmp_list.pop(), ctype))
         elif var is not None and var != "":
             # Found a new object definition, so enqueue it.
             if type_class == Variable and var[0] != "?":
                 raise ValueError('Error variables must start with a "?"')
-            tmpList.insert(0, var)
-    while tmpList:
+            tmp_list.insert(0, var)
+    while tmp_list:
         # Append all left-over objects; these are untyped.
-        result.append(type_class(tmpList.pop(), None))
+        result.append(type_class(tmp_list.pop(), None))
     return result
 
 
@@ -526,8 +526,8 @@ def parse_domain_def(iterator):
 
     Recursively calls all parsers needed to parse a domain definition.
     """
-    defString = parse_name(iterator, "domain def")
-    if defString != "define":
+    def_string = parse_name(iterator, "domain def")
+    if def_string != "define":
         raise ValueError(
             'Invalid domain definition! --> domain definition must start with "define"'
         )
@@ -625,12 +625,12 @@ class Parser:
     into the data structures defined in pddl.py.
     """
 
-    def __init__(self, domFile, probFile=None):
-        # ``domFile``/``probFile`` are the domain and (optional) problem files.
-        self.domFile = domFile
-        self.probFile = probFile
-        self.domInput = ""
-        self.probInput = ""
+    def __init__(self, dom_file, prob_file=None):
+        # ``dom_file``/``prob_file`` are the domain and (optional) problem files.
+        self.dom_file = dom_file
+        self.prob_file = prob_file
+        self.dom_input = ""
+        self.prob_input = ""
 
     def _read_input(self, source):
         """Read and normalize the lisp input, returning a LispIterator."""
@@ -639,37 +639,37 @@ class Parser:
     def parse_domain(self, read_from_file=True):
         """Parse the domain and return the resulting pddl.Domain.
 
-        If ``read_from_file`` is False, the domain is read from ``self.domInput``
-        instead of from ``self.domFile``.
+        If ``read_from_file`` is False, the domain is read from ``self.dom_input``
+        instead of from ``self.dom_file``.
         """
         if read_from_file:
-            with open(self.domFile, encoding="utf-8") as file:
-                self.domInput = self._read_input(file)
+            with open(self.dom_file, encoding="utf-8") as file:
+                self.dom_input = self._read_input(file)
         else:
-            self.domInput = self._read_input(self.domInput.split("\n"))
-        domAST = parse_domain_def(self.domInput)
+            self.dom_input = self._read_input(self.dom_input.split("\n"))
+        domain_ast = parse_domain_def(self.dom_input)
         visitor = TraversePDDLDomain()
-        domAST.accept(visitor)
+        domain_ast.accept(visitor)
         return visitor.domain
 
     def parse_problem(self, dom, read_from_file=True):
         """Parse the problem and return the resulting pddl.Problem.
 
         If ``read_from_file`` is False, the problem is read from
-        ``self.probInput`` instead of from ``self.probFile``.
+        ``self.prob_input`` instead of from ``self.prob_file``.
         """
         if read_from_file:
-            with open(self.probFile, encoding="utf-8") as file:
-                self.probInput = self._read_input(file)
+            with open(self.prob_file, encoding="utf-8") as file:
+                self.prob_input = self._read_input(file)
         else:
-            self.probInput = self._read_input(self.probInput.split("\n"))
-        probAST = parse_problem_def(self.probInput)
+            self.prob_input = self._read_input(self.prob_input.split("\n"))
+        problem_ast = parse_problem_def(self.prob_input)
         visitor = TraversePDDLProblem(dom)
-        probAST.accept(visitor)
+        problem_ast.accept(visitor)
         return visitor.get_problem()
 
     def set_prob_file(self, fname):
-        self.probFile = fname
+        self.prob_file = fname
 
 
 if __name__ == "__main__":
@@ -682,14 +682,14 @@ if __name__ == "__main__":
     if options.domain is None:
         argparser.print_usage()
         argparser.error("Error domain file must be specified")
-    pddlParser = Parser(options.domain)
+    pddl_parser = Parser(options.domain)
     print("-------- Starting to parse supplied domain file!")
-    domain = pddlParser.parse_domain()
+    domain = pddl_parser.parse_domain()
     print("++++++++ parsed domain file successfully")
     print(domain)
     if options.problem is not None:
         print("-------- Starting to parse supplied problem file!")
-        pddlParser.set_prob_file(options.problem)
-        problem = pddlParser.parse_problem(domain)
+        pddl_parser.set_prob_file(options.problem)
+        problem = pddl_parser.parse_problem(domain)
         print("++++++++ parsed problem file successfully")
         print(problem)

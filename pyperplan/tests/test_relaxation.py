@@ -219,8 +219,8 @@ def compare_h_values(Heuristic, task, expected):
 
 def test_hAdd_blocksworld_initial_state():
     parser = Parser("")
-    parser.domInput = blocks_dom
-    parser.probInput = blocks_problem_1
+    parser.dom_input = blocks_dom
+    parser.prob_input = blocks_problem_1
 
     domain = parser.parse_domain(False)
     problem = parser.parse_problem(domain, False)

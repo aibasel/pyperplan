@@ -71,29 +71,29 @@ _problem_input = """(define (problem BLOCKS-5-0)
 
 _parser = Parser("")
 
-_parser.domInput = _domain_input
-_parser.probInput = _problem_input
+_parser.dom_input = _domain_input
+_parser.prob_input = _problem_input
 
 _domain = _parser.parse_domain(False)
 _problem = _parser.parse_problem(_domain, False)
 
 
 def test_default_pddl_visitor_domain():
-    defaultVisitor = pddl_tree_visitor.PDDLVisitor()
+    default_visitor = pddl_tree_visitor.PDDLVisitor()
     input = _domain_input.split("\n")
     iter = parse_lisp_iterator(input)
-    domAST = parse_domain_def(iter)
+    domain_ast = parse_domain_def(iter)
     # and traverse the AST
-    domAST.accept(defaultVisitor)
+    domain_ast.accept(default_visitor)
 
 
 def test_default_pddl_visitor_problem():
-    defaultVisitor = pddl_tree_visitor.PDDLVisitor()
+    default_visitor = pddl_tree_visitor.PDDLVisitor()
     input = _problem_input.split("\n")
     iter = parse_lisp_iterator(input)
-    probAST = parse_problem_def(iter)
+    problem_ast = parse_problem_def(iter)
     # and traverse the AST
-    probAST.accept(defaultVisitor)
+    problem_ast.accept(default_visitor)
 
 
 def test_action_set():
@@ -203,7 +203,7 @@ def test_parent_type_undefined():
                    )
 """
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -238,7 +238,7 @@ def test_double_action():
                    )
 """
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -262,7 +262,7 @@ def test_double_predicate():
                    )
 """
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -286,7 +286,7 @@ def test_unkown_type_in_predicate():
                    )
 """
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -307,7 +307,7 @@ def test_precondition_predicates_singature_wrong():
                    )
 """
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -328,7 +328,7 @@ def test_precondition_predicates_not_defined():
                    )
 """
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -349,7 +349,7 @@ def test_precondition_not_cnf():
                    )
 """
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -370,7 +370,7 @@ def test_effect_several_children_of_not():
                    )
 """
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -391,7 +391,7 @@ def test_effect_unkown_predicate():
                    )
 """
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -413,7 +413,7 @@ def test_effect_predicates_singature_wrong():
 """
 
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -433,7 +433,7 @@ def test_effect_or():
 """
 
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -454,7 +454,7 @@ def test_constants_unkown_type():
 """
 
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -474,7 +474,7 @@ def test_constants_multiple():
                    )
 """
     with raises(SemanticError):
-        _parser.domInput = _domain_input_2
+        _parser.dom_input = _domain_input_2
         _domain_2 = _parser.parse_domain(False)
 
 
@@ -489,14 +489,14 @@ def test_problem_name_collision():
     """
 
     with raises(SemanticError):
-        _parser.probInput = _problem_input_2
+        _parser.prob_input = _problem_input_2
         _problem = _parser.parse_problem(_domain, False)
 
 
 def test_problem_object_unkown_type():
     _problem_input_2 = """(define (problem BLOCKS-5-0)
     (:domain BLOCKS)
-    (:objects B - unkownType E A C D)
+    (:objects B - unknown_type E A C D)
     (:INIT (CLEAR D) (CLEAR C) (ONTABLE D) (ONTABLE A) (ON C E) (ON E B)
      (ON B A) (HANDEMPTY))
     (:goal (AND (ON A E) (ON E B) (ON B D) (ON D C)))
@@ -504,7 +504,7 @@ def test_problem_object_unkown_type():
     """
 
     with raises(SemanticError):
-        _parser.probInput = _problem_input_2
+        _parser.prob_input = _problem_input_2
         _problem = _parser.parse_problem(_domain, False)
 
 
@@ -518,7 +518,7 @@ def test_problem_object_multiple():
     )
     """
     with raises(SemanticError):
-        _parser.probInput = _problem_input_2
+        _parser.prob_input = _problem_input_2
         _problem = _parser.parse_problem(_domain, False)
 
 
@@ -532,7 +532,7 @@ def test_problem_object_multiple_2():
     )
     """
     with raises(SemanticError):
-        _parser.probInput = _problem_input_2
+        _parser.prob_input = _problem_input_2
         _problem = _parser.parse_problem(_domain, False)
 
 
@@ -546,7 +546,7 @@ def test_problem_goal_unknown_predicate():
     )
     """
     with raises(SemanticError):
-        _parser.probInput = _problem_input_2
+        _parser.prob_input = _problem_input_2
         _problem = _parser.parse_problem(_domain, False)
 
 
@@ -560,7 +560,7 @@ def test_problem_goal_predicate_signature():
     )
     """
     with raises(SemanticError):
-        _parser.probInput = _problem_input_2
+        _parser.prob_input = _problem_input_2
         _problem = _parser.parse_problem(_domain, False)
 
 
@@ -574,7 +574,7 @@ def test_problem_goal_cnf():
     )
     """
     with raises(SemanticError):
-        _parser.probInput = _problem_input_2
+        _parser.prob_input = _problem_input_2
         _problem = _parser.parse_problem(_domain, False)
 
 
@@ -587,5 +587,5 @@ def test_problem_goal_single_predicate():
     (:goal (ON A E))
     )
     """
-    _parser.probInput = _problem_input_2
+    _parser.prob_input = _problem_input_2
     _problem = _parser.parse_problem(_domain, False)

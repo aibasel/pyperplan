@@ -42,16 +42,16 @@ class Visitable:
 
     def __init__(self, vname=None):
         # ``vname`` is the name of the visitor callback to call for this node.
-        self._visitorName = vname
+        self._visitor_name = vname
 
     def accept(self, visitor):
-        if self._visitorName is None:
+        if self._visitor_name is None:
             raise ValueError("Error: visit method of uninitialized visitor called!")
         # Get the appropriate method of the visitor instance and call it.
-        m = getattr(visitor, self._visitorName)
+        m = getattr(visitor, self._visitor_name)
         if not callable(m):
             raise ValueError(
-                f"Error: cannot call undefined method: {self._visitorName} on visitor"
+                f"Error: cannot call undefined method: {self._visitor_name} on visitor"
             )
         m(self)
 
@@ -143,20 +143,20 @@ class TraversePDDLDomain(PDDLVisitor):
 
     def get_in(self, node):
         """Return the information stored for ``node`` during traversal."""
-        return self._nodeHash[node]
+        return self._node_hash[node]
 
     def set_in(self, node, val):
         """Store ``val`` as the information for ``node`` during traversal."""
-        self._nodeHash[node] = val
+        self._node_hash[node] = val
 
     def __init__(self):
         self._types = {}
         self._predicates = {}
-        self._nodeHash = {}
+        self._node_hash = {}
         self._requirements = set()
         self._actions = {}
         self.domain = None
-        self._objectType = pddl.Type("object", None)
+        self._object_type = pddl.Type("object", None)
         self._constants = {}
 
     def visit_domain_def(self, node):
@@ -178,7 +178,7 @@ class TraversePDDLDomain(PDDLVisitor):
         # Add the default object type to the type definitions,
         # if it was not explicitly created.
         if not explicit_object_def:
-            self._types["object"] = self._objectType
+            self._types["object"] = self._object_type
 
         # Link all types to their parent types directly.
         for t in self._types.values():
@@ -216,7 +216,7 @@ class TraversePDDLDomain(PDDLVisitor):
 
     def visit_object(self, node):
         """Visits a PDDL object definition."""
-        type_name = node.typeName
+        type_name = node.type_name
         if type_name is None:
             type_name = "object"
         if type_name not in self._types:
@@ -431,31 +431,31 @@ class TraversePDDLProblem(PDDLVisitor):
 
     def get_in(self, node):
         """Return the information stored for ``node`` during traversal."""
-        return self._nodeHash[node]
+        return self._node_hash[node]
 
     def set_in(self, node, val):
         """Store ``val`` as the information for ``node`` during traversal."""
-        self._nodeHash[node] = val
+        self._node_hash[node] = val
 
     def get_problem(self):
         """Getter for the resulting pddl-problem data structure."""
-        return self._problemDef
+        return self._problem_def
 
     def __init__(self, domain):
         # ``domain`` is the corresponding pddl.Domain data structure.
         self._domain = domain
-        self._nodeHash = {}
+        self._node_hash = {}
         self._objects = {}
-        self._problemDef = None
+        self._problem_def = None
 
     def visit_problem_def(self, node):
         """Visits a PDDL-problem definition."""
         # Check whether the domain name referenced in the problem file matches
         # the supplied domain data structure.
-        if node.domainName != self._domain.name:
+        if node.domain_name != self._domain.name:
             raise SemanticError(
                 f"Error trying to parse problem file with domain: "
-                f"{node.domainName} together with a domain file that "
+                f"{node.domain_name} together with a domain file that "
                 f"specifies domain: {self._domain.name}"
             )
         # Apply to all object definitions.
@@ -471,7 +471,7 @@ class TraversePDDLProblem(PDDLVisitor):
         goal_list = self.get_in(node.goal)
 
         # Create the problem data structure.
-        self._problemDef = pddl.Problem(
+        self._problem_def = pddl.Problem(
             node.name, self._domain, self._objects, init_list, goal_list
         )
 
@@ -483,15 +483,15 @@ class TraversePDDLProblem(PDDLVisitor):
                 f"Error multiple defines of object with name {node.name}"
             )
         # Untyped objects get the standard type 'object'.
-        if node.typeName is None:
+        if node.type_name is None:
             type_def = self._domain.types["object"]
         else:
             # Check whether the used type was introduced in the domain file.
-            if node.typeName not in self._domain.types:
+            if node.type_name not in self._domain.types:
                 raise SemanticError(
-                    f"Error: unknown type {node.typeName} used in object definition!"
+                    f"Error: unknown type {node.type_name} used in object definition!"
                 )
-            type_def = self._domain.types[node.typeName]
+            type_def = self._domain.types[node.type_name]
         self._objects[node.name] = type_def
 
     def visit_init_stmt(self, node):
