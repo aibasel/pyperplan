@@ -161,7 +161,7 @@ class TraversePDDLDomain(PDDLVisitor):
 
     def visit_domain_def(self, node):
         """Visits a PDDL domain definition."""
-        explicitObjectDef = False
+        explicit_object_def = False
 
         # Requirements statement is optional.
         if node.requirements:
@@ -171,13 +171,13 @@ class TraversePDDLDomain(PDDLVisitor):
         if node.types is not None:
             for t in node.types:
                 if t.name == "object":
-                    explicitObjectDef = True
+                    explicit_object_def = True
                 t.accept(self)
-                type = self.get_in(t)
-                self._types[type.name] = type
+                type_def = self.get_in(t)
+                self._types[type_def.name] = type_def
         # Add the default object type to the type definitions,
         # if it was not explicitly created.
-        if not explicitObjectDef:
+        if not explicit_object_def:
             self._types["object"] = self._objectType
 
         # Link all types to their parent types directly.
@@ -244,9 +244,9 @@ class TraversePDDLDomain(PDDLVisitor):
         # Visit all requirement keywords...
         for k in node.keywords:
             k.accept(self)
-            requirementName = self.get_in(k)
+            requirement_name = self.get_in(k)
             # ... and add them to the requirement list.
-            self._requirements.add(requirementName)
+            self._requirements.add(requirement_name)
 
     def visit_keyword(self, node):
         """Visits a PDDL keyword."""
@@ -319,10 +319,10 @@ class TraversePDDLDomain(PDDLVisitor):
         """Add the precondition described by formula ``c`` to the ``precond`` list."""
         from .parser import Variable
 
-        predDef = self._predicates[c.key]
+        predicate_def = self._predicates[c.key]
         signature = []
         # Check for correct number of arguments.
-        if len(c.children) != len(predDef.signature):
+        if len(c.children) != len(predicate_def.signature):
             raise SemanticError(
                 f"Error: wrong number of arguments for predicate {c.key} "
                 "in precondition of action"
@@ -330,7 +330,7 @@ class TraversePDDLDomain(PDDLVisitor):
         # Apply to all arguments.
         for count, v in enumerate(c.children):
             name = v.key.name if isinstance(v.key, Variable) else v.key
-            signature.append((name, predDef.signature[count][1]))
+            signature.append((name, predicate_def.signature[count][1]))
 
         # Add predicate to precondition list.
         precond.append(pddl.Predicate(c.key, signature))
@@ -369,43 +369,44 @@ class TraversePDDLDomain(PDDLVisitor):
         """
         from .parser import Variable  # Imported here to avoid a cyclic import.
 
-        nextPredicate = None
-        isNegative = False
+        next_predicate = None
+        is_negative = False
         if c.key == "not":
             # This is a negative effect, only one child allowed.
             if len(c.children) != 1:
                 raise SemanticError(
                     "Error not statement with multiple children in effect of action"
                 )
-            nextPredicate = c.children[0]
-            isNegative = True
+            next_predicate = c.children[0]
+            is_negative = True
         else:
-            nextPredicate = c
+            next_predicate = c
         # Check whether predicate was defined previously.
-        if nextPredicate.key not in self._predicates:
+        if next_predicate.key not in self._predicates:
             raise SemanticError(
-                f"Error: unknown predicate {nextPredicate.key} used in effect of action"
+                f"Error: unknown predicate {next_predicate.key} "
+                "used in effect of action"
             )
-        if nextPredicate is None:
+        if next_predicate is None:
             raise SemanticError("Error: NoneType predicate used in effect of action")
-        predDef = self._predicates[nextPredicate.key]
+        predicate_def = self._predicates[next_predicate.key]
         signature = []
         # Check whether predicate is used with the correct signature.
-        if len(nextPredicate.children) != len(predDef.signature):
+        if len(next_predicate.children) != len(predicate_def.signature):
             raise SemanticError(
                 f"Error: wrong number of arguments for predicate "
-                f"{nextPredicate.key} in effect of action"
+                f"{next_predicate.key} in effect of action"
             )
         # Apply to all parameters.
-        for count, v in enumerate(nextPredicate.children):
+        for count, v in enumerate(next_predicate.children):
             name = v.key.name if isinstance(v.key, Variable) else v.key
-            signature.append((name, predDef.signature[count][1]))
+            signature.append((name, predicate_def.signature[count][1]))
 
         # Add a new effect to the positive or negative effects respectively.
-        if isNegative:
-            effect.dellist.add(pddl.Predicate(nextPredicate.key, signature))
+        if is_negative:
+            effect.dellist.add(pddl.Predicate(next_predicate.key, signature))
         else:
-            effect.addlist.add(pddl.Predicate(nextPredicate.key, signature))
+            effect.addlist.add(pddl.Predicate(next_predicate.key, signature))
 
     def visit_effect_stmt(self, node):
         """Visits a PDDL effect statement."""
@@ -495,12 +496,12 @@ class TraversePDDLProblem(PDDLVisitor):
 
     def visit_init_stmt(self, node):
         """Visits a PDDL-problem initial state statement."""
-        initList = []
+        init_list = []
         # Apply to all predicates in the statement.
         for p in node.predicates:
             p.accept(self)
-            initList.append(self.get_in(p))
-        self.set_in(node, initList)
+            init_list.append(self.get_in(p))
+        self.set_in(node, init_list)
 
     def add_goal(self, goal, c):
         """Add the goal described by formula ``c`` to the ``goal`` list."""
@@ -508,15 +509,15 @@ class TraversePDDLProblem(PDDLVisitor):
         if c.key not in self._domain.predicates:
             raise SemanticError(f"Error: unknown predicate {c.key} in goal definition")
         # Get predicate from the domain data structure.
-        predDef = self._domain.predicates[c.key]
+        predicate_def = self._domain.predicates[c.key]
         signature = []
         # Check whether the predicate uses the correct signature.
-        if len(c.children) != len(predDef.signature):
+        if len(c.children) != len(predicate_def.signature):
             raise SemanticError(
                 f"Error: wrong number of arguments for predicate {c.key} in goal"
             )
         for count, v in enumerate(c.children):
-            signature.append((v.key, predDef.signature[count][1]))
+            signature.append((v.key, predicate_def.signature[count][1]))
         # Add the predicate to the goal.
         goal.append(pddl.Predicate(c.key, signature))
 
