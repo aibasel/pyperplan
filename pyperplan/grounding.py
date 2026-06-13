@@ -121,10 +121,8 @@ def _relevance_analysis(operators, goals):
                 relevant_facts |= op.preconditions
         changed = old_relevant_facts != relevant_facts
 
-    pruned_facts = set()
     relevant_operators = []
     for op in operators:
-        pruned_facts |= (op.add_effects | op.del_effects) - relevant_facts
         op.add_effects &= relevant_facts
         op.del_effects &= relevant_facts
         if op.add_effects or op.del_effects:
@@ -132,7 +130,6 @@ def _relevance_analysis(operators, goals):
         elif verbose_logging:
             logging.debug(f"Relevance analysis removed operator {op.name}")
 
-    logging.info(f"Relevance analysis removed {len(pruned_facts)} facts")
     return relevant_operators
 
 
