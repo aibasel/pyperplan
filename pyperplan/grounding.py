@@ -22,7 +22,6 @@ task.
 
 import itertools
 import logging
-import re
 from collections import defaultdict
 
 from .task import Operator, Task
@@ -134,25 +133,20 @@ def _relevance_analysis(operators, goals):
 
 
 def _get_statics(predicates, actions):
+    """Determine the static predicates and return their names as a set.
+
+    Knowing the statics lets us avoid grounding actions whose static
+    preconditions are violated. A predicate is static if it does not occur in
+    any action's effects.
+
+    Returning a set keeps the ``in statics`` checks during grounding O(1).
     """
-    Determine all static predicates and return them as a list.
-
-    We want to know the statics to avoid grounded actions with static
-    preconditions violated. A static predicate is a predicate which
-    doesn't occur in an effect of an action.
-    """
-
-    def get_effects(action):
-        return action.effect.addlist | action.effect.dellist
-
-    effects = [get_effects(action) for action in actions]
-    effects = set(itertools.chain(*effects))
-
-    def static(predicate):
-        return not any(predicate.name == eff.name for eff in effects)
-
-    statics = [pred.name for pred in predicates if static(pred)]
-    return statics
+    effect_names = {
+        effect.name
+        for action in actions
+        for effect in action.effect.addlist | action.effect.dellist
+    }
+    return {pred.name for pred in predicates if pred.name not in effect_names}
 
 
 def _create_type_map(objects):
@@ -184,7 +178,7 @@ def _collect_facts(operators):
     """
     facts = set()
     for op in operators:
-        facts |= op.preconditions | op.add_effects | op.del_effects
+        facts.update(op.preconditions, op.add_effects, op.del_effects)
     return facts
 
 
@@ -195,27 +189,35 @@ def _ground_actions(actions, type_map, statics, init):
     statics: Names of the static predicates.
     init: Grounded initial state.
     """
-    op_lists = [_ground_action(action, type_map, statics, init) for action in actions]
+    init_index = _index_init(init)
+    op_lists = [
+        _ground_action(action, type_map, statics, init, init_index)
+        for action in actions
+    ]
     return list(itertools.chain(*op_lists))
 
 
-def _find_pred_in_init(pred_name, param, sig_pos, init):
-    """Check whether the initial state contains the predicate ``pred_name``
-    instantiated with ``param`` at signature position ``sig_pos``.
+def _index_init(init):
+    """Index the initial state by ``(predicate, argument position, object)``.
 
-    Useful to evaluate static preconditions efficiently.
+    Static-precondition analysis can then check in constant time whether the
+    initial state contains a given predicate with a given object at a given
+    argument position, instead of scanning all facts for each query.
     """
-    if sig_pos == 0:
-        regex = re.compile(rf"\({pred_name} {param}.*")
-    else:
-        prefix = r"[\w\d-]+\s+" * sig_pos
-        regex = re.compile(rf"\({pred_name}\s+{prefix}{param}.*")
-    return any(regex.match(string) for string in init)
+    index = set()
+    for fact in init:
+        # A grounded fact looks like "(predicate obj0 obj1 ...)".
+        name, *args = fact[1:-1].split()
+        for position, obj in enumerate(args):
+            index.add((name, position, obj))
+    return index
 
 
-def _ground_action(action, type_map, statics, init):
+def _ground_action(action, type_map, statics, init, init_index=None):
     """Ground ``action`` and return the resulting list of operators."""
     logging.debug(f"Grounding {action.name}")
+    if init_index is None:
+        init_index = _index_init(init)
     param_to_objects = {}
 
     for param_name, param_types in action.signature:
@@ -236,11 +238,7 @@ def _ground_action(action, type_map, statics, init):
                     sig_pos = pos
             if sig_pos != -1:
                 # Keep only objects for which an instantiation exists in init.
-                valid = {
-                    o
-                    for o in objects
-                    if _find_pred_in_init(pred.name, o, sig_pos, init)
-                }
+                valid = {o for o in objects if (pred.name, sig_pos, o) in init_index}
                 removed_objects += len(objects) - len(valid)
                 objects.intersection_update(valid)
     if verbose_logging:

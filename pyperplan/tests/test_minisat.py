@@ -13,6 +13,51 @@ def get_long_formula(len):
     return (formula, result)
 
 
+def test_cnf_writer(tmp_path, monkeypatch):
+    """Characterize CnfWriter.write so refactors stay behavior-preserving.
+
+    Exercises a bare literal, single- and multi-literal conjunctions (which are
+    collapsed via auxiliary AND variables), and an iff literal (which adds its
+    own auxiliary clauses). Does not require minisat.
+    """
+    monkeypatch.chdir(tmp_path)
+    formula = [
+        "lit0",
+        [["a", "b", "c"], ["d"]],
+        [["x<->y", "e"]],
+    ]
+    mapping = minisat.CnfWriter().write(formula)
+    assert mapping == {
+        "lit0": 1,
+        "a": 3,
+        "b": 4,
+        "c": 6,
+        "d": 7,
+        "x": 9,
+        "y": 10,
+        "e": 12,
+    }
+    cnf = (tmp_path / minisat.INPUT).read_text()
+    assert cnf == (
+        "1 0\n"
+        "-2 3 0\n"
+        "-2 4 0\n"
+        "-3 -4 2 0\n"
+        "-5 2 0\n"
+        "-5 6 0\n"
+        "-2 -6 5 0\n"
+        "5 7 0\n"
+        "8 9 10 0\n"
+        "8 -9 -10 0\n"
+        "-8 9 -10 0\n"
+        "-8 -9 10 0\n"
+        "-11 8 0\n"
+        "-11 12 0\n"
+        "-8 -12 11 0\n"
+        "11 0\n"
+    )
+
+
 @pytest.mark.skipif(not minisat.minisat_available(), reason="minisat missing")
 @pytest.mark.parametrize(
     "formula,expected",

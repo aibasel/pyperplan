@@ -91,8 +91,7 @@ class CnfWriter:
         # We omit the number of variables and clauses because we don't know
         # those when we start writing the file.
         with open(INPUT, "w") as self.cnf_file:
-            while formula:
-                disj = formula.pop(0)
+            for disj in formula:
                 if not isinstance(disj, list):
                     self._print_clause([disj])
                     continue
@@ -106,16 +105,15 @@ class CnfWriter:
                         if "<->" in literal and literal not in aux_iff_vars:
                             self._print_clauses(self._get_aux_clauses_for_iff(literal))
                             aux_iff_vars.add(literal)
-                    # Collapse the conjunction into one literal, adding the
-                    # corresponding auxiliary clauses.
-                    while len(conj) > 1:
-                        var1 = conj.pop(0)
-                        var2 = conj.pop(0)
-                        aux_var, clauses = self._get_aux_clauses_for_and(var1, var2)
-                        conj.insert(0, aux_var)
+                    # Collapse the conjunction into a single literal by chaining
+                    # auxiliary AND variables, emitting the matching clauses.
+                    literal = conj[0]
+                    for next_literal in conj[1:]:
+                        literal, clauses = self._get_aux_clauses_for_and(
+                            literal, next_literal
+                        )
                         self._print_clauses(clauses)
-                    assert len(conj) == 1, conj
-                    new_clause.append(conj[0])
+                    new_clause.append(literal)
                 self._print_clause(new_clause)
 
         for key in list(self.vars_to_numbers):
