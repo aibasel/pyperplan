@@ -127,11 +127,19 @@ class SuccessorGenerator:
         stack = [self._root]
         while stack:
             node = stack.pop()
-            found.extend(node.immediate)
-            if node.fact is not None:
-                stack.append(node.no_match_child)
-                if node.fact in state:
+            # The no-match child is always visited, so we follow that spine in a
+            # tight loop and only push the match child (taken when the fact is
+            # true) onto the stack. This keeps the stack small and avoids a
+            # pop/append pair for every node on the spine.
+            while node is not None:
+                if node.immediate:
+                    found.extend(node.immediate)
+                fact = node.fact
+                if fact is None:
+                    break
+                if fact in state:
                     stack.append(node.match_child)
+                node = node.no_match_child
         found.sort(key=lambda pair: pair[0])
         return [op for _, op in found]
 
