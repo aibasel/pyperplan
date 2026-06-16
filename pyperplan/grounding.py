@@ -112,13 +112,20 @@ def _relevance_analysis(operators, goals):
     are removed, and operators left without any effect are pruned entirely.
     """
     relevant_facts = set(goals)
-    changed = True
-    while changed:
-        old_relevant_facts = relevant_facts.copy()
+    # Iterate to a fixpoint: an operator with a relevant effect makes its
+    # preconditions relevant too. relevant_facts only grows, so a pass that adds
+    # nothing means we have reached the fixpoint.
+    while True:
+        size_before = len(relevant_facts)
         for op in operators:
-            if (op.add_effects | op.del_effects) & relevant_facts:
+            has_relevant_effect = not (
+                relevant_facts.isdisjoint(op.add_effects)
+                and relevant_facts.isdisjoint(op.del_effects)
+            )
+            if has_relevant_effect:
                 relevant_facts |= op.preconditions
-        changed = old_relevant_facts != relevant_facts
+        if len(relevant_facts) == size_before:
+            break
 
     relevant_operators = []
     for op in operators:

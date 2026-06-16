@@ -111,7 +111,7 @@ class _RelaxationHeuristic(Heuristic):
 
     def __call__(self, node):
         """Compute the heuristic value for the state stored in ``node``."""
-        state = set(node.state)
+        state = node.state
 
         # Reset distance and set to default values.
         self.init_distance(state)
@@ -169,9 +169,7 @@ class _RelaxationHeuristic(Heuristic):
         """
         if operator.preconditions:
             # Sum / maximize over the heuristic values of all preconditions.
-            cost = self.eval(
-                [self.facts[pre].distance for pre in operator.preconditions]
-            )
+            cost = self.eval(self.facts[pre].distance for pre in operator.preconditions)
         else:
             # An operator without preconditions has cost 0.
             cost = 0
@@ -187,7 +185,7 @@ class _RelaxationHeuristic(Heuristic):
         hSA and hFF. Returns 0 if the goal is empty.
         """
         if self.goals:
-            return self.eval([self.facts[fact].distance for fact in self.goals])
+            return self.eval(self.facts[fact].distance for fact in self.goals)
         else:
             return 0
 
@@ -328,7 +326,7 @@ class hFFHeuristic(_RelaxationHeuristic):
 
     def calc_h_with_plan(self, node):
         """Calculate the hFF value together with a relaxed plan."""
-        state = set(node.state)
+        state = node.state
         # Reset distance and set to default values.
         self.init_distance(state)
 
