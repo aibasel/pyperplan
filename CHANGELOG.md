@@ -1,5 +1,6 @@
 # 2.2 (unreleased)
 
+* Find applicable operators with a Fast Downward-style successor generator instead of scanning all operators.
 * Support Python 3.10 to 3.14 and PyPy. Raise the minimum Python version to 3.10.
 * Add a `dev` dependency group and run continuous integration tests with uv.
 * Enable ruff's pyupgrade (`UP`) rules to keep the code on modern Python syntax.
