@@ -22,11 +22,19 @@ import re
 import subprocess
 import sys
 import time
+from collections.abc import Callable
 
-from . import grounding, heuristics, search, tools
+from . import grounding, search, tools
+from .heuristics.heuristic_base import Heuristic
+from .heuristics.relaxation import hFFHeuristic
 from .pddl.parser import Parser
+from .pddl.pddl import Problem
+from .task import Operator, Task
 
-SEARCHES = {
+# A search algorithm maps a task (plus optional heuristic/flags) to a plan.
+SearchAlgorithm = Callable[..., "list[Operator] | None"]
+
+SEARCHES: dict[str, SearchAlgorithm] = {
     "astar": search.astar_search,
     "wastar": search.weighted_astar_search,
     "gbfs": search.greedy_best_first_search,
@@ -40,12 +48,12 @@ SEARCHES = {
 NUMBER = re.compile(r"\d+")
 
 
-def get_heuristics():
+def get_heuristics() -> list[type[Heuristic]]:
     """
     Scan all Python modules in the "heuristics" directory for classes ending
     with "Heuristic".
     """
-    heuristics = []
+    heuristics: list[type[Heuristic]] = []
     src_dir = os.path.dirname(os.path.abspath(__file__))
     heuristics_dir = os.path.abspath(os.path.join(src_dir, "heuristics"))
     for filename in os.listdir(heuristics_dir):
@@ -63,20 +71,22 @@ def get_heuristics():
     return heuristics
 
 
-def _get_heuristic_name(cls):
+def _get_heuristic_name(cls: type[Heuristic]) -> str:
     name = cls.__name__
     assert name.endswith("Heuristic")
     return name[: -len("Heuristic")].lower()
 
 
-HEURISTICS = {_get_heuristic_name(heur): heur for heur in get_heuristics()}
+HEURISTICS: dict[str, type[Heuristic]] = {
+    _get_heuristic_name(heur): heur for heur in get_heuristics()
+}
 
 
-def validator_available():
+def validator_available() -> bool:
     return tools.command_available(["validate", "-h"])
 
 
-def find_domain(problem):
+def find_domain(problem: str) -> str:
     """Guess the domain file that belongs to ``problem``.
 
     By default we use a file called "domain.pddl" in the same directory as the
@@ -89,7 +99,9 @@ def find_domain(problem):
     ``problem`` is the path to a problem file. Returns the path to a domain file.
     """
     directory, name = os.path.split(problem)
-    number = NUMBER.search(name).group(0)
+    match = NUMBER.search(name)
+    assert match is not None
+    number = match.group(0)
     domain = os.path.join(directory, "domain.pddl")
     for file in os.listdir(directory):
         if "domain" in file and number in file:
@@ -102,7 +114,7 @@ def find_domain(problem):
     return domain
 
 
-def _parse(domain_file, problem_file):
+def _parse(domain_file: str, problem_file: str) -> Problem:
     parser = Parser(domain_file, problem_file)
     logging.info(f"Parsing Domain {domain_file}")
     domain = parser.parse_domain()
@@ -117,8 +129,10 @@ def _parse(domain_file, problem_file):
 
 
 def _ground(
-    problem, remove_statics_from_initial_state=True, remove_irrelevant_operators=True
-):
+    problem: Problem,
+    remove_statics_from_initial_state: bool = True,
+    remove_irrelevant_operators: bool = True,
+) -> Task:
     logging.info(f"Grounding start: {problem.name}")
     task = grounding.ground(
         problem, remove_statics_from_initial_state, remove_irrelevant_operators
@@ -129,7 +143,12 @@ def _ground(
     return task
 
 
-def _search(task, search, heuristic, use_preferred_ops=False):
+def _search(
+    task: Task,
+    search: SearchAlgorithm,
+    heuristic: Heuristic | None,
+    use_preferred_ops: bool = False,
+) -> list[Operator] | None:
     logging.info(f"Search start: {task.name}")
     if heuristic:
         if use_preferred_ops:
@@ -142,7 +161,7 @@ def _search(task, search, heuristic, use_preferred_ops=False):
     return solution
 
 
-def write_solution(solution, filename):
+def write_solution(solution: list[Operator] | None, filename: str) -> None:
     assert solution is not None
     with open(filename, "w") as file:
         for op in solution:
@@ -150,8 +169,12 @@ def write_solution(solution, filename):
 
 
 def search_plan(
-    domain_file, problem_file, search, heuristic_class, use_preferred_ops=False
-):
+    domain_file: str,
+    problem_file: str,
+    search: SearchAlgorithm,
+    heuristic_class: type[Heuristic] | None,
+    use_preferred_ops: bool = False,
+) -> list[Operator] | None:
     """Parse the input files into a planning task and search for a solution.
 
     domain_file: The path to a domain file.
@@ -167,11 +190,11 @@ def search_plan(
     overall_start_time = time.process_time()
     problem = _parse(domain_file, problem_file)
     task = _ground(problem)
-    heuristic = None
+    heuristic: Heuristic | None = None
     if heuristic_class is not None:
         heuristic = heuristic_class(task)
     search_start_time = time.process_time()
-    if use_preferred_ops and isinstance(heuristic, heuristics.hFFHeuristic):
+    if use_preferred_ops and isinstance(heuristic, hFFHeuristic):
         solution = _search(task, search, heuristic, use_preferred_ops=True)
     else:
         solution = _search(task, search, heuristic)
@@ -180,12 +203,14 @@ def search_plan(
     return solution
 
 
-def validate_solution(domain_file, problem_file, solution_file):
+def validate_solution(
+    domain_file: str, problem_file: str, solution_file: str
+) -> bool | None:
     if not validator_available():
         logging.info(
             "validate could not be found on the PATH so the plan can not be validated."
         )
-        return
+        return None
 
     cmd = ["validate", domain_file, problem_file, solution_file]
     exitcode = subprocess.call(cmd, stdout=subprocess.PIPE)

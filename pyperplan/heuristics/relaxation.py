@@ -18,8 +18,15 @@
 """The relaxation heuristics hAdd, hMax, hSA and hFF."""
 
 import heapq
+from collections.abc import Callable, Iterable
+from typing import Any
 
+from ..search.searchspace import SearchNode
+from ..task import State, Task
 from .heuristic_base import Heuristic
+
+# A heap entry pairs a fact's distance with a tiebreaker and the fact itself.
+Heap = list[tuple[float, int, "RelaxedFact"]]
 
 
 class RelaxedFact:
@@ -37,13 +44,13 @@ class RelaxedFact:
             (only for hFF).
     """
 
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self.name = name
-        self.precondition_of = []
+        self.precondition_of: list[RelaxedOperator] = []
         self.expanded = False
-        self.sa_set = None
-        self.cheapest_achiever = None
-        self.distance = float("inf")
+        self.sa_set: set[str] | None = None
+        self.cheapest_achiever: RelaxedOperator | None = None
+        self.distance: float = float("inf")
 
 
 class RelaxedOperator:
@@ -58,11 +65,11 @@ class RelaxedOperator:
             applicable once it reaches zero.
     """
 
-    def __init__(self, name, preconditions, add_effects):
+    def __init__(self, name: str, preconditions: State, add_effects: State) -> None:
         self.name = name
         self.preconditions = preconditions
         self.add_effects = add_effects
-        self.cost = 1
+        self.cost = 1.0
         self.counter = len(preconditions)
 
 
@@ -81,11 +88,15 @@ class _RelaxationHeuristic(Heuristic):
         eval: A function used to evaluate the cost of applying an operator.
     """
 
-    def __init__(self, task):
-        self.facts = {}
-        self.operators = []
-        self.goals = task.goals
-        self.init = task.initial_state
+    # ``eval`` aggregates precondition distances (sum for hAdd/hFF, max for
+    # hMax); set by the subclasses.
+    eval: Callable[[Iterable[float]], float]
+
+    def __init__(self, task: Task) -> None:
+        self.facts: dict[str, RelaxedFact] = {}
+        self.operators: list[RelaxedOperator] = []
+        self.goals: State = task.goals
+        self.init: State = task.initial_state
         self.tie_breaker = 0
         self.start_state = RelaxedFact("start")
 
@@ -109,7 +120,7 @@ class _RelaxationHeuristic(Heuristic):
                 # also helps when the initial state is empty.
                 self.start_state.precondition_of.append(ro)
 
-    def __call__(self, node):
+    def __call__(self, node: SearchNode) -> float:
         """Compute the heuristic value for the state stored in ``node``."""
         state = node.state
 
@@ -117,7 +128,7 @@ class _RelaxationHeuristic(Heuristic):
         self.init_distance(state)
 
         # Construct the priority queue.
-        heap = []
+        heap: Heap = []
         # Add a dedicated start state, to cope with operators without
         # preconditions and empty initial state.
         heapq.heappush(heap, (0, self.tie_breaker, self.start_state))
@@ -137,14 +148,14 @@ class _RelaxationHeuristic(Heuristic):
         # Extract the goal heuristic.
         return self.calc_goal_h()
 
-    def init_distance(self, state):
+    def init_distance(self, state: State) -> None:
         """Reset all state that has to be recomputed for each heuristic call."""
 
-        def reset_fact(fact):
+        def reset_fact(fact: RelaxedFact) -> None:
             fact.expanded = False
             fact.cheapest_achiever = None
             if fact.name in state:
-                fact.distance = 0
+                fact.distance = 0.0
                 fact.sa_set = set()
             else:
                 fact.sa_set = None
@@ -161,7 +172,9 @@ class _RelaxationHeuristic(Heuristic):
         for operator in self.operators:
             operator.counter = len(operator.preconditions)
 
-    def get_cost(self, operator, pre):
+    def get_cost(
+        self, operator: RelaxedOperator, pre: RelaxedFact
+    ) -> tuple[set[str] | None, float]:
         """Calculate the cost of applying ``operator``.
 
         For hMax and hAdd nothing has to change here apart from the ``eval``
@@ -172,13 +185,13 @@ class _RelaxationHeuristic(Heuristic):
             cost = self.eval(self.facts[pre].distance for pre in operator.preconditions)
         else:
             # An operator without preconditions has cost 0.
-            cost = 0
+            cost = 0.0
 
         # The return value is a tuple because hSA returns the unioned set
         # instead of None.
         return None, cost + operator.cost
 
-    def calc_goal_h(self):
+    def calc_goal_h(self) -> float:
         """Calculate the heuristic value of the whole goal.
 
         Like ``get_cost``, this uses the ``eval`` function and is overridden for
@@ -189,21 +202,21 @@ class _RelaxationHeuristic(Heuristic):
         else:
             return 0
 
-    def finished(self, achieved_goals, queue):
+    def finished(self, achieved_goals: set[str], queue: Heap) -> bool:
         """Return the stopping criterion for the Dijkstra search.
 
         The criterion differs between heuristics.
         """
         return achieved_goals == self.goals or not queue
 
-    def dijkstra(self, queue):
+    def dijkstra(self, queue: Heap) -> None:
         """Perform the Dijkstra forward pass.
 
         For efficiency reasons, this is used instead of an explicit graph
         representation of the problem.
         """
         # Stores the achieved subgoals. Needed for abortion criterion of hMax.
-        achieved_goals = set()
+        achieved_goals: set[str] = set()
         while not self.finished(achieved_goals, queue):
             # Get the fact with the lowest heuristic value.
             (_dist, _tie, fact) = heapq.heappop(queue)
@@ -243,7 +256,7 @@ class _RelaxationHeuristic(Heuristic):
 class hAddHeuristic(_RelaxationHeuristic):
     """The hAdd heuristic, which sums over the precondition costs."""
 
-    def __init__(self, task):
+    def __init__(self, task: Task) -> None:
         # hAdd is the base heuristic with ``eval`` set to sum().
         super().__init__(task)
         self.eval = sum
@@ -252,7 +265,7 @@ class hAddHeuristic(_RelaxationHeuristic):
 class hMaxHeuristic(_RelaxationHeuristic):
     """The hMax heuristic, which maximizes over the precondition costs."""
 
-    def __init__(self, task):
+    def __init__(self, task: Task) -> None:
         # hMax is the base heuristic with ``eval`` set to max().
         super().__init__(task)
         self.eval = max
@@ -261,7 +274,9 @@ class hMaxHeuristic(_RelaxationHeuristic):
 class hSAHeuristic(_RelaxationHeuristic):
     """The hSA (set-additive) heuristic."""
 
-    def get_cost(self, operator, pre):
+    def get_cost(
+        self, operator: RelaxedOperator, pre: RelaxedFact
+    ) -> tuple[set[str] | None, float]:
         """Calculate the cost of applying ``operator``.
 
         hSA relies not only on a real-valued distance but also on the set of
@@ -269,17 +284,14 @@ class hSAHeuristic(_RelaxationHeuristic):
         """
         # Initialize.
         cost = 0
-        if pre.sa_set is None:
-            unioned_sets = set()
-        else:
-            unioned_sets = pre.sa_set
+        unioned_sets: set[str] = set() if pre.sa_set is None else pre.sa_set
 
         if operator.preconditions:
             # Collect the sa-sets from all preconditions in a list.
             sa_sets = [
-                self.facts[pre].sa_set
+                s
                 for pre in operator.preconditions
-                if self.facts[pre].sa_set is not None
+                if (s := self.facts[pre].sa_set) is not None
             ]
             if sa_sets:
                 # Union all these sets.
@@ -293,7 +305,7 @@ class hSAHeuristic(_RelaxationHeuristic):
         unioned_sets.add(operator.name)
         return (unioned_sets, cost + operator.cost)
 
-    def calc_goal_h(self):
+    def calc_goal_h(self) -> float:
         """Calculate the heuristic value of the whole goal.
 
         hSA relies not only on a real-valued distance but also on the set of
@@ -303,9 +315,7 @@ class hSAHeuristic(_RelaxationHeuristic):
         if self.goals:
             # Collect the sa-sets of all facts that are part of the goal.
             sa_sets = [
-                self.facts[fact].sa_set
-                for fact in self.goals
-                if self.facts[fact].sa_set is not None
+                s for fact in self.goals if (s := self.facts[fact].sa_set) is not None
             ]
             # All subgoals fulfilled? Then the heuristic value is the size of
             # the union of their sa-sets; otherwise the goal is unreachable.
@@ -320,18 +330,18 @@ class hSAHeuristic(_RelaxationHeuristic):
 class hFFHeuristic(_RelaxationHeuristic):
     """The hFF (FF) heuristic, which uses the same forward pass as hAdd."""
 
-    def __init__(self, task):
+    def __init__(self, task: Task) -> None:
         super().__init__(task)
         self.eval = sum
 
-    def calc_h_with_plan(self, node):
+    def calc_h_with_plan(self, node: SearchNode) -> tuple[float, set[str] | None]:
         """Calculate the hFF value together with a relaxed plan."""
         state = node.state
         # Reset distance and set to default values.
         self.init_distance(state)
 
         # Construct the priority queue.
-        heap = []
+        heap: Heap = []
         for fact in state:
             # The order is determined by the distance of the facts.
             # As a tie breaker we use a simple counter.
@@ -344,16 +354,16 @@ class hFFHeuristic(_RelaxationHeuristic):
         self.dijkstra(heap)
         return self.calc_goal_h(return_relaxed_plan=True)
 
-    def calc_goal_h(self, return_relaxed_plan=False):
+    def calc_goal_h(self, return_relaxed_plan: bool = False) -> Any:
         """Calculate the heuristic value, which for hFF needs a backward pass."""
-        relaxed_plan = set()
+        relaxed_plan: set[str] = set()
         # Check whether we achieved all subgoals.
         hAdd_value = self.eval([self.facts[fact].distance for fact in self.goals])
 
         if hAdd_value < float("inf"):
             # Initialize a queue and push all goal nodes.
-            q = []
-            closed_list = set()
+            q: list[RelaxedFact] = []
+            closed_list: set[str] = set()
             for g in self.goals:
                 q.append(self.facts[g])
                 closed_list.add(g)

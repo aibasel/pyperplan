@@ -20,10 +20,12 @@
 import logging
 from collections import deque
 
+from ..task import Operator, State, Task
 from . import searchspace
+from .searchspace import SearchNode
 
 
-def breadth_first_search(planning_task):
+def breadth_first_search(planning_task: Task) -> list[Operator] | None:
     """Search for a plan on the given task using breadth-first search.
 
     Duplicate states are detected and skipped. Returns the solution as a list of
@@ -31,10 +33,10 @@ def breadth_first_search(planning_task):
     """
     iteration = 0  # Number of expanded nodes (only used for logging).
     # FIFO queue storing the nodes that are next to explore.
-    queue = deque()
+    queue: deque[SearchNode] = deque()
     queue.append(searchspace.make_root_node(planning_task.initial_state))
     # Set of explored states, used for duplicate detection.
-    closed = {planning_task.initial_state}
+    closed: set[State] = {planning_task.initial_state}
     while queue:
         iteration += 1
         logging.debug(

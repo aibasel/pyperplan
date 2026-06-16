@@ -15,7 +15,7 @@ def test_relaxation_heuristic_constructor():
 
     init = frozenset(["A"])
     goals = frozenset(["C"])
-    task = Task("task1", {"A", "B", "C"}, init, goals, [op1, op2])
+    task = Task("task1", frozenset({"A", "B", "C"}), init, goals, [op1, op2])
 
     rh = hAddHeuristic(task)
     rop1 = RelaxedOperator(op1.name, ["A"], ["B"])
@@ -28,9 +28,9 @@ def test_relaxation_heuristic_constructor():
 # simple task: two operators have to be applied
 task1 = Task(
     "task1",
-    {"A", "B", "C"},
-    ["A"],
-    ["C", "B"],
+    frozenset({"A", "B", "C"}),
+    frozenset(["A"]),
+    frozenset(["C", "B"]),
     [
         Operator("op1", {"A"}, {"B"}, set()),
         Operator("op2", {"B"}, {"C"}, set()),
@@ -41,36 +41,36 @@ task1 = Task(
 # initial state is part of the goal state: one operator has to be applied
 task2 = Task(
     "task2",
-    {"A", "B", "C"},
-    ["A", "B"],
-    ["B", "C"],
+    frozenset({"A", "B", "C"}),
+    frozenset(["A", "B"]),
+    frozenset(["B", "C"]),
     [Operator("op1", {"A"}, {"B"}, set()), Operator("op2", {"B"}, {"C"}, set())],
 )
 
 # task with one operator with two preconditions
 task3 = Task(
     "task3",
-    {"A", "B", "C"},
-    ["A", "B"],
-    ["C"],
+    frozenset({"A", "B", "C"}),
+    frozenset(["A", "B"]),
+    frozenset(["C"]),
     [Operator("op1", {"A", "B"}, {"C"}, set())],
 )
 
 # task with one operator with two effects
 task4 = Task(
     "task4",
-    {"A", "B", "C"},
-    ["A"],
-    ["C", "B"],
+    frozenset({"A", "B", "C"}),
+    frozenset(["A"]),
+    frozenset(["C", "B"]),
     [Operator("op1", {"A"}, {"B", "C"}, set())],
 )
 
 # task with one operator with equal precondition and effect,
 task4b = Task(
     "task4b",
-    {"A", "B", "C"},
-    ["A"],
-    ["C", "B"],
+    frozenset({"A", "B", "C"}),
+    frozenset(["A"]),
+    frozenset(["C", "B"]),
     [Operator("op1", {"A"}, {"A", "B", "C"}, set())],
 )
 
@@ -78,9 +78,9 @@ task4b = Task(
 # 2 operators have to be applied
 task5 = Task(
     "task5",
-    {"A", "B", "C", "D", "E", "F"},
-    ["A"],
-    ["E", "F"],
+    frozenset({"A", "B", "C", "D", "E", "F"}),
+    frozenset(["A"]),
+    frozenset(["E", "F"]),
     [
         Operator("op1", {"A"}, {"B", "C", "D", "E"}, set()),
         Operator("op2", {"C"}, {"F"}, set()),
@@ -90,9 +90,9 @@ task5 = Task(
 # task with one operator with several preconditions
 task6 = Task(
     "task6",
-    {"A", "B", "C", "D", "E"},
-    ["A"],
-    ["E"],
+    frozenset({"A", "B", "C", "D", "E"}),
+    frozenset(["A"]),
+    frozenset(["E"]),
     [
         Operator("op1", {"A"}, {"B"}, set()),
         Operator("op2", {"B"}, {"C"}, set()),
@@ -104,36 +104,36 @@ task6 = Task(
 # task with empty initial state: no operator can be applied
 task7 = Task(
     "task7",
-    {"A", "B", "C"},
-    [],
-    ["C"],
+    frozenset({"A", "B", "C"}),
+    frozenset(),
+    frozenset(["C"]),
     [Operator("op1", {"A"}, {"B"}, set()), Operator("op2", {"B"}, {"C"}, set())],
 )
 
 # task with initial state = goal state: no operator has to be applied
 task8 = Task(
     "task8",
-    {"A", "B", "C"},
-    ["C"],
-    ["C"],
+    frozenset({"A", "B", "C"}),
+    frozenset(["C"]),
+    frozenset(["C"]),
     [Operator("op1", {"A"}, {"B"}, set()), Operator("op2", {"B"}, {"C"}, set())],
 )
 
 # task with operator with empty precondition
 task9 = Task(
     "task9",
-    {"A", "B", "C"},
-    [],
-    ["C"],
-    [Operator("op1", {}, {"B"}, set()), Operator("op2", {"B"}, {"C"}, set())],
+    frozenset({"A", "B", "C"}),
+    frozenset(),
+    frozenset(["C"]),
+    [Operator("op1", set(), {"B"}, set()), Operator("op2", {"B"}, {"C"}, set())],
 )
 
 # a more complex task
 task10 = Task(
     "task10",
-    {"v1", "v2", "v3", "v4", "v5", "v6", "g"},
-    ["v1"],
-    ["g"],
+    frozenset({"v1", "v2", "v3", "v4", "v5", "v6", "g"}),
+    frozenset(["v1"]),
+    frozenset(["g"]),
     [
         Operator("op1", {"v1"}, {"v2"}, set()),
         Operator("op2", {"v2"}, {"v3"}, set()),
@@ -147,9 +147,9 @@ task10 = Task(
 # another complex task
 task12 = Task(
     "task12",
-    {"A", "B", "C", "D", "E", "F", "G", "H", "I"},
-    ["A", "B"],
-    ["F", "G", "H"],
+    frozenset({"A", "B", "C", "D", "E", "F", "G", "H", "I"}),
+    frozenset(["A", "B"]),
+    frozenset(["F", "G", "H"]),
     [
         Operator("op1", {"A"}, {"C"}, set()),
         Operator("op2", {"C", "D"}, {"F"}, set()),
@@ -162,14 +162,18 @@ task12 = Task(
 # task with no goal:
 task13 = Task(
     "task13",
-    {"A", "B", "C"},
-    ["A", "B"],
-    [],
+    frozenset({"A", "B", "C"}),
+    frozenset(["A", "B"]),
+    frozenset(),
     [Operator("op1", {"A", "B"}, {"C"}, set())],
 )
 # task with no reachable goal:
 task14 = Task(
-    "task14", {"A", "B", "C"}, ["A"], ["B", "C"], [Operator("op1", {"A"}, {"B"}, set())]
+    "task14",
+    frozenset({"A", "B", "C"}),
+    frozenset(["A"]),
+    frozenset(["B", "C"]),
+    [Operator("op1", {"A"}, {"B"}, set())],
 )
 
 inf = float("inf")

@@ -19,7 +19,7 @@ import os
 import subprocess
 
 
-def command_available(command):
+def command_available(command: list[str]) -> bool:
     """Return True iff the command can be called without errors.
 
     ``command`` should be a list. To check whether a command is available, it
@@ -34,7 +34,7 @@ def command_available(command):
         return False
 
 
-def remove(filename):
+def remove(filename: str) -> None:
     """Remove the file at ``filename``, ignoring any errors.
 
     If ``filename`` points to a directory, it is not removed.
@@ -45,7 +45,7 @@ def remove(filename):
         pass
 
 
-def get_peak_memory_in_kb():
+def get_peak_memory_in_kb() -> int:
     try:
         # This will only work on Linux systems.
         with open("/proc/self/status") as status_file:

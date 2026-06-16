@@ -17,6 +17,11 @@
 
 """Classes for representing a STRIPS planning task."""
 
+from collections.abc import Iterable
+
+# A STRIPS state is the (immutable) set of facts that are currently true.
+State = frozenset[str]
+
 
 class Operator:
     """An action that transforms one state into another.
@@ -26,13 +31,19 @@ class Operator:
     the delete effects the facts that it makes false.
     """
 
-    def __init__(self, name, preconditions, add_effects, del_effects):
+    def __init__(
+        self,
+        name: str,
+        preconditions: Iterable[str],
+        add_effects: Iterable[str],
+        del_effects: Iterable[str],
+    ) -> None:
         self.name = name
-        self.preconditions = frozenset(preconditions)
-        self.add_effects = frozenset(add_effects)
-        self.del_effects = frozenset(del_effects)
+        self.preconditions: State = frozenset(preconditions)
+        self.add_effects: State = frozenset(add_effects)
+        self.del_effects: State = frozenset(del_effects)
 
-    def applicable(self, state):
+    def applicable(self, state: State) -> bool:
         """Return whether the operator can be applied in ``state``.
 
         An operator is applicable when its preconditions are a subset of the
@@ -40,7 +51,7 @@ class Operator:
         """
         return self.preconditions <= state
 
-    def apply(self, state):
+    def apply(self, state: State) -> State:
         """Return the state that results from applying the operator in ``state``.
 
         Applying an operator removes its delete effects from the set of true
@@ -48,21 +59,21 @@ class Operator:
         therefore true in the resulting state.
         """
         assert self.applicable(state)
-        assert isinstance(state, (set, frozenset))
         return (state - self.del_effects) | self.add_effects
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         return (
-            self.name == other.name
+            isinstance(other, Operator)
+            and self.name == other.name
             and self.preconditions == other.preconditions
             and self.add_effects == other.add_effects
             and self.del_effects == other.del_effects
         )
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.name, self.preconditions, self.add_effects, self.del_effects))
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = f"{self.name}\n"
         for group, facts in [
             ("PRE", self.preconditions),
@@ -73,14 +84,21 @@ class Operator:
                 s += f"  {group}: {fact}\n"
         return s
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Op {self.name}>"
 
 
 class Task:
     """A STRIPS planning task."""
 
-    def __init__(self, name, facts, initial_state, goals, operators):
+    def __init__(
+        self,
+        name: str,
+        facts: State,
+        initial_state: State,
+        goals: State,
+        operators: list[Operator],
+    ) -> None:
         """
         name: The task's name.
         facts: A set of all the fact names that are valid in the domain.
@@ -94,7 +112,7 @@ class Task:
         self.goals = goals
         self.operators = operators
 
-    def goal_reached(self, state):
+    def goal_reached(self, state: State) -> bool:
         """Return whether ``state`` satisfies all of the task's goals.
 
         The goal has been reached once every fact in ``goals`` is true in
@@ -102,7 +120,7 @@ class Task:
         """
         return self.goals <= state
 
-    def get_successor_states(self, state):
+    def get_successor_states(self, state: State) -> list[tuple[Operator, State]]:
         """Return the ``(operator, successor_state)`` pairs reachable from ``state``.
 
         Each pair consists of an operator applicable in ``state`` and the state
@@ -110,7 +128,7 @@ class Task:
         """
         return [(op, op.apply(state)) for op in self.operators if op.applicable(state)]
 
-    def __str__(self):
+    def __str__(self) -> str:
         operators = "\n".join(map(repr, self.operators))
         return (
             f"Task {self.name}\n"
@@ -120,7 +138,7 @@ class Task:
             f"  Ops:   {operators}"
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<Task {self.name}, vars: {len(self.facts)}, "
             f"operators: {len(self.operators)}>"

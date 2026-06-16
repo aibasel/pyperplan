@@ -15,6 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
+from typing import Any
+
 from .errors import ParseError
 
 
@@ -34,41 +36,42 @@ class LispIterator:
     invoked on iterators for words.
     """
 
-    def __init__(self, contents):
+    def __init__(self, contents: "str | list[Any]") -> None:
         """Initialize iterator from a nested list (structure) or
         string (word)."""
         self.position = 0
         self.contents = contents
 
-    def _raise_if(self, condition, msg):
+    def _raise_if(self, condition: bool, msg: str) -> None:
         if condition:
             raise ParseError(msg, self)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<LispIterator({self.position}, {self.contents!r})>"
 
     ## Low-level interface. The following methods may access the
     ## position and contents attributes directly.
 
-    def is_word(self):
+    def is_word(self) -> bool:
         """Return True iff the tree is a word (has no subtrees)."""
         return isinstance(self.contents, str)
 
-    def is_structure(self):
+    def is_structure(self) -> bool:
         """Return True iff the tree is a structure (has subtrees)."""
         return isinstance(self.contents, list)
 
-    def empty(self):
+    def empty(self) -> bool:
         self._raise_if(self.is_word(), "cannot call empty on word")
         return self.peek() is None
 
-    def get_word(self):
+    def get_word(self) -> str:
         """If called on a word, return the word as a string.
         If called on a structure, raise ParseError."""
         self._raise_if(self.is_structure(), "not a word")
+        assert isinstance(self.contents, str)
         return self.contents
 
-    def peek(self):
+    def peek(self) -> "LispIterator | None":
         """Structures only. Return iterator for next subtree, or None
         if already at the end. Do not advance."""
         self._raise_if(self.is_word(), "not a structure")
@@ -76,11 +79,11 @@ class LispIterator:
             return None
         return LispIterator(self.contents[self.position])
 
-    def __iter__(self):
+    def __iter__(self) -> "LispIterator":
         """Structures only. Iterate over remaining subtrees."""
         return self
 
-    def __next__(self):
+    def __next__(self) -> "LispIterator":
         """Structures only. Return iterator for next subtree and
         advance. Raise StopIteration if at the end."""
         result = self.peek()
@@ -93,15 +96,15 @@ class LispIterator:
     ### High-level interface. The following methods are implemented in
     ### terms of the low-level interface.
 
-    def next(self):
+    def next(self) -> "LispIterator":
         """Structures only. Return iterator for next subtree and
         advance. Raise ParseError if at the end."""
         try:
             return self.__next__()
         except StopIteration:
-            self._raise_if(True, "already at end")
+            raise ParseError("already at end", self) from None
 
-    def try_match(self, word):
+    def try_match(self, word: str) -> bool:
         """Structure only. If next element is the given word, return
         True and advance. Otherwise, return False and do not advance.
         May be safely called if already at the end."""
@@ -112,28 +115,30 @@ class LispIterator:
         else:
             return False
 
-    def match(self, word):
+    def match(self, word: str) -> None:
         """Structure only. Verify that next element is the given word
         and advance. If at the end or if next element is something
         else, raise ParseError."""
         self._raise_if(not self.try_match(word), f"expected {word!r}")
 
-    def match_end(self):
+    def match_end(self) -> None:
         """Structure only. Raise ParseError if not at the end."""
         self._raise_if(self.peek() is not None, "expected to be at end")
 
     ## Convenience functions for frequently needed operations that are
     ## even higher level than the high-level interface.
 
-    def peek_tag(self):
+    def peek_tag(self) -> str | None:
         """Structure only. If next element is a structure whose first
         element is a word, return that word. If at end, if next
         element is an empty structure, or if next element's first
         element is a structure, return None."""
         item = self.peek()
+        assert item is not None
         if item.is_structure():
             subitem = item.peek()
             if subitem and subitem.is_word():
                 return subitem.get_word()
+            return None
         else:
             return None

@@ -19,14 +19,16 @@
 
 import logging
 from collections import defaultdict
+from typing import Any
 
+from ..task import Operator, Task
 from . import minisat
 
 # Maximum number of steps in a plan.
 HORIZON = 1000
 
 
-def _formula_str(formula, sep="&"):
+def _formula_str(formula: Any, sep: str = "&") -> str:
     """Return a representation of ``formula`` for pretty-printing."""
     next_sep = "|" if sep == "&" else "&"
     items = [
@@ -36,7 +38,7 @@ def _formula_str(formula, sep="&"):
     return f"({f' {sep} '.join(items)})"
 
 
-def index_fact(fact, index, negated=False):
+def index_fact(fact: str | int, index: int, negated: bool = False) -> str:
     """Return a representation of ``fact`` tagged with the step number.
 
     Negated facts get a leading ``not-``.
@@ -47,17 +49,17 @@ def index_fact(fact, index, negated=False):
     return f"{name}-{index}"
 
 
-def makes_true(operator, fact):
+def makes_true(operator: Operator, fact: str) -> bool:
     """Return True iff ``operator`` makes ``fact`` true."""
     return fact in operator.add_effects
 
 
-def makes_false(operator, fact):
+def makes_false(operator: Operator, fact: str) -> bool:
     """Return True iff ``operator`` makes ``fact`` false."""
     return fact in operator.del_effects
 
 
-def get_formula_for_fact(op, fact, index):
+def get_formula_for_fact(op: Operator, fact: str, index: int) -> list[str]:
     """Return a formula for ``fact`` in the step ``index``."""
     if makes_true(op, fact):
         return [index_fact(fact, index + 1)]
@@ -67,7 +69,9 @@ def get_formula_for_fact(op, fact, index):
     return [index_fact(fact, index + 1, negated=True)]
 
 
-def get_formula_for_operator(facts, op, index):
+def get_formula_for_operator(
+    facts: frozenset[str], op: Operator, index: int
+) -> list[str]:
     """Return a formula for the operator ``op`` in the step ``index``."""
     formula = [index_fact(fact, index) for fact in sorted(op.preconditions)]
     for fact in facts:
@@ -75,13 +79,13 @@ def get_formula_for_operator(facts, op, index):
     return formula
 
 
-def get_plan_formula(task, horizon):
+def get_plan_formula(task: Task, horizon: int) -> list[Any]:
     """Return a formula for a given task and number of steps."""
     init_true = sorted(task.initial_state)
     init_false = sorted(task.facts - task.initial_state)
     pos = [index_fact(fact, 0) for fact in init_true]
     neg = [index_fact(fact, 0, negated=True) for fact in init_false]
-    formula = pos + neg
+    formula: list[Any] = pos + neg
     for length in range(horizon):
         disjunction = [
             get_formula_for_operator(task.facts, op, length) for op in task.operators
@@ -92,7 +96,7 @@ def get_plan_formula(task, horizon):
     return formula
 
 
-def _extract_plan(operators, valuation):
+def _extract_plan(operators: list[Operator], valuation: list[str]) -> list[Operator]:
     """Turn a valuation into a list of operators.
 
     ``valuation`` is a list of facts (e.g. ['a-0', 'not-a-1', 'a-2']).
@@ -100,8 +104,8 @@ def _extract_plan(operators, valuation):
     logging.debug(f"Length of valuation: {len(valuation)}")
 
     # Divide facts into positive and negative ones
-    pos_facts = defaultdict(set)
-    neg_facts = defaultdict(set)
+    pos_facts: defaultdict[int, set[str]] = defaultdict(set)
+    neg_facts: defaultdict[int, set[str]] = defaultdict(set)
     plan_length = -1
     for fact in valuation:
         if "<->" in fact or "AND" in fact:
@@ -120,8 +124,8 @@ def _extract_plan(operators, valuation):
 
     plan = []
     for step in range(1, plan_length + 1):
-        current_state = pos_facts[step - 1]
-        next_state = pos_facts[step]
+        current_state = frozenset(pos_facts[step - 1])
+        next_state = frozenset(pos_facts[step])
         actual_op = None
         for op in operators:
             if op.applicable(current_state) and op.apply(current_state) == next_state:
@@ -132,7 +136,7 @@ def _extract_plan(operators, valuation):
     return plan
 
 
-def sat_solve(task, max_steps=HORIZON):
+def sat_solve(task: Task, max_steps: int = HORIZON) -> list[Operator] | None:
     """Solve a planning task with a SAT solver.
 
     Returns a list of operators, or None if no valid plan could be found with at

@@ -206,6 +206,22 @@ only in `--src`. Compilation does not change which plans the optimal searches
 (such as A\*) return; the greedy searches remain order-sensitive and may return
 different valid plans, exactly as in the interpreted version.
 
+mypyc generates faster code where it knows concrete types, so the speedup
+depends on how thoroughly the code is annotated. The package now carries type
+annotations throughout, which roughly doubles the benefit. On the first task of
+each benchmark domain we measured, relative to pure Python:
+
+  * grounding: about 1.4x faster compiled without annotations, about 2.3x with
+    them;
+  * the in-process search loop: about 2x faster for the heuristic-heavy
+    configurations (hAdd, hFF), and less for blind search, whose hot path is
+    dominated by built-in `frozenset` operations that are already C code.
+
+End-to-end search runtime measured per process (parsing, grounding and search
+together) improves only marginally on small tasks, because process start-up and
+parsing dominate the few milliseconds spent in the search loop; the gains show
+up on larger instances where the search loop dominates.
+
 # Plan validation
 
 If the plan validation tool VAL is found on the system `PATH` under the

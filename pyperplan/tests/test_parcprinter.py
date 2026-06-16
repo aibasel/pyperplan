@@ -8,7 +8,7 @@ import os.path
 from pyperplan import planner
 from pyperplan.search import searchspace
 
-optimal_plan = """\
+optimal_plan_text = """\
 initialize
 blackfeeder-feed-letter sheet1
 blackcontainer-toime-letter sheet1
@@ -21,7 +21,7 @@ htmovercolor-move-letter sheet1
 up-movetop-letter sheet1
 finisher1-stack-letter sheet1 dummy-sheet
 """
-optimal_plan = [op.strip() for op in optimal_plan.splitlines()]
+optimal_plan = [op.strip() for op in optimal_plan_text.splitlines()]
 
 benchmarks = os.path.abspath(
     os.path.join(os.path.abspath(__file__), "../../../benchmarks")

@@ -16,7 +16,29 @@
 #
 
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    # Imported only for type checking to avoid an import cycle: the search
+    # package imports the heuristics (and vice versa) at runtime.
+    from ..search.searchspace import SearchNode
+    from ..task import Task
+
+
 class Heuristic:
-    def __call__(self, node):
+    def __init__(self, task: Task) -> None:
+        """Heuristics are constructed from the planning task they estimate."""
+
+    def __call__(self, node: SearchNode) -> float:
         """Return the heuristic value for the state stored in ``node``."""
+        raise NotImplementedError
+
+    def calc_h_with_plan(self, node: SearchNode) -> tuple[float, set[str] | None]:
+        """Return the heuristic value and a relaxed plan (preferred operators).
+
+        Only heuristics that support preferred operators (currently hFF)
+        override this; the others inherit this default.
+        """
         raise NotImplementedError

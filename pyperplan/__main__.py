@@ -23,8 +23,11 @@ import argparse
 import logging
 import os
 import sys
+from collections.abc import Iterable
+from typing import Any
 
 from pyperplan import tools
+from pyperplan.heuristics.heuristic_base import Heuristic
 from pyperplan.planner import (
     HEURISTICS,
     SEARCHES,
@@ -35,12 +38,12 @@ from pyperplan.planner import (
 )
 
 
-def main():
+def main() -> None:
     log_levels = ["debug", "info", "warning", "error"]
 
     # Build pretty-printed names for the search algorithms by taking each
     # function/class name and stripping off the "_search" suffix.
-    def get_callable_names(callables, omit_string):
+    def get_callable_names(callables: Iterable[Any], omit_string: str) -> str:
         names = [
             c.__name__.replace(omit_string, "").replace("_", " ") for c in callables
         ]
@@ -93,7 +96,7 @@ def main():
         args.domain = os.path.abspath(args.domain)
 
     search = SEARCHES[args.search]
-    heuristic = HEURISTICS[args.heuristic]
+    heuristic: type[Heuristic] | None = HEURISTICS[args.heuristic]
 
     if args.search in ["bfs", "ids", "sat"]:
         heuristic = None

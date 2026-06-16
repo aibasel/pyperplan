@@ -19,7 +19,7 @@ op4 = Operator("op1", {"var1"}, {"var2"}, {"var2"})
 
 init = frozenset(["var1"])
 goals = frozenset(["var1", "var2"])
-task1 = Task("task1", {"var1", "var2", "var3"}, init, goals, [op1, op2, op3])
+task1 = Task("task1", frozenset({"var1", "var2", "var3"}), init, goals, [op1, op2, op3])
 
 
 def test_op_applicable1():

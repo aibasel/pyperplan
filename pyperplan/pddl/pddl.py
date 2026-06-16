@@ -20,23 +20,32 @@ This module contains all data structures needed to represent a PDDL domain and
 possibly a task definition.
 """
 
+from typing import Any
+
+# A predicate/action signature is a list of (parameter name, type info) pairs.
+# The second element is heterogeneous (a single Type, or a list/tuple of Types,
+# depending on the parsing stage), so it is typed loosely.
+Signature = list[tuple[Any, Any]]
+
 
 class Type:
     """A PDDL type."""
 
-    def __init__(self, name, parent):
+    def __init__(self, name: str, parent: "Type | str | None") -> None:
+        # ``parent`` is a type name (str) while parsing and gets linked to the
+        # actual Type object afterwards (see tree_visitor.py).
         self.name = name.lower()
         self.parent = parent
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
 
 
 class Predicate:
-    def __init__(self, name, signature):
+    def __init__(self, name: str, signature: Signature) -> None:
         """
         name: The name of the predicate.
         signature: A list of tuples (name, [types]) to represent a list of
@@ -45,25 +54,31 @@ class Predicate:
         self.name = name
         self.signature = signature
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name + str(self.signature)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name + str(self.signature)
 
 
 class Effect:
-    def __init__(self):
+    def __init__(self) -> None:
         """
         addlist: Set of predicates that have to be true after the action
         dellist: Set of predicates that have to be false after the action
         """
-        self.addlist = set()
-        self.dellist = set()
+        self.addlist: set[Predicate] = set()
+        self.dellist: set[Predicate] = set()
 
 
 class Action:
-    def __init__(self, name, signature, precondition, effect):
+    def __init__(
+        self,
+        name: str,
+        signature: Signature,
+        precondition: list[Predicate],
+        effect: Effect,
+    ) -> None:
         """
         name: The name identifying the action
         signature: A list of tuples (name, [types]) to represent a list of
@@ -79,7 +94,14 @@ class Action:
 
 
 class Domain:
-    def __init__(self, name, types, predicates, actions, constants={}):
+    def __init__(
+        self,
+        name: str,
+        types: dict[str, Type],
+        predicates: dict[str, Predicate],
+        actions: dict[str, Action],
+        constants: "dict[str, Type] | None" = None,
+    ) -> None:
         """
         name: The name of the domain
         types: A dict of typename->Type instances in the domain
@@ -91,9 +113,9 @@ class Domain:
         self.types = types
         self.predicates = predicates
         self.actions = actions
-        self.constants = constants
+        self.constants: dict[str, Type] = constants if constants is not None else {}
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         predicates = [str(p) for p in self.predicates]
         actions = [str(a) for a in self.actions]
         constants = [str(c) for c in self.constants]
@@ -104,12 +126,19 @@ class Domain:
 
     # Defined as a method (rather than ``__str__ = __repr__``) so the class can
     # be compiled with mypyc, which does not expose dunders via ``__dict__``.
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()
 
 
 class Problem:
-    def __init__(self, name, domain, objects, init, goal):
+    def __init__(
+        self,
+        name: str,
+        domain: Domain,
+        objects: dict[str, Type],
+        init: list[Predicate],
+        goal: list[Predicate],
+    ) -> None:
         """
         name: The name of the problem
         domain: The domain in which the problem has to be solved
@@ -123,7 +152,7 @@ class Problem:
         self.initial_state = init
         self.goal = goal
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         init = [str(p) for p in self.initial_state]
         goal = [str(p) for p in self.goal]
         return (
@@ -132,5 +161,5 @@ class Problem:
             f"Goal State : {goal} >"
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.__repr__()

@@ -19,8 +19,10 @@
 
 import logging
 
+from ..task import Operator, State, Task
 
-def iterative_deepening_search(task, *args):
+
+def iterative_deepening_search(task: Task, *args: int) -> list[Operator] | None:
     """Search for a plan on ``task`` using iterative deepening search.
 
     Uses loop detection. Creates an ``IterativeDeepeningSearchAlgorithm`` and
@@ -34,14 +36,14 @@ def iterative_deepening_search(task, *args):
 class IterativeDeepeningSearchAlgorithm:
     """Searches for a plan on a task using iterative deepening search."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Maximal reachable depth, needed to terminate if the goal is
         # unreachable.
         self.maxreacheddepth = 0
         # Number of explored nodes during the search.
         self.explorednodes = 0
 
-    def search(self, task, maxdepth=1000000):
+    def search(self, task: Task, maxdepth: int = 1000000) -> list[Operator] | None:
         """Search for a plan on ``task`` using iterative deepening search.
 
         Uses loop detection. ``maxdepth`` limits the search to a fixed depth; if
@@ -52,7 +54,8 @@ class IterativeDeepeningSearchAlgorithm:
         if task.goal_reached(task.initial_state):
             self.print_search_results(0, 0)
             return []
-        path = set()  # States on the current path, used for loop detection.
+        # States on the current path, used for loop detection.
+        path: set[State] = set()
         depth = 1
         # Run until we reach the goal or fail to explore up to the given depth.
         while depth < maxdepth:
@@ -74,13 +77,20 @@ class IterativeDeepeningSearchAlgorithm:
         self.print_search_results(depth, -1)
         return None
 
-    def print_search_results(self, depth, planlength):
+    def print_search_results(self, depth: int, planlength: int) -> None:
         logging.info(
             f"iterative_deepening_search: depth={depth} planlength={planlength} "
         )
         logging.info(f"{self.explorednodes} Nodes expanded")
 
-    def deepening_search_step(self, task, state, depth, step, path):
+    def deepening_search_step(
+        self,
+        task: Task,
+        state: State,
+        depth: int,
+        step: int,
+        path: set[State],
+    ) -> list[Operator] | None:
         """Take one step on a path to the goal during depth-limited search.
 
         Each call advances by one step and supports easy backtracking.

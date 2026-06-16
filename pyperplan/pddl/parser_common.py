@@ -23,5 +23,5 @@ uniquely identified by its start and end position.
 """
 
 # define the set of special characters
-comment = {";"}
-reserved = {":", ")", "("}.union(comment)
+comment: set[str] = {";"}
+reserved: set[str] = {":", ")", "("}.union(comment)

@@ -15,15 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
+from ..search.searchspace import SearchNode
+from ..task import State, Task
 from .heuristic_base import Heuristic
 
 
 class BlindHeuristic(Heuristic):
     """A simple blind heuristic: 0 if the goal is reached and 1 otherwise."""
 
-    def __init__(self, task):
-        super().__init__()
-        self.goals = task.goals
+    def __init__(self, task: Task) -> None:
+        super().__init__(task)
+        self.goals: State = task.goals
 
-    def __call__(self, node):
+    def __call__(self, node: SearchNode) -> float:
         return 0 if self.goals <= node.state else 1

@@ -22,6 +22,9 @@ A partial parser is implemented for each AST node, and these are called
 recursively to construct a complete parse.
 """
 
+from typing import Any
+
+from .lisp_iterators import LispIterator
 from .lisp_parser import parse_lisp_iterator
 from .parser_common import reserved
 from .tree_visitor import TraversePDDLDomain, TraversePDDLProblem, Visitable
@@ -38,7 +41,7 @@ from .tree_visitor import TraversePDDLDomain, TraversePDDLProblem, Visitable
 class Keyword(Visitable):
     """AST node for a PDDL keyword."""
 
-    def __init__(self, name):
+    def __init__(self, name: Any) -> None:
         # ``name`` is the keyword without its colon, e.g. 'typed' for ':typed'.
         self._visitor_name = "visit_keyword"
         self.name = name
@@ -47,7 +50,7 @@ class Keyword(Visitable):
 class Variable(Visitable):
     """AST node for a PDDL variable."""
 
-    def __init__(self, name, types=None):
+    def __init__(self, name: Any, types: Any = None) -> None:
         """
         name: the name of the variable, e.g. 'x' for '?x'.
         types: a list of names of the possible types of this variable, or None.
@@ -62,7 +65,7 @@ class Variable(Visitable):
 class Type(Visitable):
     """AST node for a PDDL type."""
 
-    def __init__(self, name, parent=None):
+    def __init__(self, name: Any, parent: Any = None) -> None:
         # ``parent`` is the name of the parent type, or None.
         self._visitor_name = "visit_type"
         self.name = name
@@ -72,7 +75,7 @@ class Type(Visitable):
 class Predicate(Visitable):
     """AST node for a PDDL predicate."""
 
-    def __init__(self, name, parameters=None):
+    def __init__(self, name: Any, parameters: Any = None) -> None:
         # ``parameters`` is a list of Variables.
         self._visitor_name = "visit_predicate"
         self.name = name
@@ -82,7 +85,7 @@ class Predicate(Visitable):
 class PredicateInstance(Visitable):
     """AST node for a PDDL predicate instance."""
 
-    def __init__(self, name, parameters=None):
+    def __init__(self, name: Any, parameters: Any = None) -> None:
         # ``parameters`` is a list of object names.
         self._visitor_name = "visit_predicate_instance"
         self.name = name
@@ -92,7 +95,7 @@ class PredicateInstance(Visitable):
 class RequirementsStmt(Visitable):
     """AST node for a PDDL requirements statement."""
 
-    def __init__(self, keywords=None):
+    def __init__(self, keywords: Any = None) -> None:
         # ``keywords`` is the list of requirements, represented as Keywords.
         self._visitor_name = "visit_requirements_stmt"
         self.keywords = keywords or []
@@ -101,7 +104,7 @@ class RequirementsStmt(Visitable):
 class DomainStmt(Visitable):
     """AST node for a PDDL domain statement (the domain name)."""
 
-    def __init__(self, name):
+    def __init__(self, name: Any) -> None:
         self._visitor_name = "visit_domain_stmt"
         self.name = name
 
@@ -109,7 +112,7 @@ class DomainStmt(Visitable):
 class PreconditionStmt(Visitable):
     """AST node for a PDDL action precondition."""
 
-    def __init__(self, formula):
+    def __init__(self, formula: Any) -> None:
         # ``formula`` is the parsed Formula. Arbitrary formulas are allowed
         # here; STRIPS compatibility is checked later by the TreeVisitor.
         self._visitor_name = "visit_precondition_stmt"
@@ -119,7 +122,7 @@ class PreconditionStmt(Visitable):
 class EffectStmt(Visitable):
     """AST node for a PDDL action effect."""
 
-    def __init__(self, formula):
+    def __init__(self, formula: Any) -> None:
         # ``formula`` is the parsed Formula. Arbitrary formulas are allowed
         # here; STRIPS compatibility is checked later by the TreeVisitor.
         self._visitor_name = "visit_effect_stmt"
@@ -129,7 +132,7 @@ class EffectStmt(Visitable):
 class Formula(Visitable):
     """AST node for a PDDL formula, as used in preconditions and effects."""
 
-    def __init__(self, key, children=None, type=TypeFormula):
+    def __init__(self, key: Any, children: Any = None, type: int = TypeFormula) -> None:
         """
         key: the operator of the subformula, e.g. 'not' for '(not (on a c))'.
         children: a list of immediate descending subformulas.
@@ -145,7 +148,7 @@ class Formula(Visitable):
 class ActionStmt(Visitable):
     """AST node for a PDDL action."""
 
-    def __init__(self, name, parameters, precond, effect):
+    def __init__(self, name: Any, parameters: Any, precond: Any, effect: Any) -> None:
         """
         parameters: a list of Variables denoting the parameters.
         precond: the precondition of the action, given as a Formula.
@@ -161,7 +164,7 @@ class ActionStmt(Visitable):
 class PredicatesStmt(Visitable):
     """AST node for a PDDL domain predicates definition."""
 
-    def __init__(self, predicates):
+    def __init__(self, predicates: Any) -> None:
         # ``predicates`` is a list of Predicates.
         self._visitor_name = "visit_predicates_stmt"
         self.predicates = predicates
@@ -172,13 +175,13 @@ class DomainDef(Visitable):
 
     def __init__(
         self,
-        name,
-        requirements=None,
-        types=None,
-        predicates=None,
-        actions=None,
-        constants=None,
-    ):
+        name: Any,
+        requirements: Any = None,
+        types: Any = None,
+        predicates: Any = None,
+        actions: Any = None,
+        constants: Any = None,
+    ) -> None:
         """
         name: the domain name.
         requirements: a RequirementsStmt.
@@ -199,7 +202,14 @@ class DomainDef(Visitable):
 class ProblemDef(Visitable):
     """AST node for a PDDL problem."""
 
-    def __init__(self, name, domain_name, objects=None, init=None, goal=None):
+    def __init__(
+        self,
+        name: Any,
+        domain_name: Any,
+        objects: Any = None,
+        init: Any = None,
+        goal: Any = None,
+    ) -> None:
         """
         name: the problem name.
         domain_name: the name of the domain this problem belongs to.
@@ -218,7 +228,7 @@ class ProblemDef(Visitable):
 class Object(Visitable):
     """AST node for a PDDL object."""
 
-    def __init__(self, name, type):
+    def __init__(self, name: Any, type: Any) -> None:
         # ``type`` is the name of this object's type.
         self._visitor_name = "visit_object"
         self.name = name
@@ -228,7 +238,7 @@ class Object(Visitable):
 class InitStmt(Visitable):
     """AST node for a PDDL problem initial condition."""
 
-    def __init__(self, predicates):
+    def __init__(self, predicates: Any) -> None:
         # ``predicates`` is a list of predicates denoting the initial condition.
         self._visitor_name = "visit_init_stmt"
         self.predicates = predicates
@@ -237,7 +247,7 @@ class InitStmt(Visitable):
 class GoalStmt(Visitable):
     """AST node for a PDDL problem goal condition."""
 
-    def __init__(self, formula):
+    def __init__(self, formula: Any) -> None:
         # ``formula`` is the Formula denoting the goal condition.
         self._visitor_name = "visit_goal_stmt"
         self.formula = formula
@@ -248,13 +258,15 @@ class GoalStmt(Visitable):
 ###
 
 
-def parse_name(iterator, father):
-    if not iterator.peek().is_word():
+def parse_name(iterator: LispIterator, father: str) -> Any:
+    peeked = iterator.peek()
+    assert peeked is not None
+    if not peeked.is_word():
         raise ValueError(f"Error {father} predicate statement must contain a name!")
     return next(iterator).get_word()
 
 
-def parse_list_template(f, iterator):
+def parse_list_template(f: Any, iterator: LispIterator) -> list[Any]:
     """This function implements a common pattern used in this parser.
 
     It tries to parse a list of 'f' objects from the string 'string[i:end]'.
@@ -270,11 +282,11 @@ def parse_list_template(f, iterator):
     return result
 
 
-def _parse_string_helper(iterator):
+def _parse_string_helper(iterator: LispIterator) -> Any:
     return iterator.get_word()
 
 
-def _parse_type_helper(iterator, type_class):
+def _parse_type_helper(iterator: LispIterator, type_class: Any) -> list[Any]:
     """This function implements another common idiom used in this parser.
 
     It parses a list consisting either of Objects or Variables or Types
@@ -291,15 +303,17 @@ def _parse_type_helper(iterator, type_class):
     # There may be several objects with the same type, hence we store each
     # parsed object in a list and attach a new type instance whenever a type is
     # specified.
-    result = []
-    tmp_list = []
+    result: list[Any] = []
+    tmp_list: list[Any] = []
     while not iterator.empty():
         var = next(iterator).get_word()
         if type_class != Variable and len(var) > 0 and var[0] in reserved:
             raise ValueError("Error type must not begin with reserved char!")
         elif var == "-":
             # check if either definition present
-            if iterator.peek().is_structure():
+            peeked = iterator.peek()
+            assert peeked is not None
+            if peeked.is_structure():
                 # must contain either definition
                 types_iter = next(iterator)
                 if not types_iter.try_match("either"):
@@ -333,7 +347,7 @@ def _parse_type_helper(iterator, type_class):
 ###
 
 
-def parse_keyword(iterator):
+def parse_keyword(iterator: LispIterator) -> Keyword:
     """Parse a keyword and return a Keyword instance."""
     name = iterator.get_word()
     if name == "":
@@ -344,12 +358,12 @@ def parse_keyword(iterator):
     return Keyword(name[1:])
 
 
-def parse_keyword_list(iterator):
+def parse_keyword_list(iterator: LispIterator) -> list[Any]:
     """Parse a list of keywords and return it."""
     return parse_list_template(parse_keyword, iterator)
 
 
-def parse_variable(iterator):
+def parse_variable(iterator: LispIterator) -> Variable:
     """Parse a Variable and return it."""
     name = iterator.get_word()
     if name == "":
@@ -360,19 +374,19 @@ def parse_variable(iterator):
     return Variable(name, None)
 
 
-def parse_typed_var_list(iterator):
+def parse_typed_var_list(iterator: LispIterator) -> list[Any]:
     """Parse a list of (possibly typed) variables and return it."""
     return _parse_type_helper(iterator, Variable)
 
 
-def parse_parameters(iterator):
+def parse_parameters(iterator: LispIterator) -> list[Any]:
     """Parse an action's parameter list and return it."""
     if not iterator.try_match(":parameters"):
         raise ValueError('Error keyword ":parameters" required before parameter list!')
     return parse_typed_var_list(next(iterator))
 
 
-def parse_requirements_stmt(iterator):
+def parse_requirements_stmt(iterator: LispIterator) -> RequirementsStmt:
     """Parse the PDDL requirements definition and return a RequirementsStmt."""
     if not iterator.try_match(":requirements"):
         raise ValueError('Error requirements list must contain keyword ":requirements"')
@@ -380,7 +394,9 @@ def parse_requirements_stmt(iterator):
     return RequirementsStmt(keywords)
 
 
-def _parse_types_with_error(iterator, keyword, classt):
+def _parse_types_with_error(
+    iterator: LispIterator, keyword: str, classt: Any
+) -> list[Any]:
     if not iterator.try_match(keyword):
         raise ValueError(
             f'Error keyword "{keyword}" required before {classt.__name__}!'
@@ -390,19 +406,19 @@ def _parse_types_with_error(iterator, keyword, classt):
 
 # Constants / Objects and types can be parsed in the same way because of their
 # similar structure, so we delegate to _parse_types_with_error.
-def parse_types_stmt(iterator):
+def parse_types_stmt(iterator: LispIterator) -> list[Any]:
     return _parse_types_with_error(iterator, ":types", Type)
 
 
-def parse_objects_stmt(iterator):
+def parse_objects_stmt(iterator: LispIterator) -> list[Any]:
     return _parse_types_with_error(iterator, ":objects", Object)
 
 
-def parse_constants_stmt(iterator):
+def parse_constants_stmt(iterator: LispIterator) -> list[Any]:
     return _parse_types_with_error(iterator, ":constants", Object)
 
 
-def _parse_domain_helper(iterator, keyword):
+def _parse_domain_helper(iterator: LispIterator, keyword: str) -> DomainStmt:
     """Parse the domain statement (the domain name) and return a DomainStmt."""
     if not iterator.try_match(keyword):
         raise ValueError("Error domain statement must be present before domain name!")
@@ -410,15 +426,15 @@ def _parse_domain_helper(iterator, keyword):
     return DomainStmt(name)
 
 
-def parse_domain_stmt(iterator):
+def parse_domain_stmt(iterator: LispIterator) -> DomainStmt:
     return _parse_domain_helper(iterator, "domain")
 
 
-def parse_problem_domain_stmt(iterator):
+def parse_problem_domain_stmt(iterator: LispIterator) -> DomainStmt:
     return _parse_domain_helper(iterator, ":domain")
 
 
-def parse_predicate(iterator):
+def parse_predicate(iterator: LispIterator) -> Predicate:
     """Parse a predicate (its name and typed-variable signature).
 
     Returns a Predicate instance.
@@ -428,12 +444,12 @@ def parse_predicate(iterator):
     return Predicate(name, params)
 
 
-def parse_predicate_list(iterator):
+def parse_predicate_list(iterator: LispIterator) -> list[Any]:
     """Parse a list of predicates and return it."""
     return parse_list_template(parse_predicate, iterator)
 
 
-def parse_predicate_instance(iterator):
+def parse_predicate_instance(iterator: LispIterator) -> PredicateInstance:
     """Parse a predicate instance (a predicate with a possibly instantiated
     signature) and return a PredicateInstance.
     """
@@ -442,17 +458,19 @@ def parse_predicate_instance(iterator):
     return PredicateInstance(name, params)
 
 
-def parse_predicate_instance_list(iterator):
+def parse_predicate_instance_list(iterator: LispIterator) -> list[Any]:
     """Parse a list of predicate instances and return it."""
     return parse_list_template(parse_predicate_instance, iterator)
 
 
-def parse_formula(iterator):
+def parse_formula(iterator: LispIterator) -> Formula:
     """Parse a Formula recursively and return it."""
     if iterator.is_structure():
         # This is a nested formula.
         type = TypeFormula
-        key = iterator.peek().get_word()
+        peeked = iterator.peek()
+        assert peeked is not None
+        key: Any = peeked.get_word()
         next(iterator)
         if key[0] in reserved:
             raise ValueError("Error: Formula must not start with reserved char!")
@@ -469,7 +487,9 @@ def parse_formula(iterator):
     return Formula(key, children, type)
 
 
-def _parse_precondition_or_effect(iterator, keyword, type):
+def _parse_precondition_or_effect(
+    iterator: LispIterator, keyword: str, type: Any
+) -> Any:
     """Parse an action precondition or effect.
 
     Returns a PreconditionStmt or EffectStmt instance.
@@ -480,15 +500,15 @@ def _parse_precondition_or_effect(iterator, keyword, type):
     return type(cond)
 
 
-def parse_precondition_stmt(iterator):
+def parse_precondition_stmt(iterator: LispIterator) -> PreconditionStmt:
     return _parse_precondition_or_effect(iterator, ":precondition", PreconditionStmt)
 
 
-def parse_effect_stmt(iterator):
+def parse_effect_stmt(iterator: LispIterator) -> EffectStmt:
     return _parse_precondition_or_effect(iterator, ":effect", EffectStmt)
 
 
-def parse_action_stmt(iterator):
+def parse_action_stmt(iterator: LispIterator) -> ActionStmt:
     """
     Parse an action definition which consists of a name, parameters a
     precondition and an effect.
@@ -506,7 +526,7 @@ def parse_action_stmt(iterator):
     return ActionStmt(name, param, pre, eff)
 
 
-def parse_predicates_stmt(iterator):
+def parse_predicates_stmt(iterator: LispIterator) -> PredicatesStmt:
     """
     Parse a PredicatesStmt which is essentially a list of predicates preceded
     by the ':predicates' keyword.
@@ -521,7 +541,7 @@ def parse_predicates_stmt(iterator):
     return PredicatesStmt(preds)
 
 
-def parse_domain_def(iterator):
+def parse_domain_def(iterator: LispIterator) -> DomainDef:
     """Parse a complete domain definition and return a DomainDef instance.
 
     Recursively calls all parsers needed to parse a domain definition.
@@ -536,7 +556,9 @@ def parse_domain_def(iterator):
     # First parse all optional keywords.
     while not iterator.empty():
         next_iter = next(iterator)
-        key = parse_keyword(next_iter.peek())
+        peeked = next_iter.peek()
+        assert peeked is not None
+        key = parse_keyword(peeked)
         if key.name == "requirements":
             domain.requirements = parse_requirements_stmt(next_iter)
         elif key.name == "types":
@@ -554,7 +576,9 @@ def parse_domain_def(iterator):
     # Then parse all remaining actions.
     while not iterator.empty():
         next_iter = next(iterator)
-        key = parse_keyword(next_iter.peek())
+        peeked = next_iter.peek()
+        assert peeked is not None
+        key = parse_keyword(peeked)
         if key.name != "action":
             raise ValueError("Error: Found invalid keyword while parsing actions")
         domain.actions.append(parse_action_stmt(next_iter))
@@ -562,7 +586,7 @@ def parse_domain_def(iterator):
     return domain
 
 
-def parse_problem_name(iterator):
+def parse_problem_name(iterator: LispIterator) -> Any:
     """Parse a problem name (preceded by the 'problem' keyword) and return it."""
     if not iterator.try_match("problem"):
         raise ValueError(
@@ -572,7 +596,7 @@ def parse_problem_name(iterator):
     return parse_name(iterator, "problem name")
 
 
-def parse_problem_def(iterator):
+def parse_problem_def(iterator: LispIterator) -> ProblemDef:
     """Parse a complete problem definition and return a ProblemDef instance.
 
     Recursively calls all parsers needed to parse a problem definition.
@@ -586,7 +610,7 @@ def parse_problem_def(iterator):
     probname = parse_problem_name(next(iterator))
     dom = parse_problem_domain_stmt(next(iterator))
     # Parse all object definitions.
-    objects = {}
+    objects: Any = {}
     if iterator.peek_tag() == ":objects":
         objects = parse_objects_stmt(next(iterator))
     init = parse_init_stmt(next(iterator))
@@ -595,7 +619,7 @@ def parse_problem_def(iterator):
     return ProblemDef(probname, dom.name, objects, init, goal)
 
 
-def parse_init_stmt(iterator):
+def parse_init_stmt(iterator: LispIterator) -> InitStmt:
     """Parse a problem's init statement and return an InitStmt.
 
     The init statement consists of a list of predicate instances.
@@ -606,7 +630,7 @@ def parse_init_stmt(iterator):
     return InitStmt(preds)
 
 
-def parse_goal_stmt(iterator):
+def parse_goal_stmt(iterator: LispIterator) -> GoalStmt:
     """Parse a problem's goal statement and return a GoalStmt.
 
     The goal statement consists of an arbitrary formula (STRIPS semantics are
@@ -625,18 +649,18 @@ class Parser:
     into the data structures defined in pddl.py.
     """
 
-    def __init__(self, dom_file, prob_file=None):
+    def __init__(self, dom_file: str, prob_file: str | None = None) -> None:
         # ``dom_file``/``prob_file`` are the domain and (optional) problem files.
         self.dom_file = dom_file
         self.prob_file = prob_file
-        self.dom_input = ""
-        self.prob_input = ""
+        self.dom_input: Any = ""
+        self.prob_input: Any = ""
 
-    def _read_input(self, source):
+    def _read_input(self, source: Any) -> LispIterator:
         """Read and normalize the lisp input, returning a LispIterator."""
         return parse_lisp_iterator(source)
 
-    def parse_domain(self, read_from_file=True):
+    def parse_domain(self, read_from_file: bool = True) -> Any:
         """Parse the domain and return the resulting pddl.Domain.
 
         If ``read_from_file`` is False, the domain is read from ``self.dom_input``
@@ -652,13 +676,14 @@ class Parser:
         domain_ast.accept(visitor)
         return visitor.domain
 
-    def parse_problem(self, dom, read_from_file=True):
+    def parse_problem(self, dom: Any, read_from_file: bool = True) -> Any:
         """Parse the problem and return the resulting pddl.Problem.
 
         If ``read_from_file`` is False, the problem is read from
         ``self.prob_input`` instead of from ``self.prob_file``.
         """
         if read_from_file:
+            assert self.prob_file is not None
             with open(self.prob_file, encoding="utf-8") as file:
                 self.prob_input = self._read_input(file)
         else:
@@ -668,7 +693,7 @@ class Parser:
         problem_ast.accept(visitor)
         return visitor.get_problem()
 
-    def set_prob_file(self, fname):
+    def set_prob_file(self, fname: str) -> None:
         self.prob_file = fname
 
 

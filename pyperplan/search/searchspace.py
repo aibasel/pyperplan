@@ -17,6 +17,8 @@
 
 """The search node and associated helper functions."""
 
+from ..task import Operator, State
+
 
 class SearchNode:
     """A node in the search space of a planning algorithm.
@@ -26,7 +28,18 @@ class SearchNode:
     measured as the number of applied operators.
     """
 
-    def __init__(self, state, parent, action, g):
+    # The set of landmarks not yet reached on the path to this node. Set lazily
+    # by the landmark heuristic; declared here so the compiled (mypyc) class
+    # accepts the assignment.
+    unreached: set[str]
+
+    def __init__(
+        self,
+        state: State,
+        parent: "SearchNode | None",
+        action: Operator | None,
+        g: int,
+    ) -> None:
         """
         state: The state to store in the search space.
         parent: The parent node in the search space.
@@ -38,18 +51,19 @@ class SearchNode:
         self.action = action
         self.g = g
 
-    def extract_solution(self):
+    def extract_solution(self) -> list[Operator]:
         """Return the actions applied from the initial node to this node."""
         solution = []
-        node = self
-        while node.parent is not None:
+        node: SearchNode | None = self
+        while node is not None and node.parent is not None:
+            assert node.action is not None
             solution.append(node.action)
             node = node.parent
         solution.reverse()
         return solution
 
 
-def make_root_node(initial_state):
+def make_root_node(initial_state: State) -> SearchNode:
     """Construct the root search node.
 
     The root node has no parent and no action, and its g-value is zero.
@@ -57,7 +71,9 @@ def make_root_node(initial_state):
     return SearchNode(initial_state, None, None, 0)
 
 
-def make_child_node(parent_node, action, state):
+def make_child_node(
+    parent_node: SearchNode, action: Operator, state: State
+) -> SearchNode:
     """Construct a child of ``parent_node`` reached via ``action``.
 
     The child stores ``state`` and its g-value is the parent's g-value plus one.

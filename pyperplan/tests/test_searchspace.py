@@ -6,11 +6,13 @@ from pyperplan.search.searchspace import make_child_node, make_root_node
 
 # Construct a small tree in order to perform some needed test methods
 
-root = make_root_node("state1")
-child1 = make_child_node(root, "action1", "state2")
-child2 = make_child_node(root, "action2", "state3")
-grandchild1 = make_child_node(child1, "action3", "state4")
-grandchild2 = make_child_node(child2, "action4", "state5")
+# These tests exercise only the search-node plumbing, so plain strings stand in
+# for states and operators; using real objects would obscure the assertions.
+root = make_root_node("state1")  # type: ignore[arg-type]
+child1 = make_child_node(root, "action1", "state2")  # type: ignore[arg-type]
+child2 = make_child_node(root, "action2", "state3")  # type: ignore[arg-type]
+grandchild1 = make_child_node(child1, "action3", "state4")  # type: ignore[arg-type]
+grandchild2 = make_child_node(child2, "action4", "state5")  # type: ignore[arg-type]
 
 
 def test_extract_solution():

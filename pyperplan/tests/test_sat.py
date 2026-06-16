@@ -21,11 +21,15 @@ op2 = Operator("op2", set(), set(), {"c"})
 op3 = Operator("op3", ["d"], ["a"], [])
 op4 = Operator("op4", [], ["b"], [])
 
-task1 = Task("task1", {"a"}, set(), {"a"}, [op1])
-task2 = Task("task2", {"a", "d"}, {"d"}, {"a"}, [op1, op3])
-task3 = Task("task3", {"a", "b"}, set(), {"a", "b"}, [op1, op4])
-task4 = Task("task4", {"a", "d"}, {"d"}, {"a"}, [op3])
-task5 = Task("trivial", {"a"}, {"a"}, {"a"}, [])
+task1 = Task("task1", frozenset({"a"}), frozenset(), frozenset({"a"}), [op1])
+task2 = Task(
+    "task2", frozenset({"a", "d"}), frozenset({"d"}), frozenset({"a"}), [op1, op3]
+)
+task3 = Task(
+    "task3", frozenset({"a", "b"}), frozenset(), frozenset({"a", "b"}), [op1, op4]
+)
+task4 = Task("task4", frozenset({"a", "d"}), frozenset({"d"}), frozenset({"a"}), [op3])
+task5 = Task("trivial", frozenset({"a"}), frozenset({"a"}), frozenset({"a"}), [])
 
 
 def sort_formula(formula):
@@ -172,19 +176,49 @@ def test_sat_solve():
     op6 = Operator("op6", {"d"}, {"e", "f"}, set())
     op7 = Operator("op7", {"a", "c", "f"}, {"g"}, set())
 
-    task0 = Task("task0", {"a"}, {"a"}, {"a"}, [op1, op2])
-    task1 = Task("task1", {"a"}, set(), {"a"}, [op1, op2])
-    task2 = Task("task2", {"a", "b"}, set(), {"b"}, [op1, op2])
-    task3 = Task("task3", {"a", "b", "c"}, set(), {"c"}, [op1, op2])
-    task4 = Task("task4", {"a", "b", "c"}, set(), {"c"}, [op1, op2, op3])
-    task5 = Task("task5", {"a", "b", "c"}, set(), {"c"}, [op1, op2, op4])
-    task6 = Task("task6", {"a", "b", "c", "d"}, {"a"}, {"d"}, [op2, op4, op5])
-    task7 = Task("task7c", {"a", "b", "c", "d"}, {"a"}, {"d"}, [op3, op5])
+    task0 = Task(
+        "task0", frozenset({"a"}), frozenset({"a"}), frozenset({"a"}), [op1, op2]
+    )
+    task1 = Task("task1", frozenset({"a"}), frozenset(), frozenset({"a"}), [op1, op2])
+    task2 = Task(
+        "task2", frozenset({"a", "b"}), frozenset(), frozenset({"b"}), [op1, op2]
+    )
+    task3 = Task(
+        "task3", frozenset({"a", "b", "c"}), frozenset(), frozenset({"c"}), [op1, op2]
+    )
+    task4 = Task(
+        "task4",
+        frozenset({"a", "b", "c"}),
+        frozenset(),
+        frozenset({"c"}),
+        [op1, op2, op3],
+    )
+    task5 = Task(
+        "task5",
+        frozenset({"a", "b", "c"}),
+        frozenset(),
+        frozenset({"c"}),
+        [op1, op2, op4],
+    )
+    task6 = Task(
+        "task6",
+        frozenset({"a", "b", "c", "d"}),
+        frozenset({"a"}),
+        frozenset({"d"}),
+        [op2, op4, op5],
+    )
+    task7 = Task(
+        "task7c",
+        frozenset({"a", "b", "c", "d"}),
+        frozenset({"a"}),
+        frozenset({"d"}),
+        [op3, op5],
+    )
     Task(
         "task8",
-        {"a", "b", "c", "d", "e", "f", "g"},
-        {"a"},
-        {"g"},
+        frozenset({"a", "b", "c", "d", "e", "f", "g"}),
+        frozenset({"a"}),
+        frozenset({"g"}),
         [op2, op3, op4, op5, op6, op7],
     )
 
@@ -221,39 +255,45 @@ def test_sat_solve():
 
     task_facts = Task(
         "task_facts",
-        {
-            "a",
-            "b",
-            "c",
-            "d",
-            "e",
-            "f",
-            "g",
-            "h",
-            "i",
-            "j",
-            "k",
-            "l",
-            "m",
-            "n",
-            "o",
-            "p",
-            "q",
-            "r",
-            "s",
-            "t",
-            "u",
-            "v",
-            "w",
-        },
-        set(),
-        {"v", "w"},
+        frozenset(
+            {
+                "a",
+                "b",
+                "c",
+                "d",
+                "e",
+                "f",
+                "g",
+                "h",
+                "i",
+                "j",
+                "k",
+                "l",
+                "m",
+                "n",
+                "o",
+                "p",
+                "q",
+                "r",
+                "s",
+                "t",
+                "u",
+                "v",
+                "w",
+            }
+        ),
+        frozenset(),
+        frozenset({"v", "w"}),
         [op_facts],
     )
 
     op_delete_pre = Operator("delete_pre", {"a"}, {"b"}, {"a"})
     task_op_delete_pre = Task(
-        "op_delete_pre", {"a", "b"}, {"a"}, {"b"}, [op_delete_pre]
+        "op_delete_pre",
+        frozenset({"a", "b"}),
+        frozenset({"a"}),
+        frozenset({"b"}),
+        [op_delete_pre],
     )
 
     # Miconic: prob00.pddl (2 floors, 1 person):
@@ -268,9 +308,9 @@ def test_sat_solve():
     op_up = Operator("up", {"low"}, {"high"}, {"low"})
     task_simple_miconic = Task(
         "miconic-simple",
-        {"low", "high", "boarded", "served"},
-        {"low"},
-        {"served"},
+        frozenset({"low", "high", "boarded", "served"}),
+        frozenset({"low"}),
+        frozenset({"served"}),
         [op_depart, op_board, op_up],
     )
 

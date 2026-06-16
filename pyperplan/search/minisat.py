@@ -21,6 +21,7 @@ import itertools
 import logging
 import subprocess
 import sys
+from typing import IO, Any
 
 from pyperplan import tools
 
@@ -29,25 +30,29 @@ OUTPUT = "output.txt"
 MINISAT = "minisat"
 
 
-def minisat_available():
+def minisat_available() -> bool:
     return tools.command_available([MINISAT, "--help"])
 
 
 class CnfWriter:
-    def _print_clause(self, clause):
+    cnf_file: IO[str]
+    count: "itertools.count[int]"
+    vars_to_numbers: dict[str, int]
+
+    def _print_clause(self, clause: list[Any]) -> None:
         print(
             " ".join(str(self._literal_to_int(literal)) for literal in clause) + " 0",
             file=self.cnf_file,
         )
 
-    def _print_clauses(self, clauses):
+    def _print_clauses(self, clauses: list[list[Any]]) -> None:
         for clause in clauses:
             self._print_clause(clause)
 
-    def _get_aux_var(self):
+    def _get_aux_var(self) -> int:
         return next(self.count)
 
-    def _literal_to_int(self, literal):
+    def _literal_to_int(self, literal: str | int) -> int:
         if isinstance(literal, int):
             return literal
         negated = literal.startswith("not-")
@@ -62,7 +67,7 @@ class CnfWriter:
             number = -number
         return number
 
-    def _get_aux_clauses_for_iff(self, iff):
+    def _get_aux_clauses_for_iff(self, iff: str) -> list[list[str]]:
         a2, a1 = iff.split("<->")
         return [
             [iff, a2, a1],
@@ -71,13 +76,15 @@ class CnfWriter:
             ["not-" + iff, "not-" + a2, a1],
         ]
 
-    def _get_aux_clauses_for_and(self, var1, var2):
+    def _get_aux_clauses_for_and(
+        self, var1: str | int, var2: str | int
+    ) -> tuple[int, list[list[Any]]]:
         aux = self._get_aux_var()
         not_var1 = "not-" + var1 if isinstance(var1, str) else -var1
         not_var2 = "not-" + var2 if isinstance(var2, str) else -var2
         return aux, [[-aux, var1], [-aux, var2], [not_var1, not_var2, aux]]
 
-    def write(self, formula):
+    def write(self, formula: list[Any]) -> dict[str, int]:
         """Write ``formula`` to the CNF input file and return the variable map.
 
         Helper variables are added for all occurrences of "a2<->a1".
@@ -85,7 +92,7 @@ class CnfWriter:
         self.count = itertools.count(start=1)
         self.vars_to_numbers = {}
 
-        aux_iff_vars = set()
+        aux_iff_vars: set[str] = set()
 
         logging.debug("Writing minisat input file")
         # We omit the number of variables and clauses because we don't know
@@ -95,7 +102,7 @@ class CnfWriter:
                 if not isinstance(disj, list):
                     self._print_clause([disj])
                     continue
-                new_clause = []
+                new_clause: list[Any] = []
                 for conj in disj:
                     if not isinstance(conj, list):
                         new_clause.append(conj)
@@ -122,7 +129,7 @@ class CnfWriter:
         return self.vars_to_numbers
 
 
-def solve_with_minisat():
+def solve_with_minisat() -> None:
     """Run minisat on the CNF input file, writing its result to the output file."""
     try:
         logging.debug(f"Solving with {MINISAT}")
@@ -140,12 +147,12 @@ def solve_with_minisat():
     tools.remove(INPUT)
 
 
-def retransform_output(names_to_numbers):
+def retransform_output(names_to_numbers: dict[str, int]) -> list[str]:
     """Translate minisat's numeric variables back into the planner's names."""
     logging.debug("Retransforming output")
     numbers_to_names = {number: name for name, number in names_to_numbers.items()}
 
-    retransformed = []
+    retransformed: list[str] = []
     with open(OUTPUT) as file:
         lines = file.readlines()
     if lines[0].startswith("SAT"):
@@ -164,7 +171,7 @@ def retransform_output(names_to_numbers):
     return retransformed
 
 
-def solve(formula):
+def solve(formula: list[Any]) -> list[str]:
     """Solve ``formula`` with minisat and return the resulting valuation.
 
     The formula is transformed into minisat's input format, solved, and the

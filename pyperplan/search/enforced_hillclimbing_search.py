@@ -20,10 +20,15 @@
 import logging
 from collections import deque
 
+from ..heuristics.heuristic_base import Heuristic
+from ..task import Operator, State, Task
 from . import searchspace
+from .searchspace import SearchNode
 
 
-def enforced_hillclimbing_search(planning_task, heuristic, use_preferred_ops=False):
+def enforced_hillclimbing_search(
+    planning_task: Task, heuristic: Heuristic, use_preferred_ops: bool = False
+) -> list[Operator] | None:
     """Search for a plan on the given task using enforced hill climbing.
 
     Duplicate states are detected and skipped. Returns the solution as a list of
@@ -33,14 +38,15 @@ def enforced_hillclimbing_search(planning_task, heuristic, use_preferred_ops=Fal
     """
     iteration = 0  # Number of expanded nodes (only used for logging).
     # FIFO queue storing the nodes that are next to explore.
-    queue = deque()
+    queue: deque[SearchNode] = deque()
     initial_node = searchspace.make_root_node(planning_task.initial_state)
     queue.append(initial_node)
     best_heuristic_value = heuristic(initial_node)
     logging.info(f"Initial h value: {best_heuristic_value:f}")
     # Set of explored states, used for duplicate detection.
-    closed = set()
-    visited = set()
+    closed: set[State] = set()
+    visited: set[State] = set()
+    rplan: set[str] | None = None
     while queue:
         iteration += 1
         node = queue.popleft()

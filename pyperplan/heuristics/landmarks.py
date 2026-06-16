@@ -20,18 +20,20 @@
 import copy
 from collections import defaultdict
 
+from ..search.searchspace import SearchNode
+from ..task import Operator, Task
 from .heuristic_base import Heuristic
 
 
-def _get_relaxed_task(task):
+def _get_relaxed_task(task: Task) -> Task:
     """Return a copy of ``task`` with the delete effects of every operator removed."""
     relaxed_task = copy.deepcopy(task)
     for op in relaxed_task.operators:
-        op.del_effects = set()
+        op.del_effects = frozenset()
     return relaxed_task
 
 
-def get_landmarks(task):
+def get_landmarks(task: Task) -> set[str]:
     """Return a set of landmarks.
 
     In this implementation a fact is a landmark if the goal facts cannot be
@@ -61,17 +63,17 @@ def get_landmarks(task):
     return landmarks
 
 
-def compute_landmark_costs(task, landmarks):
+def compute_landmark_costs(task: Task, landmarks: set[str]) -> dict[str, float]:
     """
     Compute uniform cost partitioning for actions depending on the landmarks
     they achieve.
     """
-    op_to_lm = defaultdict(set)
+    op_to_lm: defaultdict[Operator, set[str]] = defaultdict(set)
     for operator in task.operators:
         for landmark in landmarks:
             if landmark in operator.add_effects:
                 op_to_lm[operator].add(landmark)
-    min_cost = defaultdict(lambda: float("inf"))
+    min_cost: defaultdict[str, float] = defaultdict(lambda: float("inf"))
     for operator, achieved in op_to_lm.items():
         cost = 1 / len(achieved)
         for landmark in achieved:
@@ -80,20 +82,21 @@ def compute_landmark_costs(task, landmarks):
 
 
 class LandmarkHeuristic(Heuristic):
-    def __init__(self, task):
+    def __init__(self, task: Task) -> None:
         self.task = task
 
         self.landmarks = get_landmarks(task)
         assert self.task.goals <= self.landmarks
         self.costs = compute_landmark_costs(task, self.landmarks)
 
-    def __call__(self, node):
+    def __call__(self, node: SearchNode) -> float:
         """Return the heuristic value for ``node``."""
         if node.parent is None:
             # At the beginning only the initial facts are achieved.
             node.unreached = self.landmarks - self.task.initial_state
         else:
             # A new node reaches the facts in its add effects.
+            assert node.action is not None
             node.unreached = node.parent.unreached - node.action.add_effects
         # We always want to keep the goal facts unreached if they are not true
         # in the current state, even if they have been reached before.

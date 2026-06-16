@@ -19,11 +19,21 @@
 
 import heapq
 import logging
+from collections.abc import Callable
 
+from ..heuristics.heuristic_base import Heuristic
+from ..task import Operator, State, Task
 from . import searchspace
+from .searchspace import SearchNode
+
+# A priority-queue entry: (f, h, tiebreaker, node), ordered tuple-wise.
+OpenEntry = tuple[float, float, int, SearchNode]
+# A factory that builds an open-list entry from a node, its h-value and a
+# tiebreaker counter.
+MakeOpenEntry = Callable[[SearchNode, float, int], OpenEntry]
 
 
-def ordered_node_astar(node, h, node_tiebreaker):
+def ordered_node_astar(node: SearchNode, h: float, node_tiebreaker: int) -> OpenEntry:
     """Return a priority-queue entry ordering ``node`` by f = g + h (A*).
 
     The tuple ``(f, h, node_tiebreaker, node)`` orders nodes by f-value, then by
@@ -33,7 +43,7 @@ def ordered_node_astar(node, h, node_tiebreaker):
     return (node.g + h, h, node_tiebreaker, node)
 
 
-def ordered_node_weighted_astar(weight):
+def ordered_node_weighted_astar(weight: float) -> MakeOpenEntry:
     """Return an entry factory for weighted A*, ordering nodes by g + weight * h.
 
     Calling ``ordered_node_weighted_astar(42)`` returns a function that builds
@@ -49,12 +59,16 @@ def ordered_node_weighted_astar(weight):
     )
 
 
-def ordered_node_greedy_best_first(node, h, node_tiebreaker):
+def ordered_node_greedy_best_first(
+    node: SearchNode, h: float, node_tiebreaker: int
+) -> OpenEntry:
     """Return a priority-queue entry ordering ``node`` by h alone (greedy BFS)."""
     return (h, h, node_tiebreaker, node)
 
 
-def greedy_best_first_search(task, heuristic, use_relaxed_plan=False):
+def greedy_best_first_search(
+    task: Task, heuristic: Heuristic, use_relaxed_plan: bool = False
+) -> list[Operator] | None:
     """Search for a plan in ``task`` using greedy best-first search.
 
     ``heuristic`` is a callable that estimates the number of steps from a search
@@ -65,7 +79,12 @@ def greedy_best_first_search(task, heuristic, use_relaxed_plan=False):
     )
 
 
-def weighted_astar_search(task, heuristic, weight=5, use_relaxed_plan=False):
+def weighted_astar_search(
+    task: Task,
+    heuristic: Heuristic,
+    weight: float = 5,
+    use_relaxed_plan: bool = False,
+) -> list[Operator] | None:
     """Search for a plan in ``task`` using weighted A* search.
 
     ``heuristic`` is a callable that estimates the number of steps to the goal,
@@ -77,8 +96,11 @@ def weighted_astar_search(task, heuristic, weight=5, use_relaxed_plan=False):
 
 
 def astar_search(
-    task, heuristic, make_open_entry=ordered_node_astar, use_relaxed_plan=False
-):
+    task: Task,
+    heuristic: Heuristic,
+    make_open_entry: MakeOpenEntry = ordered_node_astar,
+    use_relaxed_plan: bool = False,
+) -> list[Operator] | None:
     """Search for a plan in ``task`` using A* search.
 
     ``heuristic`` is a callable that estimates the number of steps from a search
@@ -87,8 +109,8 @@ def astar_search(
     ``ordered_node_astar``, ``ordered_node_weighted_astar`` and
     ``ordered_node_greedy_best_first``.
     """
-    open_list = []
-    state_cost = {task.initial_state: 0}
+    open_list: list[OpenEntry] = []
+    state_cost: dict[State, int] = {task.initial_state: 0}
     node_tiebreaker = 0
 
     root = searchspace.make_root_node(task.initial_state)
@@ -96,7 +118,7 @@ def astar_search(
     heapq.heappush(open_list, make_open_entry(root, init_h, node_tiebreaker))
     logging.info(f"Initial h value: {init_h:f}")
 
-    besth = float("inf")
+    besth: float = float("inf")
     counter = 0
     expansions = 0
 
@@ -117,7 +139,7 @@ def astar_search(
                 logging.info("Goal reached. Start extraction of solution.")
                 logging.info(f"{expansions} Nodes expanded")
                 return pop_node.extract_solution()
-            rplan = None
+            rplan: set[str] | None = None
             if use_relaxed_plan:
                 (rh, rplan) = heuristic.calc_h_with_plan(
                     searchspace.make_root_node(pop_state)
@@ -139,7 +161,7 @@ def astar_search(
                 # cheaply than any path seen so far. The heuristic is expensive,
                 # so we avoid computing it for successors we would not enqueue.
                 succ_g = pop_node.g + 1
-                if succ_g >= state_cost.get(succ_state, float("inf")):
+                if succ_state in state_cost and succ_g >= state_cost[succ_state]:
                     continue
                 succ_node = searchspace.make_child_node(pop_node, op, succ_state)
                 h = heuristic(succ_node)
