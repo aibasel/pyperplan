@@ -2,9 +2,8 @@
 
 This is the documentation for Pyperplan, a STRIPS planner built in the
 winter term 2010/2011 by the students of the AI planning practical course
-at the University of Freiburg. It is written in Python3 and is quite
-competitive when it comes to feature completeness. This document should
-help you to understand the planner's usage as well as the internal
+at the University of Freiburg. It is written in Python 3. This document
+should help you understand the planner's usage as well as its internal
 structure and where to extend it, if you want to.
 
 # Usage
@@ -13,11 +12,12 @@ The planner's executable is called `pyperplan`. It takes at least one
 argument, the PDDL problem file.
 
 If you only pass a problem file, Pyperplan will try to guess the domain
-file from the problem file. If the problem file contains a number,
-Pyperplan will use a filename like `domainNUMBER.pddl` as a domain file
-candidate. If this file does not exist (or the problem name does not
-contain a number), it just uses `domain.pddl`. If this fails, an error
-will be raised.
+file from the problem file. If the problem file's name contains a number,
+Pyperplan looks in the same directory for a file whose name contains both
+the word `domain` and that number (this matches domains that ship a
+separate domain file per problem). Otherwise, it falls back to
+`domain.pddl` in the same directory. If no domain file can be found, an
+error will be raised.
 
 You can pass a specific domain file by using `pyperplan domainfile
 problemfile` to call the planner. **Note:** The domain comes before the
@@ -56,7 +56,7 @@ is done in `pddl.parser` where the `Parser` class is defined which provides
 methods for parsing a domain and a problem file. It parses the file by
 using a generic LISP parser that fills an abstract syntax tree. This tree is
 then traversed and nodes with PDDL-specific keywords are used to generate
-instances of the according class of from the `pddl.pddl` module. When
+instances of the corresponding class from the `pddl.pddl` module. When
 more features are added to the STRIPS implementation, e.g., supporting the
 complete set of STRIPS features, it should be sufficient to modify the existing
 visitors.

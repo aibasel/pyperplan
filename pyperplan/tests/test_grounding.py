@@ -360,8 +360,8 @@ def test_regression():
     parser = Parser("")
 
     def parse_problem(domain, problem):
-        parser.domInput = domain
-        parser.probInput = problem
+        parser.dom_input = domain
+        parser.prob_input = problem
         domain = parser.parse_domain(False)
         return parser.parse_problem(domain, False)
 
@@ -525,8 +525,8 @@ def test_add_del_effects():
     parser = Parser("")
 
     def parse_problem(domain, problem):
-        parser.domInput = domain
-        parser.probInput = problem
+        parser.dom_input = domain
+        parser.prob_input = problem
         domain = parser.parse_domain(False)
         return parser.parse_problem(domain, False)
 

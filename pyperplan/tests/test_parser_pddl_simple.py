@@ -7,14 +7,14 @@ from pyperplan.pddl.parser import *
 ## helper functions
 
 
-def varListTest(varList):
-    assert [k.name for k in varList] == ["?x", "?y", "?z"]
-    assert len([k for k in varList if k.typed]) == 3
-    assert [k.types[0] for k in varList] == ["block", "foo", "block"]
+def var_list_test(var_list):
+    assert [k.name for k in var_list] == ["?x", "?y", "?z"]
+    assert len([k for k in var_list if k.typed]) == 3
+    assert [k.types[0] for k in var_list] == ["block", "foo", "block"]
 
 
-def keywordListTest(keyList):
-    assert [k.name for k in keyList] == ["name", "parameters", "foo"]
+def keyword_list_test(key_list):
+    assert [k.name for k in key_list] == ["name", "parameters", "foo"]
 
 
 ## the tests
@@ -39,7 +39,7 @@ def test_parseKeywordList():
     iter = parse_lisp_iterator(test)
     keys = parse_keyword_list(iter)
     assert iter.empty()
-    keywordListTest(keys)
+    keyword_list_test(keys)
 
 
 def test_parseRequirements():
@@ -47,7 +47,7 @@ def test_parseRequirements():
     iter = parse_lisp_iterator(test)
     req = parse_requirements_stmt(iter)
     assert iter.empty()
-    keywordListTest(req.keywords)
+    keyword_list_test(req.keywords)
 
 
 def test_parseRequirements2():
@@ -80,14 +80,14 @@ def test_parseVariableList():
     test = [" ( ?x - block ?y - foo ?z - block  )"]
     iter = parse_lisp_iterator(test)
     key = parse_typed_var_list(iter)
-    varListTest(key)
+    var_list_test(key)
 
 
 def test_parseParameters():
     test = ["(:parameters ( ?x - block ?y - foo ?z - block  ))"]
     iter = parse_lisp_iterator(test)
     key = parse_parameters(iter)
-    varListTest(key)
+    var_list_test(key)
 
 
 def test_parseParameters2():

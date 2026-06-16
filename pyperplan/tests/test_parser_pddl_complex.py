@@ -6,7 +6,7 @@ from pyperplan.pddl.parser import *
 ### helper functions
 
 
-def objectsTest(objects):
+def objects_test(objects):
     assert [o.name for o in objects] == [
         "apn1",
         "apt2",
@@ -24,8 +24,8 @@ def objectsTest(objects):
         "obj12",
         "obj11",
     ]
-    typeSet = {o.typeName for o in objects}
-    assert typeSet == {"airplane", "airport", "location", "city", "truck", "package"}
+    type_set = {o.type_name for o in objects}
+    assert type_set == {"airplane", "airport", "location", "city", "truck", "package"}
 
 
 ### test cases
@@ -263,7 +263,7 @@ def test_parseDomainDef2():
                (handempty)
                (holding ?x - block)
                )
-    (:unkownKeyword lksdf)
+    (:unknown_keyword lksdf)
     )
     """
     ]
@@ -320,7 +320,7 @@ def test_parseDomainDef():
                    (not (clear ?x))
                    (not (handempty))
                    (not (on ?x ?y))))
-   (:unkownKeyword lksdf)
+   (:unknown_keyword lksdf)
                    )
     """
     ]
@@ -357,7 +357,7 @@ def test_predList2():
 def test_predList3():
     test = [
         """
-    (:predicates (at ?x - (notEither person aircraft) ?c - city)
+    (:predicates (at ?x - (not_either person aircraft) ?c - city)
              (in ?p - person ?a - aircraft)
              (fuel-level ?a - aircraft ?l - flevel)
              (next ?l1 ?l2 - flevel))
@@ -394,7 +394,7 @@ def test_parseObjectsStmt():
     ]
     iter = parse_lisp_iterator(test)
     objects = parse_objects_stmt(iter)
-    objectsTest(objects)
+    objects_test(objects)
 
 
 def test_parseInitStmt():
@@ -472,8 +472,8 @@ def test_parseConstants():
     ]
     iter = parse_lisp_iterator(test)
     const = parse_constants_stmt(iter)
-    nameList = ["north", "south", "light", "medium", "heavy"]
-    nameList += """seg_pp_0_60
+    name_list = ["north", "south", "light", "medium", "heavy"]
+    name_list += """seg_pp_0_60
                 seg_ppdoor_0_40
                 seg_tww1_0_200
                 seg_twe1_0_200
@@ -491,9 +491,9 @@ def test_parseConstants():
                 seg_rwte2_0_10
                 seg_rwtw2_0_10
                 airplane_CFBEG""".split()
-    nameList = [n.lower() for n in nameList]
-    assert [c.name for c in const] == nameList
-    ttest = [c.typeName for c in const][:5]
+    name_list = [n.lower() for n in name_list]
+    assert [c.name for c in const] == name_list
+    ttest = [c.type_name for c in const][:5]
     assert ttest == [
         "direction",
         "direction",
@@ -529,8 +529,8 @@ def test_parseProblemDef():
     iter = parse_lisp_iterator(test)
     prob = parse_problem_def(iter)
     assert prob.name == "logistics-4-1"
-    assert prob.domainName == "logistics"
-    objectsTest(prob.objects)
-    predNames = [p.name for p in prob.init.predicates]
-    assert len(predNames) == 13
-    assert set(predNames) == {"at", "in-city"}
+    assert prob.domain_name == "logistics"
+    objects_test(prob.objects)
+    pred_names = [p.name for p in prob.init.predicates]
+    assert len(pred_names) == 13
+    assert set(pred_names) == {"at", "in-city"}

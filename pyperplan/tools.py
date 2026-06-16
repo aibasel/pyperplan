@@ -20,10 +20,10 @@ import subprocess
 
 
 def command_available(command):
-    """Returns true iff command can be called without errors.
+    """Return True iff the command can be called without errors.
 
-    command should be a list. For checking the availbability of a command it
-    is common prectice to call the command's help method, e.g.
+    ``command`` should be a list. To check whether a command is available, it
+    is common practice to call its help function, e.g.
 
     ['validate', '-h'] or ['minisat', '--help']
     """
@@ -35,9 +35,9 @@ def command_available(command):
 
 
 def remove(filename):
-    """Removes the file under "filename" and catches any errors.
+    """Remove the file at ``filename``, ignoring any errors.
 
-    If filename points to a directory it is not removed.
+    If ``filename`` points to a directory, it is not removed.
     """
     try:
         os.remove(filename)

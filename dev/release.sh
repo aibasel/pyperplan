@@ -12,19 +12,19 @@ function set_version {
 
 cd $(dirname "$0")/../
 
-# Check for uncommited changes.
+# Check for uncommitted changes.
 set +e
 git diff --quiet && git diff --cached --quiet
 retcode=$?
 set -e
 if [[ $retcode != 0 ]]; then
-    echo "There are uncommited changes:"
+    echo "There are uncommitted changes:"
     git status
     exit 1
 fi
 
-if [[ $(git rev-parse --abbrev-ref HEAD) != master ]]; then
-    echo "Must be on master for release"
+if [[ $(git rev-parse --abbrev-ref HEAD) != main ]]; then
+    echo "Must be on main for release"
     exit 1
 fi
 

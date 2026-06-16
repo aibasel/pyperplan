@@ -16,18 +16,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-from .errors import *
+"""The main parser logic.
+
+A partial parser is implemented for each AST node, and these are called
+recursively to construct a complete parse.
+"""
+
 from .lisp_parser import parse_lisp_iterator
-from .parser_common import *
+from .parser_common import reserved
 from .tree_visitor import TraversePDDLDomain, TraversePDDLProblem, Visitable
 
-"""
-This module contains the main parser logic.
-Partial parser for each AST node are implemented
-and called recursively to construct a complete parse.
-"""
-
-# This emulates an c/c++ enum to distinguish between formulas variables and
+# This emulates a C/C++ enum to distinguish between formulas, variables and
 # constants in formulas.
 (TypeFormula, TypeVariable, TypeConstant) = range(3)
 
@@ -37,198 +36,139 @@ and called recursively to construct a complete parse.
 
 
 class Keyword(Visitable):
-    """This class represents the AST node for a pddl keyword."""
+    """AST node for a PDDL keyword."""
 
     def __init__(self, name):
-        """Construct a new Keyword.
-
-        Keyword arguments:
-        name -- the name of the keyword e.g. 'typed' if the keyword
-                were ':typed'
-        """
-        self._visitorName = "visit_keyword"
+        # ``name`` is the keyword without its colon, e.g. 'typed' for ':typed'.
+        self._visitor_name = "visit_keyword"
         self.name = name
 
 
 class Variable(Visitable):
-    """This class represents the AST node for a pddl variable."""
+    """AST node for a PDDL variable."""
 
     def __init__(self, name, types=None):
-        """Construct a new Variable.
-
-        Keyword arguments:
-        name -- the name of the variable e.g. 'x' if the variable were '?x'
-        types -- a list of names of Types denoting the possible types of this
-                 variable
-                 NOTE: checks that these types actually exist are implemented
-                 in the TreeVisitor
         """
-        self._visitorName = "visit_variable"
+        name: the name of the variable, e.g. 'x' for '?x'.
+        types: a list of names of the possible types of this variable, or None.
+            Whether these types exist is checked later by the TreeVisitor.
+        """
+        self._visitor_name = "visit_variable"
         self.name = name
-        self.typed = types is not None  # either True or False
-        self.types = types  # either None or a List of Types
+        self.typed = types is not None
+        self.types = types
 
 
 class Type(Visitable):
-    """This class represents the AST node for a pddl type."""
+    """AST node for a PDDL type."""
 
     def __init__(self, name, parent=None):
-        """Construct a new Type.
-
-        Keyword arguments:
-        name -- the name of the type
-        parent -- a string that denotes the Typ instance that is the parent of
-                  this type or None
-        """
-        self._visitorName = "visit_type"
+        # ``parent`` is the name of the parent type, or None.
+        self._visitor_name = "visit_type"
         self.name = name
-        self.parent = parent  # either None or a Type
+        self.parent = parent
 
 
 class Predicate(Visitable):
-    """This class represents the AST node for a pddl predicate."""
+    """AST node for a PDDL predicate."""
 
     def __init__(self, name, parameters=None):
-        """Construct a new Predicate.
-
-        Keyword arguments:
-        name -- the name of the Predicate
-        parameters -- a list of parameters described as variables
-        """
-        self._visitorName = "visit_predicate"
+        # ``parameters`` is a list of Variables.
+        self._visitor_name = "visit_predicate"
         self.name = name
-        self.parameters = parameters or []  # a list of Variables
+        self.parameters = parameters or []
 
 
 class PredicateInstance(Visitable):
-    """This class represents the AST node for a pddl predicate instance."""
+    """AST node for a PDDL predicate instance."""
 
-    def __init__(self, name, parameters=[]):
-        """Construct a new Predicate.
-
-        Keyword arguments:
-        name -- the name of the Predicate
-        parameters -- a list of parameters described as variables
-        """
-        self._visitorName = "visit_predicate_instance"
+    def __init__(self, name, parameters=None):
+        # ``parameters`` is a list of object names.
+        self._visitor_name = "visit_predicate_instance"
         self.name = name
-        self.parameters = parameters  # a list of object names
+        self.parameters = parameters or []
 
 
 class RequirementsStmt(Visitable):
-    """This class represents the AST node for a pddl requirements statement."""
+    """AST node for a PDDL requirements statement."""
 
     def __init__(self, keywords=None):
-        """Construct a new RequirementsStmt.
-
-        Keyword arguments:
-        keywords -- the list of requirements, represented as keywords
-        """
-        self._visitorName = "visit_requirements_stmt"
-        self.keywords = keywords or []  # a list of keywords
+        # ``keywords`` is the list of requirements, represented as Keywords.
+        self._visitor_name = "visit_requirements_stmt"
+        self.keywords = keywords or []
 
 
 class DomainStmt(Visitable):
-    """This class represents the AST node for a pddl domain statement."""
+    """AST node for a PDDL domain statement (the domain name)."""
 
     def __init__(self, name):
-        """Construct a new RequirementsStmt.
-
-        Keyword arguments:
-        name -- the domain name as a string
-        """
-        self._visitorName = "visit_domain_stmt"
+        self._visitor_name = "visit_domain_stmt"
         self.name = name
 
 
 class PreconditionStmt(Visitable):
-    """This class represents the AST node for a pddl action precondition."""
+    """AST node for a PDDL action precondition."""
 
     def __init__(self, formula):
-        """Construct a new PreconditionStmt.
-
-        Keyword arguments:
-        formula -- the parsed formula,
-                   NOTE: Arbitrary formulas are allowed here. STRIPS
-                   compatibility etc. is checked later by the TreeVisitor
-        """
-        self._visitorName = "visit_precondition_stmt"
-        self.formula = formula  # a Formula
+        # ``formula`` is the parsed Formula. Arbitrary formulas are allowed
+        # here; STRIPS compatibility is checked later by the TreeVisitor.
+        self._visitor_name = "visit_precondition_stmt"
+        self.formula = formula
 
 
 class EffectStmt(Visitable):
-    """This class represents the AST node for a pddl action effect."""
+    """AST node for a PDDL action effect."""
 
     def __init__(self, formula):
-        """Construct a new EffectStmt.
-
-        Keyword arguments:
-        formula -- the parsed formula,
-                   NOTE: Arbitrary formulas are allowed here. STRIPS
-                   compatibility etc. is checked later by the TreeVisitor
-        """
-        self._visitorName = "visit_effect_stmt"
-        self.formula = formula  # a Formula
+        # ``formula`` is the parsed Formula. Arbitrary formulas are allowed
+        # here; STRIPS compatibility is checked later by the TreeVisitor.
+        self._visitor_name = "visit_effect_stmt"
+        self.formula = formula
 
 
 class Formula(Visitable):
-    """
-    This class represents the AST node for a pddl formula,
-    as it can be specified for preconditions and effects.
-    """
+    """AST node for a PDDL formula, as used in preconditions and effects."""
 
     def __init__(self, key, children=None, type=TypeFormula):
-        """Construct a new Formula.
-
-        Keyword arguments:
-        key -- the operator of the subformula e.g. 'not' if the formula were
-               '(not (on a c))'
-        children -- a list of immediate descending subformulas of this formula
-        type -- the type of this formulas key --> one of
-                (TypeFormula, TypeVariable, TypeConstant)
         """
-        self._visitorName = "visit_formula"
+        key: the operator of the subformula, e.g. 'not' for '(not (on a c))'.
+        children: a list of immediate descending subformulas.
+        type: the type of the key, one of TypeFormula, TypeVariable or
+            TypeConstant.
+        """
+        self._visitor_name = "visit_formula"
         self.key = key
-        self.children = children or []  # a list of Formulas
-        self.type = type  # a Type
+        self.children = children or []
+        self.type = type
 
 
 class ActionStmt(Visitable):
-    """This class represents the AST node for a pddl action."""
+    """AST node for a PDDL action."""
 
     def __init__(self, name, parameters, precond, effect):
-        """Construct a new Action.
-
-        Keyword arguments:
-        name -- the name of the action
-        parameters -- a list of variables denoting the parameters
-        precond -- the precondition of the action given as a Formula
-        effect -- the effect of the action given as a Formula
         """
-        self._visitorName = "visit_action_stmt"
+        parameters: a list of Variables denoting the parameters.
+        precond: the precondition of the action, given as a Formula.
+        effect: the effect of the action, given as a Formula.
+        """
+        self._visitor_name = "visit_action_stmt"
         self.name = name
-        self.parameters = parameters  # a list of parameters
-        self.precond = precond  # right now: a Formula << PreconditionStmt
-        # right now also a Formula << EffectStmt
-        # --> should be checked when traversing the tree
+        self.parameters = parameters
+        self.precond = precond
         self.effect = effect
 
 
 class PredicatesStmt(Visitable):
-    """Represents the AST node for a pddl domain predicates definition."""
+    """AST node for a PDDL domain predicates definition."""
 
     def __init__(self, predicates):
-        """Construct a new Action.
-
-        Keyword arguments:
-        predicates -- a list of predicates
-        """
-        self._visitorName = "visit_predicates_stmt"
-        self.predicates = predicates  # a list of Predicates
+        # ``predicates`` is a list of Predicates.
+        self._visitor_name = "visit_predicates_stmt"
+        self.predicates = predicates
 
 
 class DomainDef(Visitable):
-    """This class represents the AST node for a pddl domain."""
+    """AST node for a PDDL domain."""
 
     def __init__(
         self,
@@ -239,88 +179,67 @@ class DomainDef(Visitable):
         actions=None,
         constants=None,
     ):
-        """Construct a new Domain AST node.
-
-        Keyword arguments:
-        name -- the domain name
-        types -- a list of Type AST nodes
-        predicates -- a list of Predicate AST nodes
-        actions -- a list of Action AST nodes
-        constants -- a list of Constants, as Object AST nodes
         """
-        self._visitorName = "visit_domain_def"
+        name: the domain name.
+        requirements: a RequirementsStmt.
+        types: a list of Type AST nodes.
+        predicates: a PredicatesStmt.
+        actions: a list of ActionStmt AST nodes.
+        constants: a list of constants, as Object AST nodes.
+        """
+        self._visitor_name = "visit_domain_def"
         self.name = name
-        self.requirements = requirements  # a RequirementsStmt
-        self.types = types  # a list of Types
-        self.predicates = predicates  # a PredicatesStmt
-        if actions is None:
-            self.actions = []
-        else:
-            self.actions = actions  # a list of ActionStmt
+        self.requirements = requirements
+        self.types = types
+        self.predicates = predicates
+        self.actions = [] if actions is None else actions
         self.constants = constants
 
 
 class ProblemDef(Visitable):
-    """This class represents the AST node for a pddl domain."""
+    """AST node for a PDDL problem."""
 
-    def __init__(self, name, domainName, objects=None, init=None, goal=None):
-        """Construct a new Problem AST node.
-
-        Keyword arguments:
-        name -- the problem name
-        domainName -- the domain name that corresponds to this problem
-        objects -- a list of objects defined in the problem file
-        init -- an initial condition represented by an InitStmt
-        goal -- a  goal condition represented by an GoalStmt
+    def __init__(self, name, domain_name, objects=None, init=None, goal=None):
         """
-        self._visitorName = "visit_problem_def"
+        name: the problem name.
+        domain_name: the name of the domain this problem belongs to.
+        objects: a list of objects defined in the problem file.
+        init: an initial condition represented by an InitStmt.
+        goal: a goal condition represented by a GoalStmt.
+        """
+        self._visitor_name = "visit_problem_def"
         self.name = name
-        self.domainName = domainName
+        self.domain_name = domain_name
         self.objects = objects
         self.init = init
         self.goal = goal
 
 
 class Object(Visitable):
-    """This class represents the AST node for a pddl object."""
+    """AST node for a PDDL object."""
 
     def __init__(self, name, type):
-        """Construct a new Object AST node.
-
-        Keyword arguments:
-        name -- the name of the object
-        type -- the name of this objects Type
-        """
-        self._visitorName = "visit_object"
+        # ``type`` is the name of this object's type.
+        self._visitor_name = "visit_object"
         self.name = name
-        self.typeName = type
+        self.type_name = type
 
 
 class InitStmt(Visitable):
-    """
-    This class represents the AST node for a pddl problem initial condition.
-    """
+    """AST node for a PDDL problem initial condition."""
 
     def __init__(self, predicates):
-        """Construct a new InitStmt AST node.
-
-        Keyword arguments:
-        predicates -- a list of predicates denoting the initial codition
-        """
-        self._visitorName = "visit_init_stmt"
+        # ``predicates`` is a list of predicates denoting the initial condition.
+        self._visitor_name = "visit_init_stmt"
         self.predicates = predicates
 
 
 class GoalStmt(Visitable):
-    """This class represents the AST node for a pddl problem goal condition."""
+    """AST node for a PDDL problem goal condition."""
 
     def __init__(self, formula):
-        """Construct a new GoalStmt AST node.
-
-        Keyword arguments:
-        predicates -- a list of predicates denoting the goal codition
-        """
-        self._visitorName = "visit_goal_stmt"
+        # ``formula`` is the Formula denoting the goal condition.
+        self._visitor_name = "visit_goal_stmt"
         self.formula = formula
 
 
@@ -329,33 +248,33 @@ class GoalStmt(Visitable):
 ###
 
 
-def parse_name(iter, father):
-    if not iter.peek().is_word():
-        raise ValueError("Error %s predicate statement must contain a name!" % father)
-    return next(iter).get_word()
+def parse_name(iterator, father):
+    if not iterator.peek().is_word():
+        raise ValueError(f"Error {father} predicate statement must contain a name!")
+    return next(iterator).get_word()
 
 
-def parse_list_template(f, iter):
+def parse_list_template(f, iterator):
     """This function implements a common pattern used in this parser.
 
     It tries to parse a list of 'f' objects from the string 'string[i:end]'.
-    The 'f' objects must be seperated by whitespace
+    The 'f' objects must be separated by whitespace.
     Returns a tuple of the position after the parsed list and the list.
     """
-    result = list()
-    # parse all possible occurences up to the end of the substring
-    for elem in iter:
+    result = []
+    # Parse all possible occurrences up to the end of the substring.
+    for elem in iterator:
         var = f(elem)
         if var is not None:
             result.append(var)
     return result
 
 
-def _parse_string_helper(iter):
-    return iter.get_word()
+def _parse_string_helper(iterator):
+    return iterator.get_word()
 
 
-def _parse_type_helper(iter, type_class):
+def _parse_type_helper(iterator, type_class):
     """This function implements another common idiom used in this parser.
 
     It parses a list consisting either of Objects or Variables or Types
@@ -369,47 +288,43 @@ def _parse_type_helper(iter, type_class):
 
     Returns the parsed list of instances.
     """
-    # there may be several objects with the same type
-    # hence we need to store each parsed object in a list and attach a new type
-    # instance whenever a type is specified
-    result = list()
-    tmpList = list()
-    while not iter.empty():
-        var = next(iter).get_word()
-        # print('VAR:', var)
+    # There may be several objects with the same type, hence we store each
+    # parsed object in a list and attach a new type instance whenever a type is
+    # specified.
+    result = []
+    tmp_list = []
+    while not iterator.empty():
+        var = next(iterator).get_word()
         if type_class != Variable and len(var) > 0 and var[0] in reserved:
             raise ValueError("Error type must not begin with reserved char!")
         elif var == "-":
             # check if either definition present
-            if iter.peek().is_structure():
+            if iterator.peek().is_structure():
                 # must contain either definition
-                types_iter = next(iter)
+                types_iter = next(iterator)
                 if not types_iter.try_match("either"):
                     raise ValueError(
                         'Error multiple parent definition must start with "either"'
                     )
                 tlist = parse_list_template(_parse_string_helper, types_iter)
-                while len(tmpList) != 0:
-                    result.append(type_class(tmpList.pop(), tlist))
+                while tmp_list:
+                    result.append(type_class(tmp_list.pop(), tlist))
             else:
-                # found type information --> flush objects into result list
-                ctype = next(iter).get_word()
-                while len(tmpList) != 0:
+                # Found type information, so flush objects into the result list.
+                ctype = next(iterator).get_word()
+                while tmp_list:
                     if type_class == Variable:
-                        result.append(type_class(tmpList.pop(), [ctype]))
+                        result.append(type_class(tmp_list.pop(), [ctype]))
                     else:
-                        result.append(type_class(tmpList.pop(), ctype))
+                        result.append(type_class(tmp_list.pop(), ctype))
         elif var is not None and var != "":
-            # found new object definition --> enqueue
-            if type_class == Variable:
-                if var[0] != "?":
-                    raise ValueError('Error variables must start with a "?"')
-                tmpList.insert(0, var)
-            else:
-                tmpList.insert(0, var)
-    while len(tmpList) != 0:
-        # append all left over objects --> these are untyped !!
-        result.append(type_class(tmpList.pop(), None))
+            # Found a new object definition, so enqueue it.
+            if type_class == Variable and var[0] != "?":
+                raise ValueError('Error variables must start with a "?"')
+            tmp_list.insert(0, var)
+    while tmp_list:
+        # Append all left-over objects; these are untyped.
+        result.append(type_class(tmp_list.pop(), None))
     return result
 
 
@@ -418,197 +333,162 @@ def _parse_type_helper(iter, type_class):
 ###
 
 
-def parse_keyword(iter):
-    """Parses a keyword from a given substring string[i:end].
-    Returns the position in the string after the parsed keyword
-    and the keyword itself as a tuple.
-    """
-    name = iter.get_word()
+def parse_keyword(iterator):
+    """Parse a keyword and return a Keyword instance."""
+    name = iterator.get_word()
     if name == "":
         raise ValueError("Error empty keyword found")
-    # ensure keyword starts with ':'
+    # Keywords have to start with a colon.
     if name[0] != ":":
         raise ValueError('Error keywords have to start with a colon ":"')
     return Keyword(name[1:])
 
 
-def parse_keyword_list(iter):
-    """Parses a list of keywords using the parse_list_template helper.
-
-    Returns a tuple of the position within the string after the parsed list and
-    the list itself.
-    """
-    return parse_list_template(parse_keyword, iter)
+def parse_keyword_list(iterator):
+    """Parse a list of keywords and return it."""
+    return parse_list_template(parse_keyword, iterator)
 
 
-def parse_variable(iter):
-    """Parses a Variable from the supplied string.
-
-    Returns the position after the variable definition and a Variable instance.
-    """
-    name = iter.get_word()
+def parse_variable(iterator):
+    """Parse a Variable and return it."""
+    name = iterator.get_word()
     if name == "":
         raise ValueError("Error empty variable found")
-    # ensure variable starts with '?'
+    # Variables have to start with a question mark.
     if name[0] != "?":
         raise ValueError('Error variables must start with a "?"')
     return Variable(name, None)
 
 
-def parse_typed_var_list(iter):
-    """
-    Parses a list of - possibly typed - variables using the _parse_type_helper
-    function.
-
-    Returns the position after the type list and the resulting list of type
-    instances.
-    """
-    return _parse_type_helper(iter, Variable)
+def parse_typed_var_list(iterator):
+    """Parse a list of (possibly typed) variables and return it."""
+    return _parse_type_helper(iterator, Variable)
 
 
-def parse_parameters(iter):
-    """
-    Parses a list of parameters using the parse_typed_var_list parser function.
-    """
-    # check that the parameters definition starts with the correct keyword
-    if not iter.try_match(":parameters"):
+def parse_parameters(iterator):
+    """Parse an action's parameter list and return it."""
+    if not iterator.try_match(":parameters"):
         raise ValueError('Error keyword ":parameters" required before parameter list!')
-    varList = parse_typed_var_list(next(iter))
-    return varList
+    return parse_typed_var_list(next(iterator))
 
 
-def parse_requirements_stmt(iter):
-    """Parse the pddl requirements definition.
-    Returns an RequirementsStmt.
-    """
-    # check for requirements keyword
-    if not iter.try_match(":requirements"):
+def parse_requirements_stmt(iterator):
+    """Parse the PDDL requirements definition and return a RequirementsStmt."""
+    if not iterator.try_match(":requirements"):
         raise ValueError('Error requirements list must contain keyword ":requirements"')
-    keywords = parse_keyword_list(iter)
+    keywords = parse_keyword_list(iterator)
     return RequirementsStmt(keywords)
 
 
-def _parse_types_with_error(iter, keyword, classt):
-    if not iter.try_match(keyword):
+def _parse_types_with_error(iterator, keyword, classt):
+    if not iterator.try_match(keyword):
         raise ValueError(
             f'Error keyword "{keyword}" required before {classt.__name__}!'
         )
-    return _parse_type_helper(iter, classt)
+    return _parse_type_helper(iterator, classt)
 
 
 # Constants / Objects and types can be parsed in the same way because of their
-# familiar structure.
-# Hence instantiate them with _parse_types_with_error.
-_common_types = [(":types", Type), (":objects", Object), (":constants", Object)]
-(parse_types_stmt, parse_objects_stmt, parse_constants_stmt) = map(
-    lambda tup: lambda it: _parse_types_with_error(it, tup[0], tup[1]), _common_types
-)
+# similar structure, so we delegate to _parse_types_with_error.
+def parse_types_stmt(iterator):
+    return _parse_types_with_error(iterator, ":types", Type)
 
 
-def _parse_domain_helper(iter, keyword):
-    """Parses the domain statement, which consists of the domain name.
+def parse_objects_stmt(iterator):
+    return _parse_types_with_error(iterator, ":objects", Object)
 
-    Returns a DomainStmt instance.
-    """
-    if not iter.try_match(keyword):
+
+def parse_constants_stmt(iterator):
+    return _parse_types_with_error(iterator, ":constants", Object)
+
+
+def _parse_domain_helper(iterator, keyword):
+    """Parse the domain statement (the domain name) and return a DomainStmt."""
+    if not iterator.try_match(keyword):
         raise ValueError("Error domain statement must be present before domain name!")
-    name = parse_name(iter, "domain")
+    name = parse_name(iterator, "domain")
     return DomainStmt(name)
 
 
-def parse_domain_stmt(it):
-    return _parse_domain_helper(it, "domain")
+def parse_domain_stmt(iterator):
+    return _parse_domain_helper(iterator, "domain")
 
 
-def parse_problem_domain_stmt(it):
-    return _parse_domain_helper(it, ":domain")
+def parse_problem_domain_stmt(iterator):
+    return _parse_domain_helper(iterator, ":domain")
 
 
-def parse_predicate(iter):
-    """
-    Parse a single predicate instance by parsing its name and a list of typed
-    variables defining the signature.
+def parse_predicate(iterator):
+    """Parse a predicate (its name and typed-variable signature).
+
     Returns a Predicate instance.
     """
-    name = parse_name(iter, "predicate")
-    params = parse_typed_var_list(iter)
+    name = parse_name(iterator, "predicate")
+    params = parse_typed_var_list(iterator)
     return Predicate(name, params)
 
 
-def parse_predicate_list(iter):
-    """Parses a list of predicates using the parse_list_template helper.
-
-    Returns a list containing predicates.
-    """
-    return parse_list_template(parse_predicate, iter)
+def parse_predicate_list(iterator):
+    """Parse a list of predicates and return it."""
+    return parse_list_template(parse_predicate, iterator)
 
 
-def parse_predicate_instance(iter):
+def parse_predicate_instance(iterator):
+    """Parse a predicate instance (a predicate with a possibly instantiated
+    signature) and return a PredicateInstance.
     """
-    Parses a predicate instance which is a predicate with possibly instantiated
-    signature.
-    Returns a Predicate instance.
-    """
-    name = parse_name(iter, "domain")
-    params = parse_list_template(_parse_string_helper, iter)
+    name = parse_name(iterator, "domain")
+    params = parse_list_template(_parse_string_helper, iterator)
     return PredicateInstance(name, params)
 
 
-def parse_predicate_instance_list(iter):
-    """
-    Parse a list of predicate instances using the parse_list_template helper.
-    """
-    return parse_list_template(parse_predicate_instance, iter)
+def parse_predicate_instance_list(iterator):
+    """Parse a list of predicate instances and return it."""
+    return parse_list_template(parse_predicate_instance, iterator)
 
 
-def parse_formula(iter):
-    """Parse a Formula recursively
-
-    Note: This parses formulas recursively !!
-          We do not use tail recursion
-
-    Returns the position after the formula and the Formula instance
-    """
-    if iter.is_structure():
-        # this is a nested formula
+def parse_formula(iterator):
+    """Parse a Formula recursively and return it."""
+    if iterator.is_structure():
+        # This is a nested formula.
         type = TypeFormula
-        key = iter.peek().get_word()
-        next(iter)
+        key = iterator.peek().get_word()
+        next(iterator)
         if key[0] in reserved:
             raise ValueError("Error: Formula must not start with reserved char!")
-        children = parse_list_template(parse_formula, iter)
+        children = parse_list_template(parse_formula, iterator)
     else:
-        # non nested formula
-        key = iter.get_word()
+        # This is a non-nested formula.
+        key = iterator.get_word()
         children = []
         if key[0] == "?":
-            key = parse_variable(iter)
+            key = parse_variable(iterator)
             type = TypeVariable
         else:
             type = TypeConstant
     return Formula(key, children, type)
 
 
-def _parse_precondition_or_effect(iter, keyword, type):
-    """Parse an action precondition or effect
+def _parse_precondition_or_effect(iterator, keyword, type):
+    """Parse an action precondition or effect.
 
     Returns a PreconditionStmt or EffectStmt instance.
     """
-    if not iter.try_match(keyword):
+    if not iterator.try_match(keyword):
         raise ValueError(f'Error: {type.__name__} must start with "{keyword}" keyword')
-    cond = parse_formula(next(iter))
+    cond = parse_formula(next(iterator))
     return type(cond)
 
 
-def parse_precondition_stmt(it):
-    return _parse_precondition_or_effect(it, ":precondition", PreconditionStmt)
+def parse_precondition_stmt(iterator):
+    return _parse_precondition_or_effect(iterator, ":precondition", PreconditionStmt)
 
 
-def parse_effect_stmt(it):
-    return _parse_precondition_or_effect(it, ":effect", EffectStmt)
+def parse_effect_stmt(iterator):
+    return _parse_precondition_or_effect(iterator, ":effect", EffectStmt)
 
 
-def parse_action_stmt(iter):
+def parse_action_stmt(iterator):
     """
     Parse an action definition which consists of a name, parameters a
     precondition and an effect.
@@ -616,247 +496,200 @@ def parse_action_stmt(iter):
     Returns an ActionStmt instance.
     """
     # each action begins with a name
-    if not iter.try_match(":action"):
+    if not iterator.try_match(":action"):
         raise ValueError('Error: action must start with ":action" keyword!')
-    name = parse_name(iter, "action")
+    name = parse_name(iterator, "action")
     # call parsers to parse parameters, precondition, effect
-    param = parse_parameters(iter)
-    pre = parse_precondition_stmt(iter)
-    eff = parse_effect_stmt(iter)
+    param = parse_parameters(iterator)
+    pre = parse_precondition_stmt(iterator)
+    eff = parse_effect_stmt(iterator)
     return ActionStmt(name, param, pre, eff)
 
 
-def parse_predicates_stmt(iter):
+def parse_predicates_stmt(iterator):
     """
     Parse a PredicatesStmt which is essentially a list of predicates preceded
     by the ':predicates' keyword.
 
     Returns a PredicatesStmt instance
     """
-    if not iter.try_match(":predicates"):
+    if not iterator.try_match(":predicates"):
         raise ValueError(
             'Error predicate definition must start with ":predicates" keyword!'
         )
-    preds = parse_predicate_list(iter)
+    preds = parse_predicate_list(iterator)
     return PredicatesStmt(preds)
 
 
-def parse_domain_def(iter):
-    """Main parser method to parse a domain definition.
+def parse_domain_def(iterator):
+    """Parse a complete domain definition and return a DomainDef instance.
 
     Recursively calls all parsers needed to parse a domain definition.
-    Returns a DomainDef instance
     """
-    defString = parse_name(iter, "domain def")
-    if defString != "define":
+    def_string = parse_name(iterator, "domain def")
+    if def_string != "define":
         raise ValueError(
             'Invalid domain definition! --> domain definition must start with "define"'
         )
-    dom = parse_domain_stmt(next(iter))
-    # create new DomainDef
+    dom = parse_domain_stmt(next(iterator))
     domain = DomainDef(dom.name)
-    # first parse all optional keywords
-    while not iter.empty():
-        next_iter = next(iter)
+    # First parse all optional keywords.
+    while not iterator.empty():
+        next_iter = next(iterator)
         key = parse_keyword(next_iter.peek())
         if key.name == "requirements":
-            req = parse_requirements_stmt(next_iter)
-            domain.requirements = req
+            domain.requirements = parse_requirements_stmt(next_iter)
         elif key.name == "types":
-            types = parse_types_stmt(next_iter)
-            domain.types = types
+            domain.types = parse_types_stmt(next_iter)
         elif key.name == "predicates":
-            pred = parse_predicates_stmt(next_iter)
-            domain.predicates = pred
+            domain.predicates = parse_predicates_stmt(next_iter)
         elif key.name == "constants":
-            const = parse_constants_stmt(next_iter)
-            domain.constants = const
+            domain.constants = parse_constants_stmt(next_iter)
         elif key.name == "action":
-            action = parse_action_stmt(next_iter)
-            domain.actions.append(action)
-            # from this point on only actions are allowed to follow
+            domain.actions.append(parse_action_stmt(next_iter))
+            # From this point on only actions are allowed to follow.
             break
         else:
-            raise ValueError("Found unknown keyword in domain definition: " + key.name)
-    # next parse all defined actions
-    while not iter.empty():
-        next_iter = next(iter)
+            raise ValueError(f"Found unknown keyword in domain definition: {key.name}")
+    # Then parse all remaining actions.
+    while not iterator.empty():
+        next_iter = next(iterator)
         key = parse_keyword(next_iter.peek())
         if key.name != "action":
             raise ValueError("Error: Found invalid keyword while parsing actions")
-        action = parse_action_stmt(next_iter)
-        domain.actions.append(action)
-    # assert end is reached
-    iter.match_end()
+        domain.actions.append(parse_action_stmt(next_iter))
+    iterator.match_end()
     return domain
 
 
-def parse_problem_name(iter):
-    """
-    Parse a problem name, which is a string, preceded by the ':problem'
-    keyword.
-
-    Returns the name as a string.
-    """
-    if not iter.try_match("problem"):
+def parse_problem_name(iterator):
+    """Parse a problem name (preceded by the 'problem' keyword) and return it."""
+    if not iterator.try_match("problem"):
         raise ValueError(
             "Invalid problem name specification! problem name "
             'definition must start with "problem"'
         )
-    name = parse_name(iter, "problem name")
-    return name
+    return parse_name(iterator, "problem name")
 
 
-def parse_problem_def(iter):
-    """Main method to parse a problem definition.
+def parse_problem_def(iterator):
+    """Parse a complete problem definition and return a ProblemDef instance.
 
-    All parser metthods that are needed to parse a problem are called
-    recursively by this function.
-
-    Returns a ProblemDef instance
+    Recursively calls all parsers needed to parse a problem definition.
     """
-    if not iter.try_match("define"):
+    if not iterator.try_match("define"):
         raise ValueError(
             "Invalid problem definition! --> problem definition "
             'must start with "define"'
         )
-    # parse problem name and corresponding domain name
-    probname = parse_problem_name(next(iter))
-    dom = parse_problem_domain_stmt(next(iter))
-    # parse all object definitions
-    objects = dict()
-    if iter.peek_tag() == ":objects":
-        objects = parse_objects_stmt(next(iter))
-    init = parse_init_stmt(next(iter))
-    goal = parse_goal_stmt(next(iter))
-    # assert end is reached
-    iter.match_end()
-    # create new ProblemDef instance
+    # Parse the problem name and the corresponding domain name.
+    probname = parse_problem_name(next(iterator))
+    dom = parse_problem_domain_stmt(next(iterator))
+    # Parse all object definitions.
+    objects = {}
+    if iterator.peek_tag() == ":objects":
+        objects = parse_objects_stmt(next(iterator))
+    init = parse_init_stmt(next(iterator))
+    goal = parse_goal_stmt(next(iterator))
+    iterator.match_end()
     return ProblemDef(probname, dom.name, objects, init, goal)
 
 
-def parse_init_stmt(iter):
-    """Parse the init statement of a problem definition.
+def parse_init_stmt(iterator):
+    """Parse a problem's init statement and return an InitStmt.
 
-    The InitStmt consists of a list of predicates and thus uses
-    parse_predicate_instance_list.
-
-    Returns an InitStmt instance.
+    The init statement consists of a list of predicate instances.
     """
-    if not iter.try_match(":init"):
+    if not iterator.try_match(":init"):
         raise ValueError("Error found invalid keyword when parsing InitStmt")
-    preds = parse_predicate_instance_list(iter)
+    preds = parse_predicate_instance_list(iterator)
     return InitStmt(preds)
 
 
-def parse_goal_stmt(iter):
-    """Parse the init statement of a problem definition.
+def parse_goal_stmt(iterator):
+    """Parse a problem's goal statement and return a GoalStmt.
 
-    The InitStmt consists of an arbitrary formula (STRIPS semantic will be
+    The goal statement consists of an arbitrary formula (STRIPS semantics are
     checked later by the tree visitor).
-
-    Returns an GoalStmt instance.
     """
-    if not iter.try_match(":goal"):
+    if not iterator.try_match(":goal"):
         raise ValueError("Error found invalid keyword when parsing GoalStmt")
-    f = parse_formula(next(iter))
+    f = parse_formula(next(iterator))
     return GoalStmt(f)
 
 
 class Parser:
-    """
-    This is the main Parser class that can be used from outside this module
-    to translate a given domain and problem file into the representation given
-    in pddl.py!
+    """The main entry point for translating domain and problem files.
+
+    Use this class from outside the module to turn a domain and problem file
+    into the data structures defined in pddl.py.
     """
 
-    def __init__(self, domFile, probFile=None):
-        """Constructor
-
-        Keyword arguments:
-        domFile -- the domain File
-        probFile -- the problem File or None
-        """
-        self.domFile = domFile
-        self.probFile = probFile
-        self.domInput = ""
-        self.probInput = ""
+    def __init__(self, dom_file, prob_file=None):
+        # ``dom_file``/``prob_file`` are the domain and (optional) problem files.
+        self.dom_file = dom_file
+        self.prob_file = prob_file
+        self.dom_input = ""
+        self.prob_input = ""
 
     def _read_input(self, source):
-        """Reads the lisp input from a given source and normalizes it.
-
-        Returns the LispIterator that is read from the source.
-        """
-        result = parse_lisp_iterator(source)
-        return result
+        """Read and normalize the lisp input, returning a LispIterator."""
+        return parse_lisp_iterator(source)
 
     def parse_domain(self, read_from_file=True):
-        """
-        Method that parses a domain, this method will be called from outside
-        the parser.
+        """Parse the domain and return the resulting pddl.Domain.
 
-        Keyword arguments:
-        read_from_file -- defines whether the input should be read from a file
-                          or directly from the input string
+        If ``read_from_file`` is False, the domain is read from ``self.dom_input``
+        instead of from ``self.dom_file``.
         """
         if read_from_file:
-            with open(self.domFile, encoding="utf-8") as file:
-                self.domInput = self._read_input(file)
+            with open(self.dom_file, encoding="utf-8") as file:
+                self.dom_input = self._read_input(file)
         else:
-            input = self.domInput.split("\n")
-            self.domInput = self._read_input(input)
-        domAST = parse_domain_def(self.domInput)
-        # initialize the translation visitor
+            self.dom_input = self._read_input(self.dom_input.split("\n"))
+        domain_ast = parse_domain_def(self.dom_input)
         visitor = TraversePDDLDomain()
-        # and traverse the AST
-        domAST.accept(visitor)
-        # finally return the pddl.Domain
+        domain_ast.accept(visitor)
         return visitor.domain
 
     def parse_problem(self, dom, read_from_file=True):
-        """
-        Method that parses a problem, this method will be called from outside
-        the parser.
+        """Parse the problem and return the resulting pddl.Problem.
 
-        Keyword arguments:
-        read_from_file -- defines whether the input should be read from a file
-                          or directly from the input string
+        If ``read_from_file`` is False, the problem is read from
+        ``self.prob_input`` instead of from ``self.prob_file``.
         """
         if read_from_file:
-            with open(self.probFile, encoding="utf-8") as file:
-                self.probInput = self._read_input(file)
+            with open(self.prob_file, encoding="utf-8") as file:
+                self.prob_input = self._read_input(file)
         else:
-            input = self.probInput.split("\n")
-            self.probInput = self._read_input(input)
-        probAST = parse_problem_def(self.probInput)
-        # initialize the translation visitor
+            self.prob_input = self._read_input(self.prob_input.split("\n"))
+        problem_ast = parse_problem_def(self.prob_input)
         visitor = TraversePDDLProblem(dom)
-        # and traverse the AST
-        probAST.accept(visitor)
-        # finally return the pddl.Problem
+        problem_ast.accept(visitor)
         return visitor.get_problem()
 
     def set_prob_file(self, fname):
-        self.probFile = fname
+        self.prob_file = fname
 
 
 if __name__ == "__main__":
-    # additional imports here to prevent cyclic imports!
+    import argparse
+
     argparser = argparse.ArgumentParser()
     argparser.add_argument(dest="domain", help="specify domain file")
     argparser.add_argument(dest="problem", help="specify problem file", nargs="?")
     options = argparser.parse_args()
     if options.domain is None:
-        parser.print_usage()
-        parser.error("Error domain file must be specified")
-    pddlParser = Parser(options.domain)
+        argparser.print_usage()
+        argparser.error("Error domain file must be specified")
+    pddl_parser = Parser(options.domain)
     print("-------- Starting to parse supplied domain file!")
-    domain = pddlParser.parse_domain()
+    domain = pddl_parser.parse_domain()
     print("++++++++ parsed domain file successfully")
     print(domain)
     if options.problem is not None:
         print("-------- Starting to parse supplied problem file!")
-        pddlParser.set_prob_file(options.problem)
-        problem = pddlParser.parse_problem(domain)
+        pddl_parser.set_prob_file(options.problem)
+        problem = pddl_parser.parse_problem(domain)
         print("++++++++ parsed problem file successfully")
         print(problem)

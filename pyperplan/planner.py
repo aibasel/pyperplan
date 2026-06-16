@@ -42,7 +42,7 @@ NUMBER = re.compile(r"\d+")
 
 def get_heuristics():
     """
-    Scan all python modules in the "heuristics" directory for classes ending
+    Scan all Python modules in the "heuristics" directory for classes ending
     with "Heuristic".
     """
     heuristics = []
@@ -54,13 +54,11 @@ def get_heuristics():
         name = "." + os.path.splitext(os.path.basename(filename))[0]
         module = importlib.import_module(name, package="pyperplan.heuristics")
         heuristics.extend(
-            [
-                getattr(module, cls)
-                for cls in dir(module)
-                if cls.endswith("Heuristic")
-                and cls != "Heuristic"
-                and not cls.startswith("_")
-            ]
+            getattr(module, cls)
+            for cls in dir(module)
+            if cls.endswith("Heuristic")
+            and cls != "Heuristic"
+            and not cls.startswith("_")
         )
     return heuristics
 
@@ -68,7 +66,7 @@ def get_heuristics():
 def _get_heuristic_name(cls):
     name = cls.__name__
     assert name.endswith("Heuristic")
-    return name[:-9].lower()
+    return name[: -len("Heuristic")].lower()
 
 
 HEURISTICS = {_get_heuristic_name(heur): heur for heur in get_heuristics()}
@@ -79,25 +77,23 @@ def validator_available():
 
 
 def find_domain(problem):
-    """
-    This function tries to guess a domain file from a given problem file.
-    It first uses a file called "domain.pddl" in the same directory as
-    the problem file. If the problem file's name contains digits, the first
-    group of digits is interpreted as a number and the directory is searched
-    for a file that contains both, the word "domain" and the number.
-    This is conforming to some domains where there is a special domain file
-    for each problem, e.g. the airport domain.
+    """Guess the domain file that belongs to ``problem``.
 
-    @param problem    The pathname to a problem file
-    @return A valid name of a domain
+    By default we use a file called "domain.pddl" in the same directory as the
+    problem file. If the problem file's name contains digits, the first group of
+    digits is interpreted as a number and the directory is searched for a file
+    that contains both the word "domain" and that number. This matches domains
+    where there is a separate domain file for each problem, e.g. the airport
+    domain.
+
+    ``problem`` is the path to a problem file. Returns the path to a domain file.
     """
-    dir, name = os.path.split(problem)
-    number_match = NUMBER.search(name)
-    number = number_match.group(0)
-    domain = os.path.join(dir, "domain.pddl")
-    for file in os.listdir(dir):
+    directory, name = os.path.split(problem)
+    number = NUMBER.search(name).group(0)
+    domain = os.path.join(directory, "domain.pddl")
+    for file in os.listdir(directory):
         if "domain" in file and number in file:
-            domain = os.path.join(dir, file)
+            domain = os.path.join(directory, file)
             break
     if not os.path.isfile(domain):
         logging.error(f'Domain file "{domain}" can not be found')
@@ -107,17 +103,16 @@ def find_domain(problem):
 
 
 def _parse(domain_file, problem_file):
-    # Parsing
     parser = Parser(domain_file, problem_file)
     logging.info(f"Parsing Domain {domain_file}")
     domain = parser.parse_domain()
     logging.info(f"Parsing Problem {problem_file}")
     problem = parser.parse_problem(domain)
     logging.debug(domain)
-    logging.info("{} Predicates parsed".format(len(domain.predicates)))
-    logging.info("{} Actions parsed".format(len(domain.actions)))
-    logging.info("{} Objects parsed".format(len(problem.objects)))
-    logging.info("{} Constants parsed".format(len(domain.constants)))
+    logging.info(f"{len(domain.predicates)} Predicates parsed")
+    logging.info(f"{len(domain.actions)} Actions parsed")
+    logging.info(f"{len(problem.objects)} Objects parsed")
+    logging.info(f"{len(domain.constants)} Constants parsed")
     return problem
 
 
@@ -129,8 +124,8 @@ def _ground(
         problem, remove_statics_from_initial_state, remove_irrelevant_operators
     )
     logging.info(f"Grounding end: {problem.name}")
-    logging.info("{} Variables created".format(len(task.facts)))
-    logging.info("{} Operators created".format(len(task.operators)))
+    logging.info(f"{len(task.facts)} Variables created")
+    logging.info(f"{len(task.operators)} Operators created")
     return task
 
 
@@ -157,18 +152,17 @@ def write_solution(solution, filename):
 def search_plan(
     domain_file, problem_file, search, heuristic_class, use_preferred_ops=False
 ):
-    """
-    Parses the given input files to a specific planner task and then tries to
-    find a solution using the specified  search algorithm and heuristics.
+    """Parse the input files into a planning task and search for a solution.
 
-    @param domain_file      The path to a domain file
-    @param problem_file     The path to a problem file in the domain given by
-                            domain_file
-    @param search           A callable that performs a search on the task's
-                            search space
-    @param heuristic_class  A class implementing the heuristic_base.Heuristic
-                            interface
-    @return A list of actions that solve the problem
+    domain_file: The path to a domain file.
+    problem_file: The path to a problem file in the domain given by
+        ``domain_file``.
+    search: A callable that performs a search on the task's search space.
+    heuristic_class: A class implementing the heuristic_base.Heuristic
+        interface.
+
+    Returns a list of actions that solve the problem, or None if no solution
+    exists.
     """
     overall_start_time = time.process_time()
     problem = _parse(domain_file, problem_file)
@@ -181,10 +175,8 @@ def search_plan(
         solution = _search(task, search, heuristic, use_preferred_ops=True)
     else:
         solution = _search(task, search, heuristic)
-    logging.info("Search time: {:.2f}".format(time.process_time() - search_start_time))
-    logging.info(
-        "Overall time: {:.2f}".format(time.process_time() - overall_start_time)
-    )
+    logging.info(f"Search time: {time.process_time() - search_start_time:.2f}")
+    logging.info(f"Overall time: {time.process_time() - overall_start_time:.2f}")
     return solution
 
 

@@ -19,17 +19,11 @@ from .heuristic_base import Heuristic
 
 
 class BlindHeuristic(Heuristic):
-    """
-    Implements a simple blind heuristic for convenience.
-    It returns 0 if the goal was reached and 1 otherwise.
-    """
+    """A simple blind heuristic: 0 if the goal is reached and 1 otherwise."""
 
     def __init__(self, task):
         super().__init__()
         self.goals = task.goals
 
     def __call__(self, node):
-        if all([(fact in node.state) for fact in self.goals]):
-            return 0
-        else:
-            return 1
+        return 0 if self.goals <= node.state else 1

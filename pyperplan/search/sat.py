@@ -1,45 +1,64 @@
+#
+# This file is part of pyperplan.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>
+#
+
+"""Solve a planning task by encoding it as a sequence of SAT formulas."""
+
 import logging
 from collections import defaultdict
 
 from . import minisat
 
-# Max number of steps in a plan
+# Maximum number of steps in a plan.
 HORIZON = 1000
 
 
 def _formula_str(formula, sep="&"):
-    """Returns a representation of 'formula' for prettyprinting"""
+    """Return a representation of ``formula`` for pretty-printing."""
     next_sep = "|" if sep == "&" else "&"
     items = [
         item if isinstance(item, str) else _formula_str(item, next_sep)
         for item in formula
     ]
-    return "({})".format(f" {sep} ".join(items))
+    return f"({f' {sep} '.join(items)})"
 
 
 def index_fact(fact, index, negated=False):
-    """
-    Returns a representation of 'fact' containing the step number and a
-    leading 'not-' if the fact is negated
+    """Return a representation of ``fact`` tagged with the step number.
+
+    Negated facts get a leading ``not-``.
     """
     name = str(fact)
     if negated:
         name = "not-" + name
-    return "%s-%d" % (name, index)
+    return f"{name}-{index}"
 
 
 def makes_true(operator, fact):
-    """Returns true iff 'operator' makes 'fact' true"""
+    """Return True iff ``operator`` makes ``fact`` true."""
     return fact in operator.add_effects
 
 
 def makes_false(operator, fact):
-    """Returns true iff 'operator' makes 'fact' false"""
+    """Return True iff ``operator`` makes ``fact`` false."""
     return fact in operator.del_effects
 
 
 def get_formula_for_fact(op, fact, index):
-    """Returns a formula for 'fact' in the step 'index'"""
+    """Return a formula for ``fact`` in the step ``index``."""
     if makes_true(op, fact):
         return [index_fact(fact, index + 1)]
     if not makes_false(op, fact):
@@ -49,37 +68,36 @@ def get_formula_for_fact(op, fact, index):
 
 
 def get_formula_for_operator(facts, op, index):
-    """Returns a formula for the operator 'op' in the step 'index'"""
-    precondition = list(sorted(op.preconditions))
-    formula = [index_fact(fact, index) for fact in precondition]
+    """Return a formula for the operator ``op`` in the step ``index``."""
+    formula = [index_fact(fact, index) for fact in sorted(op.preconditions)]
     for fact in facts:
         formula += get_formula_for_fact(op, fact, index)
     return formula
 
 
 def get_plan_formula(task, horizon):
-    """Returns a formula for a given task and number of steps"""
-    init_true = list(sorted(task.initial_state))
-    init_false = list(sorted(task.facts - task.initial_state))
+    """Return a formula for a given task and number of steps."""
+    init_true = sorted(task.initial_state)
+    init_false = sorted(task.facts - task.initial_state)
     pos = [index_fact(fact, 0) for fact in init_true]
     neg = [index_fact(fact, 0, negated=True) for fact in init_false]
-    formula = list(pos) + list(neg)
+    formula = pos + neg
     for length in range(horizon):
-        disjunction = []
-        for op in task.operators:
-            disjunction.append(get_formula_for_operator(task.facts, op, length))
+        disjunction = [
+            get_formula_for_operator(task.facts, op, length) for op in task.operators
+        ]
         formula.append(disjunction)
-    goal = [index_fact(fact, horizon) for fact in list(sorted(task.goals))]
+    goal = [index_fact(fact, horizon) for fact in sorted(task.goals)]
     formula.extend(goal)
     return formula
 
 
 def _extract_plan(operators, valuation):
-    """Turns a valuation into a list of operators.
+    """Turn a valuation into a list of operators.
 
-    valuation is a list of facts (e.g. ['a-0', 'not-a-1', 'a-2'])
+    ``valuation`` is a list of facts (e.g. ['a-0', 'not-a-1', 'a-2']).
     """
-    logging.debug("Length of valuation: {}".format(len(valuation)))
+    logging.debug(f"Length of valuation: {len(valuation)}")
 
     # Divide facts into positive and negative ones
     pos_facts = defaultdict(set)
@@ -115,17 +133,16 @@ def _extract_plan(operators, valuation):
 
 
 def sat_solve(task, max_steps=HORIZON):
-    """Solves a planning task with a sat-solver.
+    """Solve a planning task with a SAT solver.
 
-    Returns a list of operators or None if no valid plan could be found
-    with <= 'HORIZON' steps
+    Returns a list of operators, or None if no valid plan could be found with at
+    most ``max_steps`` steps.
     """
     logging.info(f"Maximum number of plan steps: {max_steps}")
     for horizon in range(max_steps + 1):
         logging.info(f"Horizon: {horizon}")
         valuation = minisat.solve(get_plan_formula(task, horizon))
         if valuation:
-            plan = _extract_plan(task.operators, valuation)
-            return plan
+            return _extract_plan(task.operators, valuation)
     logging.info("Try increasing the maximum number of steps")
     return None

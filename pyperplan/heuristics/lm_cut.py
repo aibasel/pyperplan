@@ -15,9 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 
-"""
-Implementation of LM-cut heuristic.
-"""
+"""Implementation of the LM-cut heuristic."""
 
 import logging
 from heapq import heappop, heappush
@@ -25,39 +23,27 @@ from heapq import heappop, heappush
 from .heuristic_base import Heuristic
 
 
-def _compare(op):
-    """General compare function for objects containing hmax values."""
-
-    def comp(self, x):
-        m = getattr(self.hmax_value, op)
-        return m(x.hmax_value)
-
-    return comp
-
-
 class RelaxedFact:
     def __init__(self, name):
         self.name = name
         self.hmax_value = float("inf")
-        self.precondition_of = list()  # list of RelaxedOp
-        self.effect_of = list()  # list of RelaxedOp
+        self.precondition_of = []  # list of RelaxedOp
+        self.effect_of = []  # list of RelaxedOp
 
-    # We want to be able to insert RelaxedFact into a heap.
-    # We thus use a general compare function here
-    # and instantiate the __lt__, __gt__ etc. class methods with this function.
-    (__lt__, __leq__, __gt__, __geq__) = map(
-        _compare, ["__lt__", "__leq__", "__gt__", "__geq__"]
-    )
+    # Order facts by their hmax value so they can be stored in a heap, which
+    # only requires __lt__.
+    def __lt__(self, other):
+        return self.hmax_value < other.hmax_value
 
     def clear(self):
         self.hmax_value = float("inf")
 
     def dump(self):
-        return "< FACT name: {}, hmax: {:f}, precond_of: {}, effect_of: {} >".format(
-            self.name,
-            self.hmax_value,
-            [str(p) for p in self.precondition_of],
-            [str(e) for e in self.effect_of],
+        precond_of = [str(p) for p in self.precondition_of]
+        effect_of = [str(e) for e in self.effect_of]
+        return (
+            f"< FACT name: {self.name}, hmax: {self.hmax_value:f}, "
+            f"precond_of: {precond_of}, effect_of: {effect_of} >"
         )
 
     def __str__(self):
@@ -69,36 +55,25 @@ class RelaxedFact:
 class RelaxedOp:
     def __init__(self, name, cost_zero=False):
         self.name = name
-        # list of RelaxedFact
-        self.precondition = list()
-        # list of RelaxedFact
-        self.effects = list()
-        # the most expensive predecessor (a RelaxedFact)
-        self.hmax_supporter = None
+        self.precondition = []  # list of RelaxedFact
+        self.effects = []  # list of RelaxedFact
+        self.hmax_supporter = None  # the most expensive predecessor (RelaxedFact)
         self.hmax_value = float("inf")
         self.cost_zero = cost_zero
-        # used to check whether an operator can be applied
+        # Used to check whether the operator can be applied.
         self.preconditions_unsat = 0
-        if self.cost_zero:
-            self.cost = 0.0
-        else:
-            self.cost = 1.0
+        self.cost = 0.0 if cost_zero else 1.0
 
-    # We want to be able to insert RelaxedOp into a heap.
-    # We thus use a general compare function for Operators here
-    # and instantiate the __lt__, __gt__ etc. class methods with this function.
-    (__lt__, __leq__, _gt__, __geq__) = map(
-        _compare, ["__lt__", "__leq__", "__gt__", "__geq__"]
-    )
+    # Order operators by their hmax value so they can be stored in a heap, which
+    # only requires __lt__.
+    def __lt__(self, other):
+        return self.hmax_value < other.hmax_value
 
     def clear(self, clear_op_cost):
-        """This method resets the operator values to its defaults.
+        """Reset the operator to its default values.
 
-        It is called during the hmax computation on each operator.
-        Effect:
-        -------
-        clears preconditions_unsat
-        sets cost to 1
+        Called during the hmax computation on each operator: clears
+        ``preconditions_unsat`` and resets the cost to 1.
         """
         self.preconditions_unsat = len(self.precondition)
         if clear_op_cost and not self.cost_zero:
@@ -107,16 +82,11 @@ class RelaxedOp:
         self.hmax_value = float("inf")
 
     def dump(self):
+        precond = [str(p) for p in self.precondition]
+        effects = [str(e) for e in self.effects]
         return (
-            "< OPERATOR name: %s, "
-            "hmax_supp: %s, precond: %s, effects: %s, cost: %d >"
-            % (
-                self.name,
-                str(self.hmax_supporter),
-                [str(p) for p in self.precondition],
-                [str(e) for e in self.effects],
-                self.cost,
-            )
+            f"< OPERATOR name: {self.name}, hmax_supp: {self.hmax_supporter}, "
+            f"precond: {precond}, effects: {effects}, cost: {self.cost} >"
         )
 
     def __str__(self):
@@ -134,15 +104,15 @@ class LmCutHeuristic(Heuristic):
     'ALWAYSTRUE', 'GOAL' and 'GOALOP' are always unique.
     """
 
-    # operators without precondition get ALWAYSTRUE as precondition
+    # Operators without preconditions get ALWAYSTRUE as their precondition.
     always_true = "ALWAYSTRUE"
-    # we use this to have a single goal instead of multiple goals
+    # We use these to model a single goal instead of multiple goals.
     explicit_goal = "GOAL"
     goal_operator_name = "GOALOP"
 
     def __init__(self, task):
-        self.relaxed_facts = dict()  # fact name -> RelaxedFact
-        self.relaxed_ops = dict()
+        self.relaxed_facts = {}  # fact name -> RelaxedFact
+        self.relaxed_ops = {}
         self.reachable = set()
         self.goal_plateau = set()
         self.dead_end = True
@@ -210,7 +180,7 @@ class LmCutHeuristic(Heuristic):
         unexpanded = []
         op_cleared = set()
         fact_cleared = set()
-        start_state = {x for x in state}
+        start_state = set(state)
         if self.always_true in self.relaxed_facts:
             start_state.add(self.always_true)
         for fact in start_state:
@@ -271,23 +241,19 @@ class LmCutHeuristic(Heuristic):
         be computed) for this to work!
         """
         unexpanded = []
-        # add all operators from the last cut
-        # to the queue of operators for which the hmax value needs to be
-        # recomouted
+        # Enqueue all operators from the last cut, whose hmax values need to be
+        # recomputed.
         for op in last_cut:
             op.hmax_value = op.hmax_supporter.hmax_value + op.cost
             heappush(unexpanded, op)
         while unexpanded:
-            # iterate over all operators whose effects might need updating
+            # Iterate over all operators whose effects might need updating.
             op = heappop(unexpanded)
             next_hmax = op.hmax_value
-            # op_seen.add(op)
             for fact_obj in op.effects:
-                # if hmax value of this fact is outdated
+                # Update the fact's hmax value if it is outdated.
                 fact_hmax = fact_obj.hmax_value
                 if fact_hmax > next_hmax:
-                    # update hmax value
-                    # logging.debug('updating %s' % fact_obj)
                     fact_obj.hmax_value = next_hmax
                     # enqueue all ops of which fact_obj is a hmax supporter
                     for next_op in fact_obj.precondition_of:
@@ -321,7 +287,7 @@ class LmCutHeuristic(Heuristic):
         op_cleared = set()
         cut = set()
 
-        start_state = {x for x in state}
+        start_state = set(state)
         if self.always_true in self.relaxed_facts:
             start_state.add(self.always_true)
         for fact in start_state:
@@ -353,30 +319,26 @@ class LmCutHeuristic(Heuristic):
         state = node.state
         heuristic_value = 0.0
         goal_state = self.relaxed_facts[self.explicit_goal]
-        # reset dead end flag
-        # --> asume node to be a dead end unless proven otherwise by the hmax
-        # computation
+        # Assume the node is a dead end unless the hmax computation proves
+        # otherwise.
         self.dead_end = True
-        # next find all cuts
-        # first compute hmax starting from the current state
+        # Compute hmax starting from the current state.
         self.compute_hmax(state, True)
         if goal_state.hmax_value == float("inf"):
             return float("inf")
         while goal_state.hmax_value != 0:
-            # next find an appropriate cut
-            # first calculate the goal plateau
+            # Find an appropriate cut: first compute the goal plateau, then the
+            # cut itself.
             self.goal_plateau.clear()
             self.compute_goal_plateau(self.explicit_goal)
-            # then find the cut itself
             cut = self.find_cut(state)
-            # finally update heuristic value
-            min_cost = min([o.cost for o in cut])
-            # logging.debug("compute cut done")
+            # Update the heuristic value and reduce the cut operators' costs.
+            min_cost = min(o.cost for o in cut)
             heuristic_value += min_cost
             for o in cut:
                 o.cost -= min_cost
                 logging.debug(repr(o))
-            # compute next hmax
+            # Compute the next hmax starting from the cut.
             self.compute_hmax_from_last_cut(state, cut)
         if self.dead_end:
             return float("inf")

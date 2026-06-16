@@ -77,8 +77,8 @@ def gen_heuristic_test(
     dom, prob, search_class, heuristic_class, h_values_plan, plan_length=None
 ):
     parser = Parser("")
-    parser.domInput = dom
-    parser.probInput = prob
+    parser.dom_input = dom
+    parser.prob_input = prob
 
     domain = parser.parse_domain(False)
     problem = parser.parse_problem(domain, False)
