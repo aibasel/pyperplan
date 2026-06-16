@@ -1,6 +1,7 @@
 # 2.2 (unreleased)
 
-* Raise minimum Python version to 3.7 and maximum Python version to 3.13 (#28).
+* Support Python 3.10 to 3.14 and PyPy. Raise the minimum Python version to 3.10.
+* Add a `dev` dependency group and run continuous integration tests with uv.
 
 
 # 2.1 (2022-01-17)

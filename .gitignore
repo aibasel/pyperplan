@@ -6,6 +6,7 @@ input.cnf
 output.txt
 uv.lock
 .tox/
+.venv/
 build/
 dist/
 pyperplan.egg-info/
