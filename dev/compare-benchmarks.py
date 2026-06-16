@@ -1,16 +1,16 @@
 #! /usr/bin/env python3
 """Compare two benchmark result files and plot relative runtimes.
 
-Reads two JSON files produced by ``benchmark_grounding.py`` or
-``benchmark_search.py`` (an "old" and a "new" revision) and, for the tasks that
+Reads two JSON files produced by ``benchmark-grounding.py`` or
+``benchmark-search.py`` (an "old" and a "new" revision) and, for the tasks that
 both revisions completed successfully, prints a runtime summary and writes a
 log-log scatter plot of old vs. new runtime. Points below the diagonal were
 faster on the new revision.
 
 Examples:
-    dev/compare_benchmarks.py grounding-base.json grounding-new.json \
+    dev/compare-benchmarks.py grounding-base.json grounding-new.json \
         --out grounding.png --title "Grounding time"
-    dev/compare_benchmarks.py search-base.json search-new.json \
+    dev/compare-benchmarks.py search-base.json search-new.json \
         --out search.png --title "Search time" --success solved
 """
 

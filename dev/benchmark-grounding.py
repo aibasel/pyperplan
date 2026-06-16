@@ -4,15 +4,15 @@
 Each task is grounded in a separate subprocess so that a per-task timeout can
 be enforced (grounding a large task can take a long time or a lot of memory).
 The results are written as JSON so that two revisions can be compared with
-``compare_benchmarks.py``.
+``compare-benchmarks.py``.
 
 The ``--src`` option selects which pyperplan source tree to benchmark; it is put
 on ``PYTHONPATH`` for the worker subprocesses, so the script itself can live
 outside the revision under test.
 
 Examples:
-    dev/benchmark_grounding.py --out grounding-new.json
-    dev/benchmark_grounding.py --src /tmp/pyperplan-base --out grounding-base.json
+    dev/benchmark-grounding.py --out grounding-new.json
+    dev/benchmark-grounding.py --src /tmp/pyperplan-base --out grounding-base.json
 """
 
 import argparse

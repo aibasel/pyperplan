@@ -4,7 +4,7 @@
 For each configuration and task, ``python -m pyperplan`` is invoked as a
 subprocess with a per-run timeout, and the planner's reported "Overall time" is
 recorded. The results are written as JSON so that two revisions can be compared
-with ``compare_benchmarks.py``.
+with ``compare-benchmarks.py``.
 
 The configurations below cover every search algorithm and every heuristic at
 least once. By default the first task of each benchmark domain is used; pass
@@ -14,8 +14,8 @@ The ``--src`` option selects which pyperplan source tree to benchmark; it is put
 on ``PYTHONPATH`` for the subprocesses.
 
 Examples:
-    dev/benchmark_search.py --out search-new.json
-    dev/benchmark_search.py --src /tmp/pyperplan-base --out search-base.json
+    dev/benchmark-search.py --out search-new.json
+    dev/benchmark-search.py --src /tmp/pyperplan-base --out search-base.json
 """
 
 import argparse
