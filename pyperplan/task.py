@@ -17,6 +17,8 @@
 
 """Classes for representing a STRIPS planning task."""
 
+from pyperplan.successor_generator import SuccessorGenerator
+
 
 class Operator:
     """An action that transforms one state into another.
@@ -93,6 +95,14 @@ class Task:
         self.initial_state = initial_state
         self.goals = goals
         self.operators = operators
+        # The successor generator is set via ``set_successor_generator`` or built
+        # lazily on the first successor query, because not every consumer of a
+        # task searches (e.g. heuristics only read ``operators``).
+        self._successor_generator = None
+
+    def set_successor_generator(self, successor_generator):
+        """Use ``successor_generator`` to answer successor queries."""
+        self._successor_generator = successor_generator
 
     def goal_reached(self, state):
         """Return whether ``state`` satisfies all of the task's goals.
@@ -106,9 +116,15 @@ class Task:
         """Return the ``(operator, successor_state)`` pairs reachable from ``state``.
 
         Each pair consists of an operator applicable in ``state`` and the state
-        that results from applying it.
+        that results from applying it. A successor generator finds the applicable
+        operators without testing every operator individually.
         """
-        return [(op, op.apply(state)) for op in self.operators if op.applicable(state)]
+        if self._successor_generator is None:
+            self._successor_generator = SuccessorGenerator(self.operators)
+        return [
+            (op, op.apply(state))
+            for op in self._successor_generator.get_applicable_operators(state)
+        ]
 
     def __str__(self):
         operators = "\n".join(map(repr, self.operators))

@@ -25,6 +25,7 @@ import time
 
 from . import grounding, heuristics, search, tools
 from .pddl.parser import Parser
+from .successor_generator import create_successor_generator
 
 SEARCHES = {
     "astar": search.astar_search,
@@ -150,7 +151,12 @@ def write_solution(solution, filename):
 
 
 def search_plan(
-    domain_file, problem_file, search, heuristic_class, use_preferred_ops=False
+    domain_file,
+    problem_file,
+    search,
+    heuristic_class,
+    use_preferred_ops=False,
+    successor_generator="tree",
 ):
     """Parse the input files into a planning task and search for a solution.
 
@@ -160,6 +166,8 @@ def search_plan(
     search: A callable that performs a search on the task's search space.
     heuristic_class: A class implementing the heuristic_base.Heuristic
         interface.
+    successor_generator: The kind of successor generator to use ("tree" or
+        "naive").
 
     Returns a list of actions that solve the problem, or None if no solution
     exists.
@@ -167,6 +175,9 @@ def search_plan(
     overall_start_time = time.process_time()
     problem = _parse(domain_file, problem_file)
     task = _ground(problem)
+    task.set_successor_generator(
+        create_successor_generator(successor_generator, task.operators)
+    )
     heuristic = None
     if heuristic_class is not None:
         heuristic = heuristic_class(task)

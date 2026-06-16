@@ -33,6 +33,7 @@ from pyperplan.planner import (
     validate_solution,
     write_solution,
 )
+from pyperplan.successor_generator import SUCCESSOR_GENERATORS
 
 
 def main():
@@ -67,6 +68,12 @@ def main():
         choices=SEARCHES.keys(),
         help=f"Select a search algorithm from {search_names}",
         default="bfs",
+    )
+    argparser.add_argument(
+        "--successor-generator",
+        choices=SUCCESSOR_GENERATORS.keys(),
+        help="Select how applicable operators are found",
+        default="tree",
     )
     args = argparser.parse_args()
 
@@ -107,6 +114,7 @@ def main():
         search,
         heuristic,
         use_preferred_ops=use_preferred_ops,
+        successor_generator=args.successor_generator,
     )
 
     if solution is None:
