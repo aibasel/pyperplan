@@ -31,6 +31,21 @@ the path from the root sit in a node's ``immediate`` list.
 """
 
 
+class NaiveSuccessorGenerator:
+    """Find applicable operators by testing every operator in turn.
+
+    This is the straightforward baseline: applicability is checked for each
+    operator, so a query costs time proportional to the number of operators.
+    """
+
+    def __init__(self, operators):
+        self._operators = list(operators)
+
+    def get_applicable_operators(self, state):
+        """Return the operators applicable in ``state``, in their original order."""
+        return [op for op in self._operators if op.applicable(state)]
+
+
 class _Node:
     """A node in the successor-generator decision tree.
 
@@ -119,3 +134,14 @@ class SuccessorGenerator:
                     stack.append(node.match_child)
         found.sort(key=lambda pair: pair[0])
         return [op for _, op in found]
+
+
+SUCCESSOR_GENERATORS = {
+    "naive": NaiveSuccessorGenerator,
+    "tree": SuccessorGenerator,
+}
+
+
+def create_successor_generator(name, operators):
+    """Return a successor generator of the given kind for ``operators``."""
+    return SUCCESSOR_GENERATORS[name](operators)

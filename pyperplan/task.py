@@ -95,9 +95,14 @@ class Task:
         self.initial_state = initial_state
         self.goals = goals
         self.operators = operators
-        # Built lazily on the first successor query because not every consumer of
-        # a task searches (e.g. heuristics only read ``operators``).
+        # The successor generator is set via ``set_successor_generator`` or built
+        # lazily on the first successor query, because not every consumer of a
+        # task searches (e.g. heuristics only read ``operators``).
         self._successor_generator = None
+
+    def set_successor_generator(self, successor_generator):
+        """Use ``successor_generator`` to answer successor queries."""
+        self._successor_generator = successor_generator
 
     def goal_reached(self, state):
         """Return whether ``state`` satisfies all of the task's goals.

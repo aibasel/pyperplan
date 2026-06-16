@@ -58,10 +58,12 @@ def collect_tasks(benchmarks, per_domain):
     return tasks
 
 
-def run_config(search, heuristic, problem, env, timeout):
+def run_config(search, heuristic, problem, env, timeout, successor_generator):
     cmd = [sys.executable, "-m", "pyperplan", "-s", search]
     if heuristic is not None:
         cmd += ["-H", heuristic]
+    if successor_generator is not None:
+        cmd += ["--successor-generator", successor_generator]
     cmd.append(problem)  # The domain is guessed by pyperplan.
     try:
         proc = subprocess.run(
@@ -83,7 +85,7 @@ def run_config(search, heuristic, problem, env, timeout):
     return {"status": "error", "time": None}
 
 
-def benchmark(src, benchmarks, per_domain, timeout):
+def benchmark(src, benchmarks, per_domain, timeout, successor_generator):
     env = dict(os.environ, PYTHONPATH=src)
     tasks = collect_tasks(benchmarks, per_domain)
     results = {}
@@ -92,7 +94,9 @@ def benchmark(src, benchmarks, per_domain, timeout):
         config = f"{search}+{heuristic or 'none'}"
         rel = os.path.relpath(problem, benchmarks)
         key = f"{config} | {rel}"
-        result = run_config(search, heuristic, problem, env, timeout)
+        result = run_config(
+            search, heuristic, problem, env, timeout, successor_generator
+        )
         results[key] = result
         time = f"{result['time']:.3f}s" if result["time"] is not None else "-"
         print(f"[{i}/{len(runs)}] {key}: {result['status']} {time}")
@@ -124,18 +128,30 @@ def main():
         default=60.0,
         help="per-run timeout in seconds (default: 60)",
     )
+    parser.add_argument(
+        "--successor-generator",
+        choices=["naive", "tree"],
+        help="successor generator to pass to pyperplan (default: planner default)",
+    )
     parser.add_argument("--out", help="write the results to this JSON file")
     args = parser.parse_args()
 
     src = os.path.abspath(args.src)
     benchmarks = args.benchmarks or os.path.join(src, "benchmarks")
-    results = benchmark(src, benchmarks, args.tasks_per_domain, args.timeout)
+    results = benchmark(
+        src,
+        benchmarks,
+        args.tasks_per_domain,
+        args.timeout,
+        args.successor_generator,
+    )
 
     if args.out:
         payload = {
             "src": src,
             "timeout": args.timeout,
             "tasks_per_domain": args.tasks_per_domain,
+            "successor_generator": args.successor_generator,
             "results": results,
         }
         with open(args.out, "w") as f:

@@ -4,7 +4,13 @@ Tests for the successor_generator.py module
 
 import random
 
-from pyperplan.successor_generator import SuccessorGenerator
+import pytest
+
+from pyperplan.successor_generator import (
+    NaiveSuccessorGenerator,
+    SuccessorGenerator,
+    create_successor_generator,
+)
 from pyperplan.task import Operator
 
 
@@ -20,23 +26,32 @@ op4 = Operator("op4", set(), {"a"}, set())  # always applicable
 operators = [op1, op2, op3, op4]
 
 
-def test_no_operators():
-    gen = SuccessorGenerator([])
+# Run the behavioral tests against both successor generators.
+@pytest.fixture(params=["naive", "tree"])
+def make_generator(request):
+    def factory(ops):
+        return create_successor_generator(request.param, ops)
+
+    return factory
+
+
+def test_no_operators(make_generator):
+    gen = make_generator([])
     assert gen.get_applicable_operators(frozenset()) == []
 
 
-def test_operator_without_preconditions_always_applies():
-    gen = SuccessorGenerator(operators)
+def test_operator_without_preconditions_always_applies(make_generator):
+    gen = make_generator(operators)
     assert gen.get_applicable_operators(frozenset()) == [op4]
 
 
-def test_single_precondition():
-    gen = SuccessorGenerator(operators)
+def test_single_precondition(make_generator):
+    gen = make_generator(operators)
     assert gen.get_applicable_operators(frozenset(["a"])) == [op1, op4]
 
 
-def test_multiple_preconditions():
-    gen = SuccessorGenerator(operators)
+def test_multiple_preconditions(make_generator):
+    gen = make_generator(operators)
     assert gen.get_applicable_operators(frozenset(["a", "b"])) == [
         op1,
         op2,
@@ -45,19 +60,24 @@ def test_multiple_preconditions():
     ]
 
 
-def test_preserves_operator_order():
-    gen = SuccessorGenerator(operators)
+def test_preserves_operator_order(make_generator):
+    gen = make_generator(operators)
     assert gen.get_applicable_operators(frozenset(["b"])) == [op3, op4]
 
 
-def test_matches_naive_scan_on_random_tasks():
+def test_factory_returns_requested_kind():
+    assert isinstance(create_successor_generator("naive", []), NaiveSuccessorGenerator)
+    assert isinstance(create_successor_generator("tree", []), SuccessorGenerator)
+
+
+def test_generators_match_on_random_tasks(make_generator):
     rng = random.Random(2026)
     facts = [f"f{i}" for i in range(12)]
     random_operators = []
     for i in range(60):
         preconditions = rng.sample(facts, rng.randint(0, 4))
         random_operators.append(Operator(f"op{i}", preconditions, {"f0"}, set()))
-    gen = SuccessorGenerator(random_operators)
+    gen = make_generator(random_operators)
     for _ in range(200):
         state = frozenset(rng.sample(facts, rng.randint(0, len(facts))))
         assert gen.get_applicable_operators(state) == reference_applicable(
