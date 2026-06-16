@@ -313,12 +313,7 @@ def _ground_atom(atom, assignment):
     Return a string with the grounded representation of "atom" with respect
     to "assignment".
     """
-    names = []
-    for name, types in atom.signature:
-        if name in assignment:
-            names.append(assignment[name])
-        else:
-            names.append(name)
+    names = [assignment.get(name, name) for name, _ in atom.signature]
     return _get_grounded_string(atom.name, names)
 
 
@@ -329,7 +324,7 @@ def _ground_atoms(atoms, assignment):
 
 def _get_fact(atom):
     """Return the string representation of the grounded atom."""
-    args = [name for name, types in atom.signature]
+    args = [name for name, _ in atom.signature]
     return _get_grounded_string(atom.name, args)
 
 

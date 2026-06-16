@@ -135,20 +135,24 @@ def astar_search(
                     else:
                         logging.debug(f"keeping operator {op.name}")
 
+                # Only consider this successor if it reaches succ_state more
+                # cheaply than any path seen so far. The heuristic is expensive,
+                # so we avoid computing it for successors we would not enqueue.
+                succ_g = pop_node.g + 1
+                if succ_g >= state_cost.get(succ_state, float("inf")):
+                    continue
                 succ_node = searchspace.make_child_node(pop_node, op, succ_state)
                 h = heuristic(succ_node)
                 if h == float("inf"):
                     # Don't bother with states that can't reach the goal anyway.
                     continue
-                old_succ_g = state_cost.get(succ_state, float("inf"))
-                if succ_node.g < old_succ_g:
-                    # We either never saw succ_state before, or we found a
-                    # cheaper path to succ_state than previously.
-                    node_tiebreaker += 1
-                    heapq.heappush(
-                        open_list, make_open_entry(succ_node, h, node_tiebreaker)
-                    )
-                    state_cost[succ_state] = succ_node.g
+                # We either never saw succ_state before, or we found a cheaper
+                # path to succ_state than previously.
+                node_tiebreaker += 1
+                heapq.heappush(
+                    open_list, make_open_entry(succ_node, h, node_tiebreaker)
+                )
+                state_cost[succ_state] = succ_g
 
         counter += 1
     logging.info("No operators left. Task unsolvable.")
