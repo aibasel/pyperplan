@@ -102,7 +102,10 @@ class Domain:
             f"Actions: {actions} Constants: {constants} >"
         )
 
-    __str__ = __repr__
+    # Defined as a method (rather than ``__str__ = __repr__``) so the class can
+    # be compiled with mypyc, which does not expose dunders via ``__dict__``.
+    def __str__(self):
+        return self.__repr__()
 
 
 class Problem:
@@ -129,4 +132,5 @@ class Problem:
             f"Goal State : {goal} >"
         )
 
-    __str__ = __repr__
+    def __str__(self):
+        return self.__repr__()

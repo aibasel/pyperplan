@@ -166,6 +166,46 @@ and run `tox` (preferably in a virtual environment).
     pip install tox
     tox
 
+# Benchmarking
+
+The `dev/` directory contains scripts for measuring planner performance:
+
+  * `dev/benchmark-grounding.py` times grounding for every benchmark task.
+  * `dev/benchmark-search.py` times a representative set of search and
+    heuristic configurations.
+  * `dev/compare-benchmarks.py` compares two result files (e.g. before and
+    after a change) and plots their relative runtimes.
+
+Each benchmark script takes a `--src` option naming the pyperplan source tree
+to measure, so two revisions can be compared directly. For example:
+
+    dev/benchmark-search.py --src . --out search-base.json
+    dev/benchmark-search.py --src /tmp/pyperplan-feature --out search-new.json
+    dev/compare-benchmarks.py search-base.json search-new.json --success solved
+
+# Compiling with mypyc (experimental)
+
+Pyperplan deliberately favors clean code over fast code, so the package ships
+as pure Python. For experiments, the modules can be compiled to C extensions
+with [mypyc](https://mypyc.readthedocs.io/), which can speed up grounding and
+search without changing the source. `dev/build-mypyc.py` produces a compiled
+copy of the package that the benchmark scripts can measure via `--src`:
+
+    # Build the compiled tree (uses uv to provide mypy and a compiler).
+    dev/build-mypyc.py --dest build/mypyc
+
+    # Compare pure-Python and compiled search runtimes with one interpreter.
+    dev/benchmark-search.py --src . --out search-python.json
+    dev/benchmark-search.py --src build/mypyc --out search-mypyc.json
+    dev/compare-benchmarks.py search-python.json search-mypyc.json \
+        --success solved --title "Search time: Python vs mypyc"
+
+The compiled modules are ordinary C extensions and need neither mypy nor a
+compiler at runtime, so both benchmark runs use the same interpreter and differ
+only in `--src`. Compilation does not change which plans the optimal searches
+(such as A\*) return; the greedy searches remain order-sensitive and may return
+different valid plans, exactly as in the interpreted version.
+
 # Plan validation
 
 If the plan validation tool VAL is found on the system `PATH` under the

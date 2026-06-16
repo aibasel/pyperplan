@@ -1,6 +1,10 @@
 *~
 *.py[cod]
+*.so
 *.soln
+# Benchmark result files written by dev/benchmark-*.py.
+*-python.json
+*-mypyc.json
 # Temporary files written by the SAT planner (see search/minisat.py).
 input.cnf
 output.txt
