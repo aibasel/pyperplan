@@ -69,7 +69,7 @@ def _choose_fact(items):
     many operators as possible into the ``match_child`` at every step.
     """
     counts = {}
-    for _, _, preconditions in items:
+    for _, preconditions in items:
         for fact in preconditions:
             counts[fact] = counts.get(fact, 0) + 1
     return max(counts, key=counts.get)
@@ -79,42 +79,39 @@ class SuccessorGenerator:
     """Index a set of operators for fast applicability queries."""
 
     def __init__(self, operators):
-        # Pair every operator with its original index so that we can return
-        # applicable operators in their original order, matching the behavior of
-        # a plain linear scan over ``operators``.
-        items = [(index, op, op.preconditions) for index, op in enumerate(operators)]
+        items = [(op, op.preconditions) for op in operators]
         self._root = self._build(items)
 
     @staticmethod
     def _build(items):
         """Build the decision tree for ``items`` iteratively.
 
-        ``items`` is a list of ``(index, operator, remaining_preconditions)``
-        triples, where ``remaining_preconditions`` are the preconditions not yet
-        tested on the path to the current node. An explicit work stack is used
-        instead of recursion so that deep trees cannot exhaust the call stack.
+        ``items`` is a list of ``(operator, remaining_preconditions)`` pairs,
+        where ``remaining_preconditions`` are the preconditions not yet tested on
+        the path to the current node. An explicit work stack is used instead of
+        recursion so that deep trees cannot exhaust the call stack.
         """
         root = _Node()
         stack = [(root, items)]
         while stack:
             node, node_items = stack.pop()
             remaining = []
-            for index, op, preconditions in node_items:
+            for op, preconditions in node_items:
                 if preconditions:
-                    remaining.append((index, op, preconditions))
+                    remaining.append((op, preconditions))
                 else:
-                    node.immediate.append((index, op))
+                    node.immediate.append(op)
             if not remaining:
                 continue  # Leaf: all operators here are unconditionally applicable.
             fact = _choose_fact(remaining)
             node.fact = fact
             match_items = []
             no_match_items = []
-            for index, op, preconditions in remaining:
+            for op, preconditions in remaining:
                 if fact in preconditions:
-                    match_items.append((index, op, preconditions - {fact}))
+                    match_items.append((op, preconditions - {fact}))
                 else:
-                    no_match_items.append((index, op, preconditions))
+                    no_match_items.append((op, preconditions))
             node.match_child = _Node()
             node.no_match_child = _Node()
             stack.append((node.match_child, match_items))
@@ -122,7 +119,12 @@ class SuccessorGenerator:
         return root
 
     def get_applicable_operators(self, state):
-        """Return the operators applicable in ``state``, in their original order."""
+        """Return the operators applicable in ``state``.
+
+        The operators come out in the tree's traversal order, which is
+        deterministic but generally differs from the order in which they were
+        passed in (use ``NaiveSuccessorGenerator`` to preserve that order).
+        """
         found = []
         stack = [self._root]
         while stack:
@@ -140,8 +142,7 @@ class SuccessorGenerator:
                 if fact in state:
                     stack.append(node.match_child)
                 node = node.no_match_child
-        found.sort(key=lambda pair: pair[0])
-        return [op for _, op in found]
+        return found
 
 
 SUCCESSOR_GENERATORS = {
