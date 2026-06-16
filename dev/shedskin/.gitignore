@@ -1,0 +1,7 @@
+# Build artifacts and generated files from Shed Skin / CMake.
+/build/
+/CMakeLists.txt
+# Benchmark outputs and serialized tasks.
+*.json
+*.png
+*-task.txt
